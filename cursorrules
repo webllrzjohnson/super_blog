@@ -1,0 +1,318 @@
+# ============================================================
+# CURSOR RULES — Master Chief's Stack
+# Next.js · Tailwind · Supabase · Vercel · TypeScript
+# shadcn/ui · Vercel AI SDK · Resend · Stripe
+# ============================================================
+# Every suggestion, edit, and generation must respect these rules.
+# Do not deviate from this stack unless explicitly instructed.
+
+# ─────────────────────────────────────────
+# 1. CORE STACK — NEVER SUGGEST ALTERNATIVES
+# ─────────────────────────────────────────
+- Framework:        Next.js (App Router) with TypeScript
+- Styling:          Tailwind CSS only
+- UI Components:    shadcn/ui — always prefer existing primitives before building custom
+- Database + Auth:  Supabase (Postgres + Supabase Auth)
+- Deployment:       Vercel
+- Language:         TypeScript everywhere — never plain JavaScript
+- AI/LLM:           Vercel AI SDK + Anthropic (claude-sonnet-4-20250514)
+- Forms:            react-hook-form + Zod
+- Icons:            lucide-react only
+- Animations:       framer-motion only
+- Toasts:           sonner only
+- Dates:            date-fns only
+- Email:            Resend only
+- Payments:         Stripe only
+- i18n:             next-intl only
+- URL State:        nuqs only
+- Analytics:        Vercel Analytics + PostHog
+- Error Tracking:   Sentry
+
+# ─────────────────────────────────────────
+# 2. DO NOT SUGGEST — EVER
+# ─────────────────────────────────────────
+- Redux, Zustand, Jotai (use React state + Server Components)
+- Axios (use native fetch)
+- Prisma, Drizzle, Mongoose (use Supabase client directly)
+- Express or standalone Node servers (use Next.js API routes)
+- Class components (functional only)
+- styled-components, Emotion, CSS modules (use Tailwind)
+- NextAuth, Clerk, Auth0 (use Supabase Auth)
+- Firebase, PlanetScale (use Supabase)
+- Nodemailer, SendGrid, Mailgun (use Resend)
+- Any UI library other than shadcn/ui unless explicitly asked
+- Pages Router (App Router only)
+- Plain JavaScript files (TypeScript only)
+
+# ─────────────────────────────────────────
+# 3. MIDDLEWARE & ROUTE PROTECTION
+# ─────────────────────────────────────────
+- Always use middleware.ts in the project root for auth route protection
+- Use Supabase server client inside middleware to check session
+- Define a matcher config — never run middleware on static assets or _next
+- Protected routes redirect unauthenticated users to /login
+- Public routes (landing, pricing, auth pages) must be explicitly whitelisted
+- Never check auth inside individual page components — middleware handles this
+
+# ─────────────────────────────────────────
+# 4. URL STATE — NUQS
+# ─────────────────────────────────────────
+- Use nuqs for all URL search param state — filters, pagination, search, tabs
+- Never use useState for values that should be shareable or bookmarkable
+- Always use parseAsInteger, parseAsString etc. for typed param parsing
+- Combine with Server Components — pass searchParams from page.tsx down to components
+- URL state is the source of truth for: search queries, active filters, current page, sort order
+
+# ─────────────────────────────────────────
+# 5. TOKEN EFFICIENCY
+# ─────────────────────────────────────────
+- Never explain code changes unless explicitly asked
+- Make surgical edits only — never rewrite an entire file for a small change
+- Only comment non-obvious logic — skip self-evident comments
+- Never justify stack choices mid-response
+- Never touch code outside the scope of the request
+- Skip preamble — go straight to the change
+
+# ─────────────────────────────────────────
+# 6. TYPESCRIPT
+# ─────────────────────────────────────────
+- Never use `any` — always define proper types or interfaces
+- Use `type` for simple shapes, `interface` for component props
+- Assume `"strict": true` in tsconfig
+- Always type Supabase responses using generated DB types from `@/types/supabase`
+- Let TypeScript infer where it safely can — don't over-annotate obvious types
+- Always use path aliases — @/components, @/lib, @/types — never relative paths like ../../../
+
+# ─────────────────────────────────────────
+# 7. NEXT.JS APP ROUTER
+# ─────────────────────────────────────────
+- Always use the App Router (app/) — never the Pages Router
+- Default to React Server Components (RSC)
+- Add `"use client"` only when needed: useState, useEffect, event handlers, browser APIs
+- Fetch data in Server Components — never useEffect for data fetching
+- API routes live in app/api/[route]/route.ts using Web Request/Response API
+- Use next/link for internal navigation, next/image for all images
+- Use loading.tsx and error.tsx for loading and error states
+- Public env vars: NEXT_PUBLIC_ prefix; secret vars: no prefix, server only
+- Use Next.js Metadata API for all SEO — every page exports a metadata object
+- Lazy load heavy components with dynamic() to keep client bundles lean
+
+# ─────────────────────────────────────────
+# 8. TAILWIND CSS
+# ─────────────────────────────────────────
+- Tailwind utility classes for ALL styling — no custom CSS unless unavoidable
+- Use cn() (clsx + tailwind-merge) for all conditional class merging
+- Mobile-first responsive design: base → sm → md → lg → xl
+- Dark mode via Tailwind dark: variant only
+- Stick to Tailwind's spacing scale (4, 8, 12, 16, 24, 32...) — no arbitrary values like p-[13px]
+- No hardcoded color hex values — use Tailwind's palette or shadcn CSS variables
+- Text truncation: always use line-clamp-2 or line-clamp-3 on card headlines
+
+# ─────────────────────────────────────────
+# 9. SUPABASE
+# ─────────────────────────────────────────
+- Server Components + API routes: use Supabase server client
+- Client Components: use Supabase browser client
+- Always destructure responses as { data, error } and handle both
+- Row Level Security (RLS) always enabled — never disable it
+- Use Supabase Storage for all file uploads — no local storage
+- Full-text search via Supabase — always debounce inputs, show skeleton results
+- Env vars: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY (server only)
+
+# ─────────────────────────────────────────
+# 10. AI — VERCEL AI SDK + ANTHROPIC
+# ─────────────────────────────────────────
+- Always call AI from API routes — never from the client directly
+- Use Vercel AI SDK's streamText for all streaming responses
+- Default model: claude-sonnet-4-20250514
+- Always set max_tokens — never leave it unbounded
+- Store ANTHROPIC_API_KEY in .env.local — never hardcode or expose it
+- Rate limit every AI route to protect against abuse and runaway costs
+
+# ─────────────────────────────────────────
+# 11. RESEND (EMAIL)
+# ─────────────────────────────────────────
+- All transactional emails go through Resend — no Nodemailer or SMTP
+- Email sending always happens server-side in API routes only
+- Use React Email templates for all email HTML — no raw HTML strings
+- Always handle Resend errors gracefully — never let a failed email crash a flow
+- Store RESEND_API_KEY in .env.local — never expose to client
+- Always send from a verified domain — never from a generic address
+
+# ─────────────────────────────────────────
+# 12. STRIPE (PAYMENTS)
+# ─────────────────────────────────────────
+- All Stripe logic lives server-side — never trust client-side payment status
+- Use Stripe webhooks to confirm payment success — never rely on redirect params
+- Always verify webhook signatures using STRIPE_WEBHOOK_SECRET
+- Store STRIPE_SECRET_KEY server-side only; NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY for client
+- Use Stripe Checkout or Payment Element — never build a custom card form
+- Always handle idempotency — use Stripe idempotency keys for retries
+- Update Supabase records only after confirmed webhook events — never before
+
+# ─────────────────────────────────────────
+# 13. FORMS — ZOD + REACT-HOOK-FORM
+# ─────────────────────────────────────────
+- Every form uses react-hook-form + zodResolver — no exceptions
+- Define Zod schema first, infer the TypeScript type from it
+- Always validate on both client (UX) and server (security) — never trust client alone
+- Show inline field-level errors using shadcn FormMessage — no alert() or console errors
+- Disable submit button while isSubmitting is true
+
+# ─────────────────────────────────────────
+# 14. PROJECT STRUCTURE
+# ─────────────────────────────────────────
+# app/                  → All routes and pages (App Router)
+# app/api/              → API route handlers
+# components/           → Reusable UI components
+# components/ui/        → shadcn/ui primitives (never modify directly)
+# lib/                  → Utility functions, helpers, constants
+# lib/supabase/         → server.ts and client.ts Supabase clients
+# lib/stripe/           → Stripe client setup
+# lib/resend/           → Resend client and email templates
+# types/                → Global TypeScript types
+# types/supabase.ts     → Generated Supabase DB types
+# public/               → Static assets only
+# e2e/                  → Playwright end-to-end tests
+
+# ─────────────────────────────────────────
+# 15. NAMING CONVENTIONS
+# ─────────────────────────────────────────
+- Components:         PascalCase (UserCard.tsx)
+- Files/folders:      kebab-case (user-card.tsx, user-profile/)
+- Functions/vars:     camelCase (getUserById)
+- Constants:          SCREAMING_SNAKE_CASE (MAX_FILE_SIZE)
+- Types/Interfaces:   PascalCase (UserProfile, ApiResponse)
+- API routes:         kebab-case folders (app/api/send-email/route.ts)
+- Zod schemas:        camelCase with Schema suffix (userFormSchema)
+
+# ─────────────────────────────────────────
+# 16. CODE QUALITY
+# ─────────────────────────────────────────
+- Keep components under ~100 lines — split if larger
+- Prefer async/await over .then() chains
+- Use early returns to avoid nesting
+- Write descriptive variable names — no single-letter vars outside loops
+- Import order: external libs → internal modules → components → types
+- Git commits: conventional format — feat:, fix:, chore:, refactor:, docs:
+
+# ─────────────────────────────────────────
+# 17. ERROR & STATE HANDLING
+# ─────────────────────────────────────────
+- Always handle loading, error, and empty states — never just the happy path
+- Loading: skeleton loaders for content, spinners only for action buttons
+- Empty states: always show a helpful message or illustration when no data exists
+- Errors: sonner toast for user-facing errors, Sentry for server-side logging
+- Destructive actions (delete, cancel): always require a confirmation dialog first
+- Never use console.log in production — use structured server-side logging only
+
+# ─────────────────────────────────────────
+# 18. SECURITY
+# ─────────────────────────────────────────
+- Validate and sanitize all user input server-side with Zod before any processing
+- Never trust client-side data — always re-validate on the server
+- Cookies: always set httpOnly, secure, and sameSite flags
+- Rate limit all API routes — especially AI, auth, and payment endpoints
+- CORS: restrict API routes to your own domain only
+- Add Content Security Policy headers in next.config.js
+- SUPABASE_SERVICE_ROLE_KEY never sent to the client — ever
+- .env.local must always be in .gitignore
+- Never expose secrets in client-side code, logs, or error messages
+
+# ─────────────────────────────────────────
+# 19. UX & UI PATTERNS
+# ─────────────────────────────────────────
+- Use shadcn Badge with defined variants for all status labels (Live, New, Breaking)
+- Build reusable card components: image → label → headline → meta (always this order)
+- Horizontal cards: aspect-video (16:9) — vertical/shorts: aspect-[9/16]
+- Breadcrumbs on all nested pages using shadcn Breadcrumb component
+- Footer must always include: Privacy Policy, Terms of Use, Accessibility links
+- Gated content: blur overlay + CTA — never a hard redirect
+- Semantic color usage: primary, secondary, destructive, muted — never ad hoc
+- Relative timestamps using date-fns formatDistanceToNow ("2 hours ago")
+- Optimistic UI: use useOptimistic for instant feedback on mutations — never wait for server response to update UI
+
+# ─────────────────────────────────────────
+# 20. TYPOGRAPHY
+# ─────────────────────────────────────────
+- Always load fonts via next/font — never CDN links or CSS @import
+- Stick to Tailwind's type scale only — no arbitrary sizes like text-[17px]
+- Body text: leading-relaxed minimum at all times
+- Long-form content: max-w-prose to cap reading width
+- Card headlines: line-clamp-2; larger previews: line-clamp-3
+
+# ─────────────────────────────────────────
+# 21. IMAGES
+# ─────────────────────────────────────────
+- Never use raw <img> tags — always next/image
+- Always provide explicit width, height, and meaningful alt text
+- Always use placeholder="blur" for graceful image loading
+- Always define the sizes prop for responsive image delivery
+- Configure next.config.js with all allowed image domains
+- Every image container needs a fallback skeleton for slow or failed loads
+
+# ─────────────────────────────────────────
+# 22. ANIMATIONS
+# ─────────────────────────────────────────
+- Use framer-motion for all animations — no ad hoc CSS keyframes
+- Focus on high-impact moments: page load reveals, route transitions, hover states
+- Keep animations subtle and purposeful — not decorative noise
+- Always respect prefers-reduced-motion via framer-motion's useReducedMotion hook
+
+# ─────────────────────────────────────────
+# 23. INTERNATIONALISATION (i18n)
+# ─────────────────────────────────────────
+- Use next-intl for all i18n — French is required (Canadian legal requirement)
+- Never hardcode user-facing strings — always use translation keys
+- RTL layout support via Tailwind rtl: variant for Arabic/Urdu if needed
+- Always set the lang attribute on <html> dynamically based on locale
+
+# ─────────────────────────────────────────
+# 24. ANALYTICS & MONITORING
+# ─────────────────────────────────────────
+- Vercel Analytics: always included — add to root layout, zero config
+- PostHog: custom event tracking — always initialize server-side
+- Sentry: capture all unhandled server errors and API route exceptions
+- Never log personal data (emails, names, IDs) in analytics events
+
+# ─────────────────────────────────────────
+# 25. TESTING
+# ─────────────────────────────────────────
+- Jest for unit tests — colocate as ComponentName.test.tsx
+- Playwright for end-to-end tests — store in /e2e folder
+- Write testable code: pure functions, small components, no side effects in renders
+- Test files mirror source file names: user-card.tsx → user-card.test.tsx
+
+# ─────────────────────────────────────────
+# 26. ACCESSIBILITY
+# ─────────────────────────────────────────
+- Always use semantic HTML (nav, main, article, section, header, footer)
+- All interactive elements must be keyboard navigable
+- Every image needs meaningful alt text — empty only if purely decorative
+- ARIA labels on all icon-only buttons
+- Minimum contrast: 4.5:1 for body text, 3:1 for large text
+
+# ─────────────────────────────────────────
+# ENVIRONMENT VARIABLES — NEW PROJECT TEMPLATE
+# ─────────────────────────────────────────
+# Copy this into .env.local for every new project:
+#
+# NEXT_PUBLIC_SUPABASE_URL=
+# NEXT_PUBLIC_SUPABASE_ANON_KEY=
+# SUPABASE_SERVICE_ROLE_KEY=
+#
+# ANTHROPIC_API_KEY=
+#
+# STRIPE_SECRET_KEY=
+# STRIPE_WEBHOOK_SECRET=
+# NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+#
+# RESEND_API_KEY=
+#
+# NEXT_PUBLIC_POSTHOG_KEY=
+# NEXT_PUBLIC_POSTHOG_HOST=
+#
+# SENTRY_DSN=
+# NEXT_PUBLIC_SENTRY_DSN=
+
+
