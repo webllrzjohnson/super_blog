@@ -3,9 +3,9 @@
 import type { Post, Author } from './types'
 
 export const defaultAuthor: Author = {
-  name: 'Alex Chen',
+  name: 'Lester J.',
   avatar: '/avatar.jpg',
-  bio: 'Writer, tinkerer, and lifelong learner. I write about work, life, and the things that make me curious.'
+  bio: 'Writer, tinkerer, and lifelong learner based in Toronto. I write about work, life, and the things that make me curious.'
 }
 
 export const samplePosts: Post[] = [
@@ -202,6 +202,39 @@ export function getPublishedPosts(posts: Post[]): Post[] {
 
 export function getPostsByCategory(posts: Post[], category: string): Post[] {
   return posts.filter(post => post.category === category)
+}
+
+export function getPostsByTag(posts: Post[], tag: string): Post[] {
+  return posts.filter(post =>
+    post.tags.some(t => t.toLowerCase() === tag.toLowerCase())
+  )
+}
+
+export function getAllTags(posts: Post[]): string[] {
+  const tags = new Set<string>()
+  getPublishedPosts(posts).forEach(post =>
+    post.tags.forEach(tag => tags.add(tag.toLowerCase()))
+  )
+  return Array.from(tags).sort()
+}
+
+export function getRandomPost(posts: Post[]): Post | undefined {
+  const published = getPublishedPosts(posts)
+  if (published.length === 0) return undefined
+  return published[Math.floor(Math.random() * published.length)]
+}
+
+export function getAdjacentPosts(posts: Post[], currentSlug: string): { newer: Post | null; older: Post | null } {
+  const published = getPublishedPosts(posts)
+  const sorted = [...published].sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  )
+  const idx = sorted.findIndex((p) => p.slug === currentSlug)
+  if (idx === -1) return { newer: null, older: null }
+  return {
+    newer: idx > 0 ? sorted[idx - 1] : null,
+    older: idx < sorted.length - 1 ? sorted[idx + 1] : null,
+  }
 }
 
 export function getPostBySlug(posts: Post[], slug: string): Post | undefined {

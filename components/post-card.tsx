@@ -10,43 +10,35 @@ export function PostCard({ post, featured = false }: PostCardProps) {
   return (
     <article className={`group ${featured ? 'mb-8' : ''}`}>
       <Link href={`/blog/${post.slug}`} className="block">
-        <div className="space-y-2">
-          {/* Meta */}
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <time dateTime={post.publishedAt}>
-              {new Date(post.publishedAt).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              })}
-            </time>
-            <span className="text-border">·</span>
-            <span>{post.readTime} min read</span>
-          </div>
-
-          {/* Title */}
-          <h2 className={`${featured ? 'text-2xl' : 'text-lg'} font-semibold text-foreground group-hover:text-muted-foreground transition-colors leading-snug`}>
-            {post.title}
-          </h2>
-
-          {/* Excerpt */}
-          <p className="text-muted-foreground leading-relaxed line-clamp-2">
-            {post.excerpt}
-          </p>
-
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 pt-1">
-            {post.tags.slice(0, 3).map((tag) => (
-              <span
-                key={tag}
-                className="text-xs text-muted-foreground"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
+        <h2 className={`${featured ? 'text-xl' : 'text-base'} font-medium text-foreground group-hover:text-muted-foreground transition-colors leading-snug mb-1`}>
+          {post.title}
+        </h2>
+        <div className="text-sm text-muted-foreground mb-2">
+          <time dateTime={post.publishedAt}>
+            {new Date(post.publishedAt).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+            {post.updatedAt && ' (updated)'}
+          </time>
         </div>
+        <p className="text-muted-foreground leading-relaxed text-sm mb-2">
+          {post.excerpt}
+        </p>
       </Link>
+      {/* Tags as links - cassidoo style */}
+      <div className="flex flex-wrap gap-x-2 gap-y-1">
+        {post.tags.map((tag) => (
+          <Link
+            key={tag}
+            href={`/blog?tag=${encodeURIComponent(tag.toLowerCase())}`}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            #{tag}
+          </Link>
+        ))}
+      </div>
     </article>
   )
 }

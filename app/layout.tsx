@@ -12,34 +12,36 @@ const sourceSerif = Source_Serif_4({
   subsets: ['latin'],
   variable: '--font-serif',
   display: 'swap',
+  preload: false,
 })
 
 const inter = Inter({ 
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
+  preload: false,
 })
 
 export const metadata: Metadata = {
   title: {
-    default: 'Alex Chen - Personal Blog',
-    template: '%s | Alex Chen',
+    default: 'Lester J. - Personal Blog',
+    template: '%s | Lester J.',
   },
   description: 'Writing about work, life, hobbies, and experiences. A personal blog about the things that make me curious.',
   keywords: ['blog', 'personal', 'work', 'life', 'hobbies', 'experiences'],
-  authors: [{ name: 'Alex Chen' }],
-  creator: 'Alex Chen',
+  authors: [{ name: 'Lester J.' }],
+  creator: 'Lester J.',
   openGraph: {
     type: 'website',
-    locale: 'en_US',
+    locale: 'en_CA',
     url: 'https://example.com',
-    siteName: 'Alex Chen',
-    title: 'Alex Chen - Personal Blog',
+    siteName: 'Lester J.',
+    title: 'Lester J. - Personal Blog',
     description: 'Writing about work, life, hobbies, and experiences.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Alex Chen - Personal Blog',
+    title: 'Lester J. - Personal Blog',
     description: 'Writing about work, life, hobbies, and experiences.',
   },
   robots: {
@@ -55,7 +57,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
-      <body className={`${inter.variable} ${sourceSerif.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${sourceSerif.variable} font-sans antialiased min-h-screen`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

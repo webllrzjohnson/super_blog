@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 const socialLinks = [
   { name: 'Twitter', href: 'https://twitter.com', label: '@alexchen' },
   { name: 'GitHub', href: 'https://github.com', label: 'alexchen' },
-  { name: 'LinkedIn', href: 'https://linkedin.com/in/alexchen', label: 'Alex Chen' },
+  { name: 'LinkedIn', href: 'https://linkedin.com/in/alexchen', label: 'Lester J.' },
 ]
 
 export default function AboutPage() {
@@ -46,7 +46,7 @@ export default function AboutPage() {
               {/* Add your profile image to /public and use: src="/your-photo.jpg" */}
               <Image
                 src="/avatar.jpg"
-                alt="Alex Chen"
+                alt="Lester J."
                 width={128}
                 height={128}
                 className="w-full h-full object-cover"
@@ -54,7 +54,7 @@ export default function AboutPage() {
             </div>
             <div className="space-y-4">
               <p className="text-lg text-foreground leading-relaxed">
-                Hey there! I&apos;m Alex, a software engineer, writer, and chronic over-thinker based in San Francisco.
+                Hey there! I&apos;m Lester, a software engineer, writer, and chronic over-thinker based in Toronto.
               </p>
               <p className="text-muted-foreground leading-relaxed">
                 I spent five years at a big tech company before making the leap to startup life. 

@@ -54,18 +54,18 @@ export function NewsletterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="flex gap-3">
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="flex flex-col sm:flex-row gap-2 max-w-md">
         <Input
           type="email"
           placeholder="your@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="flex-1"
+          className="flex-1 text-sm"
           disabled={status === 'loading'}
         />
-        <Button type="submit" disabled={status === 'loading'}>
+        <Button type="submit" disabled={status === 'loading'} size="sm" className="sm:w-auto">
           {status === 'loading' ? 'Subscribing...' : 'Subscribe'}
         </Button>
       </div>

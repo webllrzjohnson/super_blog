@@ -24,7 +24,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-xl font-semibold text-foreground mb-4">1. Introduction</h2>
           <p className="text-muted-foreground leading-relaxed mb-4">
-            Welcome to Alex Chen&apos;s blog (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). This Privacy Policy 
+            Welcome to Lester J.&apos;s blog (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). This Privacy Policy 
             explains how we collect, use, disclose, and safeguard your information when you visit our website 
             (the &quot;Site&quot;), including any other media form, media channel, mobile website, or mobile 
             application related or connected thereto.
@@ -47,7 +47,7 @@ export default function PrivacyPage() {
             For the purposes of GDPR, the data controller is:
           </p>
           <div className="bg-muted/50 p-4 rounded-lg text-muted-foreground">
-            <p><strong className="text-foreground">Alex Chen</strong></p>
+            <p><strong className="text-foreground">Lester J.</strong></p>
             <p>Email: privacy@example.com</p>
             <p>Contact: <Link href="/contact" className="underline hover:text-foreground">Contact Form</Link></p>
           </div>

@@ -1,73 +1,24 @@
 import Link from 'next/link'
 
-const footerLinks = [
-  { label: 'Privacy Policy', href: '/privacy' },
-  { label: 'Disclaimer', href: '/disclaimer' },
-  { label: 'Contact', href: '/contact' },
-  { label: 'Sitemap', href: '/sitemap-page' },
-]
-
-const socialLinks = [
-  { label: 'Twitter', href: 'https://twitter.com' },
-  { label: 'GitHub', href: 'https://github.com' },
-  { label: 'LinkedIn', href: 'https://linkedin.com' },
-]
-
 export function Footer() {
   return (
-    <footer className="border-t border-border mt-16">
-      <div className="max-w-3xl mx-auto px-6 py-12">
-        <div className="flex flex-col md:flex-row justify-between gap-8">
-          {/* Brand */}
-          <div className="space-y-3">
-            <p className="font-semibold text-foreground">Alex Chen</p>
-            <p className="text-sm text-muted-foreground max-w-xs">
-              Writing about work, life, and the things that make me curious.
-            </p>
-          </div>
-
-          {/* Links */}
-          <div className="flex flex-col md:flex-row gap-8 md:gap-16">
-            <div className="space-y-3">
-              <p className="text-sm font-medium text-foreground">Pages</p>
-              <div className="flex flex-col gap-2">
-                {footerLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <p className="text-sm font-medium text-foreground">Social</p>
-              <div className="flex flex-col gap-2">
-                {socialLinks.map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
+    <footer className="border-t border-border/60 mt-12">
+      <div className="max-w-2xl mx-auto px-6 py-10">
+        <p className="text-sm text-muted-foreground mb-4">
+          Subscribe <Link href="/#newsletter" className="underline decoration-2 underline-offset-2 hover:text-foreground transition-colors">with email</Link> or{' '}
+          <a href="/feed" className="underline decoration-2 underline-offset-2 hover:text-foreground transition-colors">with RSS</a>!
+        </p>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+          <Link href="/blog" className="hover:text-foreground transition-colors">Blog</Link>
+          <Link href="/blog/tags" className="hover:text-foreground transition-colors">Tags</Link>
+          <Link href="/about" className="hover:text-foreground transition-colors">About</Link>
+          <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
+          <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+          <Link href="/disclaimer" className="hover:text-foreground transition-colors">Disclaimer</Link>
         </div>
-
-        {/* Copyright */}
-        <div className="mt-12 pt-8 border-t border-border">
-          <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Alex Chen. All rights reserved.
-          </p>
-        </div>
+        <p className="text-sm text-muted-foreground mt-8">
+          &copy; {new Date().getFullYear()} Lester J.
+        </p>
       </div>
     </footer>
   )

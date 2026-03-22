@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { BlogList } from '@/components/blog-list'
 import { getPostsFromDb } from '@/lib/db/posts'
 
@@ -11,17 +12,23 @@ export default async function BlogPage() {
   const posts = await getPostsFromDb()
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-12 md:py-20">
-      <header className="mb-12">
-        <h1 className="text-3xl font-semibold text-foreground mb-4">
+    <div className="max-w-2xl mx-auto px-6 py-12 md:py-16">
+      <header className="mb-10">
+        <h1 className="text-2xl font-medium text-foreground mb-2">
           Blog
         </h1>
         <p className="text-muted-foreground">
-          Thoughts on work, life, and the things that make me curious.
+          Here&apos;s my most recent posts or <Link href="/blog/random" className="underline decoration-2 underline-offset-2 hover:text-foreground transition-colors">read a random one</Link>!
         </p>
       </header>
 
       <BlogList initialPosts={posts} />
+
+      <div className="mt-12 pt-8 border-t border-border/60">
+        <Link href="/blog/tags" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          View posts by tag →
+        </Link>
+      </div>
     </div>
   )
 }
