@@ -54,12 +54,28 @@ export default function AboutPage() {
             </div>
             <div className="space-y-4">
               <p className="text-lg text-foreground leading-relaxed">
-                Hey there! I&apos;m Lester, a software engineer, writer, and chronic over-thinker based in Toronto.
+                Hey there! I&apos;m Lester, a problem solver who traded my keyboard for a toolbelt—and somehow ended up with both.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                I spent five years at a big tech company before making the leap to startup life. 
-                Now I&apos;m building products at a 20-person company, learning more than I ever did in a corporate setting, 
-                and writing about the journey along the way.
+                I spent years building web applications and mobile apps as a full-stack developer, crafting code and solving digital puzzles. 
+                Then I made what some might call an unconventional pivot: I became a Senior Building Superintendent at one of the biggest 
+                subsidized housing companies in North America. Same curiosity, same love for solving problems—just a completely different 
+                set of challenges.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                The transition was an adventure. From debugging React components to fixing boilers. From optimizing databases to managing 
+                building systems. From sprint planning to emergency maintenance calls. It turns out that troubleshooting a heating system 
+                at 2 AM requires the same systematic thinking as tracking down a production bug—just with more wrenches and less coffee.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                Here&apos;s the twist: I never really left development behind. I still code, just not full-time anymore. These days, 
+                I build with AI as my co-pilot, automating workflows, creating tools, and exploring what&apos;s possible when you combine 
+                traditional engineering skills with modern AI capabilities. It&apos;s a whole new kind of problem-solving, and I&apos;m here for it.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                This blog is where I document both worlds—the lessons from managing real buildings and real people, the experiments with 
+                AI-assisted development, and everything I&apos;m learning along the way. Because whether you&apos;re fixing code or fixing 
+                infrastructure, it all comes down to curiosity, persistence, and a willingness to learn new things.
               </p>
             </div>
           </div>
@@ -74,10 +90,10 @@ export default function AboutPage() {
                 This blog is my space to think out loud. I write about:
               </p>
               <ul className="list-disc list-inside space-y-2 ml-2">
-                <li><strong className="text-foreground">Work</strong> — career transitions, startup life, and what I&apos;m learning as an engineer</li>
-                <li><strong className="text-foreground">Life</strong> — productivity, habits, and the ongoing experiment of being a human</li>
-                <li><strong className="text-foreground">Hobbies</strong> — bread baking, reading, and whatever else I&apos;m obsessing over</li>
-                <li><strong className="text-foreground">Experience</strong> — travel, relationships, and the messy parts of growing up</li>
+                <li><strong className="text-foreground">Work</strong> — career pivots, building management, AI-assisted development, and bridging the physical and digital worlds</li>
+                <li><strong className="text-foreground">Life</strong> — productivity, habits, learning new skills, and navigating unconventional career paths</li>
+                <li><strong className="text-foreground">Hobbies</strong> — coding experiments, automation projects, and whatever technical rabbit holes I&apos;m exploring</li>
+                <li><strong className="text-foreground">Experience</strong> — lessons from managing people and properties, the realities of career transitions, and finding your own path</li>
               </ul>
               <p>
                 I don&apos;t claim to have all the answers. I&apos;m just sharing what I&apos;m figuring out, 
