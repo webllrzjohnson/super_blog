@@ -1,12 +1,17 @@
 import type { Metadata } from 'next'
+import ReactMarkdown from 'react-markdown'
 import { ContactForm } from '@/components/contact-form'
+import { getSetting } from '@/lib/settings'
 
 export const metadata: Metadata = {
   title: 'Contact',
   description: 'Get in touch with me. I\'d love to hear from you.',
 }
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const pages = await getSetting('pages')
+  const customContact = pages.contact?.trim()
+
   return (
     <div className="max-w-3xl mx-auto px-6 py-12 md:py-20">
       <header className="mb-12">
@@ -19,7 +24,13 @@ export default function ContactPage() {
         </p>
       </header>
 
-      <ContactForm />
+      {customContact ? (
+        <div className="prose prose-neutral dark:prose-invert max-w-none">
+          <ReactMarkdown>{customContact}</ReactMarkdown>
+        </div>
+      ) : (
+        <ContactForm />
+      )}
     </div>
   )
 }

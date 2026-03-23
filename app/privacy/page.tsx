@@ -1,12 +1,22 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import ReactMarkdown from 'react-markdown'
+import { getSetting } from '@/lib/settings'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description: 'Our GDPR-compliant privacy policy explains how we collect, use, and protect your personal information when using Google AdSense and Amazon affiliate links.',
 }
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const [pages, links] = await Promise.all([
+    getSetting('pages'),
+    getSetting('links'),
+  ])
+  const customPrivacy = pages.privacy?.trim()
+  const contactEmail =
+    links.contactEmail || process.env.CONTACT_EMAIL || 'privacy@example.com'
+
   return (
     <div className="max-w-3xl mx-auto px-6 py-12 md:py-20">
       <header className="mb-12">
@@ -18,6 +28,11 @@ export default function PrivacyPage() {
         </p>
       </header>
 
+      {customPrivacy ? (
+        <div className="prose prose-neutral dark:prose-invert max-w-none">
+          <ReactMarkdown>{customPrivacy}</ReactMarkdown>
+        </div>
+      ) : (
       <div className="prose prose-neutral dark:prose-invert max-w-none space-y-10">
         
         {/* Introduction */}
@@ -48,7 +63,7 @@ export default function PrivacyPage() {
           </p>
           <div className="bg-muted/50 p-4 rounded-lg text-muted-foreground">
             <p><strong className="text-foreground">Lester J.</strong></p>
-            <p>Email: privacy@example.com</p>
+            <p>Email: {contactEmail}</p>
             <p>Contact: <Link href="/contact" className="underline hover:text-foreground">Contact Form</Link></p>
           </div>
         </section>
@@ -381,7 +396,7 @@ export default function PrivacyPage() {
             </li>
           </ul>
           <p className="text-muted-foreground leading-relaxed mt-4">
-            To exercise any of these rights, please contact us at privacy@example.com. We will respond within 
+            To exercise any of these rights, please contact us at {contactEmail}. We will respond within 
             30 days.
           </p>
         </section>
@@ -412,7 +427,7 @@ export default function PrivacyPage() {
             </li>
           </ul>
           <p className="text-muted-foreground leading-relaxed mt-4">
-            To exercise these rights, contact us at privacy@example.com or use our{' '}
+            To exercise these rights, contact us at {contactEmail} or use our{' '}
             <Link href="/contact" className="underline hover:text-foreground">contact form</Link>.
           </p>
         </section>
@@ -443,8 +458,8 @@ export default function PrivacyPage() {
           <p className="text-muted-foreground leading-relaxed mb-4">
             Our Site is not intended for children under the age of 16 (or 13 in the United States). We do not 
             knowingly collect personal information from children. If you are a parent or guardian and believe 
-            your child has provided us with personal information, please contact us immediately at 
-            privacy@example.com.
+            your child has provided us with personal information, please contact us immediately at{' '}
+            {contactEmail}.
           </p>
           <p className="text-muted-foreground leading-relaxed">
             If we become aware that we have collected personal information from a child without parental consent, 
@@ -499,7 +514,7 @@ export default function PrivacyPage() {
             please contact us:
           </p>
           <div className="bg-muted/50 p-4 rounded-lg text-muted-foreground space-y-2">
-            <p><strong className="text-foreground">Email:</strong> privacy@example.com</p>
+            <p><strong className="text-foreground">Email:</strong> {contactEmail}</p>
             <p><strong className="text-foreground">Contact Form:</strong>{' '}
               <Link href="/contact" className="underline hover:text-foreground">Submit a Request</Link>
             </p>
@@ -526,6 +541,7 @@ export default function PrivacyPage() {
         </section>
 
       </div>
+      )}
     </div>
   )
 }

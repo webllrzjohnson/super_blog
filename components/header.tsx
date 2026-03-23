@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Menu, X, Moon, Sun } from 'lucide-react'
-import { useTheme } from 'next-themes'
+import { useTheme } from '@/components/theme-provider'
+import type { BrandingSettings } from '@/lib/settings'
 
 const navItems = [
   { label: 'Home', href: '/' },
@@ -12,10 +14,15 @@ const navItems = [
   { label: 'About', href: '/about' },
 ]
 
-export function Header() {
+interface HeaderProps {
+  branding?: BrandingSettings
+}
+
+export function Header({ branding }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const siteName = branding?.siteName || 'Lester J.'
   
   // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => { setMounted(true) }, [])
@@ -26,9 +33,18 @@ export function Header() {
         <div className="flex items-center justify-between">
           <Link 
             href="/" 
-            className="text-lg font-medium text-foreground hover:text-muted-foreground transition-colors"
+            className="flex items-center gap-3 text-lg font-medium text-foreground hover:text-muted-foreground transition-colors"
           >
-            Lester J.
+            {branding?.logoUrl ? (
+              <Image
+                src={branding.logoUrl}
+                alt={siteName}
+                width={32}
+                height={32}
+                className="h-8 w-8 rounded object-contain"
+              />
+            ) : null}
+            <span>{siteName}</span>
           </Link>
 
           <div className="flex items-center gap-1">

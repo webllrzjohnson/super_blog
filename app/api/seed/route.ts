@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import { seedSamplePosts } from '@/lib/db/posts'
+import { isAdminSession } from '@/lib/auth-session'
 
 export async function POST(request: Request) {
-  const authHeader = request.headers.get('cookie')
-  if (!authHeader?.includes('admin_session=authenticated')) {
+  if (!(await isAdminSession(request.headers.get('cookie')))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

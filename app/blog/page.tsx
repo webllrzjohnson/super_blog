@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { BlogList } from '@/components/blog-list'
+import { GoogleAd } from '@/components/google-ad'
 import { getPostsFromDb } from '@/lib/db/posts'
 
 export const metadata: Metadata = {
@@ -22,7 +23,10 @@ export default async function BlogPage() {
         </p>
       </header>
 
-      <BlogList initialPosts={posts} />
+      <BlogList
+        initialPosts={posts}
+        betweenPostsAd={<GoogleAd position="between-posts" />}
+      />
 
       <div className="mt-12 pt-8 border-t border-border/60">
         <Link href="/blog/tags" className="text-sm text-muted-foreground hover:text-foreground transition-colors">

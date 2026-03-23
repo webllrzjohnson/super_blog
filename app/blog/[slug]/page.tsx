@@ -6,7 +6,7 @@ import { getPostBySlugFromDb, getPostsFromDb } from '@/lib/db/posts'
 import { getRelatedPosts, getPublishedPosts, getAdjacentPosts } from '@/lib/posts'
 import { PostCard } from '@/components/post-card'
 import { AffiliateDisclosure } from '@/components/affiliate-disclosure'
-import { AdSlot } from '@/components/ad-slot'
+import { GoogleAd } from '@/components/google-ad'
 import { ReadingProgressBar } from '@/components/reading-progress-bar'
 
 interface Props {
@@ -97,7 +97,7 @@ export default async function BlogPostPage({ params }: Props) {
 
       <article className="max-w-2xl mx-auto px-6 py-12 md:py-16">
         <AffiliateDisclosure />
-        <AdSlot position="top" />
+        <GoogleAd position="top-of-content" />
 
         <header className="mb-10">
           {post.featuredImage && (
@@ -144,7 +144,7 @@ export default async function BlogPostPage({ params }: Props) {
             if (paragraph.startsWith('## ')) {
               return (
                 <div key={index}>
-                  {showMidAd && <AdSlot position="mid" />}
+                  {showMidAd && <GoogleAd position="mid-content" />}
                   <h2 id={paragraph.replace('## ', '').toLowerCase().replace(/\s+/g, '-')} className="text-lg font-medium text-foreground mt-8 mb-4">
                     {paragraph.replace('## ', '')}
                   </h2>
@@ -153,7 +153,7 @@ export default async function BlogPostPage({ params }: Props) {
             }
             return (
               <div key={index}>
-                {showMidAd && <AdSlot position="mid" />}
+                {showMidAd && <GoogleAd position="mid-content" />}
                 <p className="text-foreground/90 leading-relaxed mb-4">
                   {paragraph}
                 </p>
@@ -161,6 +161,8 @@ export default async function BlogPostPage({ params }: Props) {
             )
           })}
         </div>
+
+        <GoogleAd position="end-of-article" />
 
         <hr className="my-10 border-border/60" />
 

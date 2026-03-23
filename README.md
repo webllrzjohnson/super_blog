@@ -11,6 +11,7 @@ A personal blog built with Next.js, Supabase, and Resend.
 
 2. **Configure required vars**
    - `ADMIN_PASSWORD` — Password for `/admin` (required)
+   - `ADMIN_SESSION_SECRET` — Random 32+ char string for signed session cookies (required in production)
    - `NEXT_PUBLIC_SITE_URL` — Your domain (e.g. `https://yourblog.com`)
 
 3. **Supabase (for persisted posts)**
@@ -23,7 +24,10 @@ A personal blog built with Next.js, Supabase, and Resend.
    - Sign up at [resend.com](https://resend.com)
    - Add `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `CONTACT_EMAIL`
 
-5. **Run**
+5. **Social links (optional)**  
+   - Configure GitHub, LinkedIn, Twitter, and contact email in Admin → Settings → Links. These appear on the About page and footer.
+
+6. **Run**
    ```bash
    npm install
    npm run dev
@@ -38,3 +42,4 @@ The site works without Supabase: it uses hardcoded sample posts. The admin dashb
 - `npm run dev` — Start dev server
 - `npm run build` — Build for production
 - `npm run start` — Start production server
+- `npm run lint` — Run ESLint

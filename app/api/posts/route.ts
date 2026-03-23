@@ -6,11 +6,11 @@ import { getPublishedPosts } from '@/lib/posts'
 import type { Post } from '@/lib/types'
 import { calculateReadTime } from '@/lib/posts'
 import { z } from 'zod'
+import { isAdminSession } from '@/lib/auth-session'
 
 async function checkAdmin(): Promise<boolean> {
   const headersList = await headers()
-  const cookie = headersList.get('cookie')
-  return cookie?.includes('admin_session=authenticated') ?? false
+  return isAdminSession(headersList.get('cookie'))
 }
 
 const postSchema = z.object({

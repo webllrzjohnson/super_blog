@@ -20,9 +20,8 @@ export default async function HomePage() {
           Hi! I&apos;m Lester, and I like to make things and write about them.
         </p>
         <p className="text-muted-foreground leading-relaxed mb-8">
-          I&apos;m a software engineer based in Toronto who recently made the leap from big tech to startup life. 
-          Outside of work, I bake bread, travel solo, and try to figure out this whole &quot;adulting&quot; thing. 
-          This is where I share what I&apos;m learning along the way.
+          Software engineer turned building superintendent, still coding on the side. Based in Toronto with my wife. 
+          I bake bread, cook, eat out too much, and travel whenever we can. This is where I write about all of it.
         </p>
         <p className="text-foreground mb-6">
           You should <Link href="/#newsletter" className="underline decoration-2 underline-offset-2 hover:text-muted-foreground transition-colors">subscribe to my newsletter</Link>!

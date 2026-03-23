@@ -3,81 +3,120 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Cassidoo-inspired: warm, minimal, text-focused */
+/* Anthropic-inspired: editorial, warm, generous whitespace */
 :root {
-  --background: oklch(0.98 0.002 85);
-  --foreground: oklch(0.22 0.01 45);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.01 45);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.01 45);
-  --primary: oklch(0.28 0.02 45);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.95 0.005 85);
-  --secondary-foreground: oklch(0.22 0.01 45);
-  --muted: oklch(0.95 0.005 85);
-  --muted-foreground: oklch(0.45 0.01 45);
-  --accent: oklch(0.94 0.01 85);
-  --accent-foreground: oklch(0.22 0.01 45);
+  /* ── Colour System ─────────────────────────────────────────── */
+  --background: oklch(0.974 0.014 72);          /* warm cream page bg  */
+  --foreground: oklch(0.162 0.016 55);           /* deep warm charcoal  */
+  --card: oklch(0.990 0.006 72);                /* off-white surface   */
+  --card-foreground: oklch(0.162 0.016 55);
+  --popover: oklch(0.990 0.006 72);
+  --popover-foreground: oklch(0.162 0.016 55);
+  --primary: oklch(0.622 0.138 44);             /* terracotta / clay   */
+  --primary-foreground: oklch(0.995 0 0);
+  --secondary: oklch(0.930 0.022 76);           /* warm sand           */
+  --secondary-foreground: oklch(0.162 0.016 55);
+  --muted: oklch(0.942 0.018 75);               /* muted warm gray     */
+  --muted-foreground: oklch(0.498 0.020 62);    /* warm medium gray    */
+  --accent: oklch(0.958 0.014 74);              /* light warm tint     */
+  --accent-foreground: oklch(0.162 0.016 55);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.9 0.005 85);
-  --input: oklch(0.92 0.005 85);
-  --ring: oklch(0.35 0.02 45);
+  --border: oklch(0.872 0.026 74);              /* warm taupe border   */
+  --input: oklch(0.908 0.022 74);
+  --ring: oklch(0.622 0.138 44);                /* terracotta focus    */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.375rem;                            /* subtle 6 px rounding */
+
+  /* Sidebar */
+  --sidebar: oklch(0.962 0.010 72);
+  --sidebar-foreground: oklch(0.162 0.016 55);
+  --sidebar-primary: oklch(0.622 0.138 44);
+  --sidebar-primary-foreground: oklch(0.995 0 0);
+  --sidebar-accent: oklch(0.945 0.015 74);
+  --sidebar-accent-foreground: oklch(0.162 0.016 55);
+  --sidebar-border: oklch(0.890 0.022 74);
+  --sidebar-ring: oklch(0.622 0.138 44);
+
+  /* ── Typography Scale ──────────────────────────────────────── */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1.0625rem;                  /* 17 px body          */
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 1.875rem;
+  --font-size-3xl: 2.25rem;
+  --font-size-4xl: 3rem;
+  --font-size-5xl: 4.5rem;                      /* hero display        */
+
+  /* Line heights */
+  --leading-tight: 1.05;                        /* large display heads */
+  --leading-snug: 1.2;                          /* h2–h3               */
+  --leading-normal: 1.5;                        /* h1                  */
+  --leading-relaxed: 1.7;                       /* body copy           */
+
+  /* Letter spacing */
+  --tracking-display: -0.03em;
+  --tracking-heading: -0.02em;
+  --tracking-body: 0em;
+  --tracking-label: 0.06em;
+
+  /* Font weights */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  /* ── Spacing & Layout ──────────────────────────────────────── */
+  --max-w-content: 75rem;                       /* 1 200 px            */
+  --max-w-prose: 45rem;                         /* 720 px              */
+  --section-y: 6rem;                            /* 96 px sections      */
+  --section-y-lg: 9rem;                         /* 144 px hero section */
+  --page-x: 1.5rem;                             /* 24 px horiz. pad   */
 }
 
 .dark {
-  --background: oklch(0.14 0.008 45);
-  --foreground: oklch(0.94 0.005 85);
-  --card: oklch(0.17 0.008 45);
-  --card-foreground: oklch(0.94 0.005 85);
-  --popover: oklch(0.17 0.008 45);
-  --popover-foreground: oklch(0.94 0.005 85);
-  --primary: oklch(0.92 0.01 85);
-  --primary-foreground: oklch(0.2 0.01 45);
-  --secondary: oklch(0.22 0.01 45);
-  --secondary-foreground: oklch(0.94 0.005 85);
-  --muted: oklch(0.22 0.01 45);
-  --muted-foreground: oklch(0.65 0.01 45);
-  --accent: oklch(0.25 0.01 45);
-  --accent-foreground: oklch(0.94 0.005 85);
+  --background: oklch(0.130 0.016 52);          /* deep warm near-black */
+  --foreground: oklch(0.940 0.014 75);          /* warm cream text      */
+  --card: oklch(0.165 0.016 50);
+  --card-foreground: oklch(0.940 0.014 75);
+  --popover: oklch(0.165 0.016 50);
+  --popover-foreground: oklch(0.940 0.014 75);
+  --primary: oklch(0.720 0.120 46);             /* lighter terracotta   */
+  --primary-foreground: oklch(0.130 0.016 52);
+  --secondary: oklch(0.228 0.018 52);
+  --secondary-foreground: oklch(0.940 0.014 75);
+  --muted: oklch(0.228 0.018 52);
+  --muted-foreground: oklch(0.630 0.016 60);
+  --accent: oklch(0.255 0.018 52);
+  --accent-foreground: oklch(0.940 0.014 75);
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.28 0.01 45);
-  --input: oklch(0.25 0.01 45);
-  --ring: oklch(0.65 0.01 45);
+  --border: oklch(0.278 0.018 50);
+  --input: oklch(0.255 0.018 52);
+  --ring: oklch(0.630 0.016 60);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --sidebar: oklch(0.148 0.016 52);
+  --sidebar-foreground: oklch(0.940 0.014 75);
+  --sidebar-primary: oklch(0.720 0.120 46);
+  --sidebar-primary-foreground: oklch(0.995 0 0);
+  --sidebar-accent: oklch(0.228 0.018 52);
+  --sidebar-accent-foreground: oklch(0.940 0.014 75);
+  --sidebar-border: oklch(0.278 0.018 50);
+  --sidebar-ring: oklch(0.630 0.016 60);
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Source Serif 4', Georgia, serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -122,12 +161,11 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-size: 1.0625rem;
-    line-height: 1.65;
+    font-size: var(--font-size-base);
+    line-height: var(--leading-relaxed);
   }
 }
 
-/* Typography enhancements for the cassidoo-inspired design */
 .prose {
   --tw-prose-body: var(--foreground);
   --tw-prose-headings: var(--foreground);
@@ -136,16 +174,14 @@
   --tw-prose-quotes: var(--muted-foreground);
 }
 
-/* Smooth scrolling */
 html {
   scroll-behavior: smooth;
 }
 
-/* Selection color */
 ::selection {
-  background-color: oklch(0.9 0.02 220);
+  background-color: oklch(0.92 0.05 55);        /* warm terracotta tint */
 }
 
 .dark ::selection {
-  background-color: oklch(0.3 0.02 220);
+  background-color: oklch(0.32 0.08 48);        /* dark terracotta tint */
 }

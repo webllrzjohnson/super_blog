@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, type ReactNode } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { PostCard } from '@/components/post-card'
@@ -12,9 +12,10 @@ const POSTS_PER_PAGE = 15
 
 interface BlogListProps {
   initialPosts: Post[]
+  betweenPostsAd?: ReactNode
 }
 
-export function BlogList({ initialPosts }: BlogListProps) {
+export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
   const searchParams = useSearchParams()
   const initialSearch = searchParams.get('search') || ''
   const initialTag = searchParams.get('tag') || ''
@@ -67,8 +68,11 @@ export function BlogList({ initialPosts }: BlogListProps) {
       {paginatedPosts.length > 0 ? (
         <>
           <div className="space-y-10">
-            {paginatedPosts.map((post) => (
-              <PostCard key={post.id} post={post} />
+            {paginatedPosts.map((post, index) => (
+              <div key={post.id} className="space-y-10">
+                <PostCard post={post} />
+                {betweenPostsAd && index === 0 && paginatedPosts.length > 1 ? betweenPostsAd : null}
+              </div>
             ))}
           </div>
 

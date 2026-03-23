@@ -15,30 +15,22 @@ interface ConsentContextType {
 const ConsentContext = createContext<ConsentContextType | undefined>(undefined)
 
 const CONSENT_KEY = 'cookie_consent'
-const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || 'ca-pub-XXXXXXXXXXXXXXXX'
 
-export function ConsentProvider({ children }: { children: ReactNode }) {
+interface ConsentProviderProps {
+  children: ReactNode
+  adsenseClientId?: string
+}
+
+export function ConsentProvider({ children, adsenseClientId }: ConsentProviderProps) {
   const [status, setStatus] = useState<ConsentStatus>('pending')
   const [isLoaded, setIsLoaded] = useState(false)
   const [adsenseLoaded, setAdsenseLoaded] = useState(false)
 
-  // Load consent from localStorage on mount
-  useEffect(() => {
-    const stored = localStorage.getItem(CONSENT_KEY)
-    if (stored === 'accepted' || stored === 'declined') {
-      setStatus(stored)
-    }
-    setIsLoaded(true)
-  }, [])
-
-  // Load AdSense script when consent is accepted
-  useEffect(() => {
-    if (status === 'accepted' && !adsenseLoaded && typeof window !== 'undefined') {
-      loadAdsenseScript()
-    }
-  }, [status, adsenseLoaded])
-
   const loadAdsenseScript = useCallback(() => {
+    if (!adsenseClientId) {
+      return
+    }
+
     // Check if script already exists
     if (document.querySelector('script[src*="adsbygoogle"]')) {
       setAdsenseLoaded(true)
@@ -46,7 +38,7 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
     }
 
     const script = document.createElement('script')
-    script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`
+    script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`
     script.async = true
     script.crossOrigin = 'anonymous'
     
@@ -59,7 +51,23 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
     }
     
     document.head.appendChild(script)
+  }, [adsenseClientId])
+
+  // Load consent from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(CONSENT_KEY)
+    if (stored === 'accepted' || stored === 'declined') {
+      setStatus(stored)
+    }
+    setIsLoaded(true)
   }, [])
+
+  // Load AdSense script when consent is accepted
+  useEffect(() => {
+    if (status === 'accepted' && adsenseClientId && !adsenseLoaded && typeof window !== 'undefined') {
+      loadAdsenseScript()
+    }
+  }, [status, adsenseClientId, adsenseLoaded, loadAdsenseScript])
 
   const accept = useCallback(() => {
     localStorage.setItem(CONSENT_KEY, 'accepted')

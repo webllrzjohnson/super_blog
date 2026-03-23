@@ -3,8 +3,15 @@
 import { usePathname } from 'next/navigation'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
+import type { BrandingSettings, LinksSettings } from '@/lib/settings'
 
-export function SiteWrapper({ children }: { children: React.ReactNode }) {
+interface SiteWrapperProps {
+  children: React.ReactNode
+  branding?: BrandingSettings
+  links?: LinksSettings
+}
+
+export function SiteWrapper({ children, branding, links }: SiteWrapperProps) {
   const pathname = usePathname()
   const isAdmin = pathname.startsWith('/admin')
 
@@ -14,11 +21,11 @@ export function SiteWrapper({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header branding={branding} />
       <main className="flex-1">
         {children}
       </main>
-      <Footer />
+      <Footer links={links} siteName={branding?.siteName} />
     </div>
   )
 }

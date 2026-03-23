@@ -1,28 +1,42 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
+import ReactMarkdown from 'react-markdown'
 import { defaultAuthor } from '@/lib/posts'
+import { getSetting } from '@/lib/settings'
 
 export const metadata: Metadata = {
   title: 'About',
   description: 'Learn more about me, what I write about, and how to connect.',
 }
 
-const socialLinks = [
-  { name: 'Twitter', href: 'https://twitter.com', label: '@alexchen' },
-  { name: 'GitHub', href: 'https://github.com', label: 'alexchen' },
-  { name: 'LinkedIn', href: 'https://linkedin.com/in/alexchen', label: 'Lester J.' },
-]
+export default async function AboutPage() {
+  const [pages, links] = await Promise.all([
+    getSetting('pages'),
+    getSetting('links'),
+  ])
+  const customAbout = pages.about?.trim()
 
-export default function AboutPage() {
-  // JSON-LD structured data for Person
+  const socialLinks = [
+    links?.github ? { name: 'GitHub', href: links.github } : null,
+    links?.linkedin ? { name: 'LinkedIn', href: links.linkedin } : null,
+    links?.twitter ? { name: 'Twitter/X', href: links.twitter } : null,
+    links?.contactEmail
+      ? { name: 'Email', href: `mailto:${links.contactEmail}` }
+      : null,
+  ].filter((item): item is { name: string; href: string } => item !== null)
+
+  const sameAsUrls = socialLinks
+    .filter((l) => !l.href.startsWith('mailto:'))
+    .map((l) => l.href)
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: defaultAuthor.name,
     description: defaultAuthor.bio,
-    url: 'https://example.com/about',
-    sameAs: socialLinks.map(link => link.href),
+    url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'}/about`,
+    sameAs: sameAsUrls,
   }
 
   return (
@@ -39,13 +53,18 @@ export default function AboutPage() {
           </h1>
         </header>
 
+        {customAbout ? (
+          <div className="prose prose-neutral dark:prose-invert max-w-none">
+            <ReactMarkdown>{customAbout}</ReactMarkdown>
+          </div>
+        ) : (
         <div className="space-y-8">
           {/* Profile */}
           <div className="flex flex-col md:flex-row gap-8 items-start">
             <div className="w-32 h-32 rounded-full bg-secondary shrink-0 overflow-hidden">
               {/* Add your profile image to /public and use: src="/your-photo.jpg" */}
               <Image
-                src="/avatar.jpg"
+                src="/avatar.png"
                 alt="Lester J."
                 width={128}
                 height={128}
@@ -54,28 +73,34 @@ export default function AboutPage() {
             </div>
             <div className="space-y-4">
               <p className="text-lg text-foreground leading-relaxed">
-                Hey there! I&apos;m Lester, a problem solver who traded my keyboard for a toolbelt—and somehow ended up with both.
+                Hey there! I&apos;m Lester—a software engineer by trade, a building superintendent by day, and a perpetual tinkerer at heart.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                I spent years building web applications and mobile apps as a full-stack developer, crafting code and solving digital puzzles. 
-                Then I made what some might call an unconventional pivot: I became a Senior Building Superintendent at one of the biggest 
-                subsidized housing companies in North America. Same curiosity, same love for solving problems—just a completely different 
-                set of challenges.
+                I spent years as a full-stack developer building web apps and mobile apps, debugging production issues at odd hours, and 
+                living that keyboard life. Then I made what most people would call a wild career pivot: I became a Senior Building 
+                Superintendent at one of the largest subsidized housing companies in North America. Different world, same problem-solving 
+                mindset—just swap the IDE for a set of tools and the standup meetings for emergency maintenance calls at 2 AM.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                The transition was an adventure. From debugging React components to fixing boilers. From optimizing databases to managing 
-                building systems. From sprint planning to emergency maintenance calls. It turns out that troubleshooting a heating system 
-                at 2 AM requires the same systematic thinking as tracking down a production bug—just with more wrenches and less coffee.
+                Engineering never really left me though. I still write code—just not full-time anymore. These days I build with AI as my 
+                co-pilot, automating workflows, creating tools, and exploring what&apos;s possible when you combine years of dev experience 
+                with modern AI capabilities. It keeps the brain sharp and honestly, it&apos;s some of the most fun I&apos;ve had coding.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                Here&apos;s the twist: I never really left development behind. I still code, just not full-time anymore. These days, 
-                I build with AI as my co-pilot, automating workflows, creating tools, and exploring what&apos;s possible when you combine 
-                traditional engineering skills with modern AI capabilities. It&apos;s a whole new kind of problem-solving, and I&apos;m here for it.
+                Outside of work, life is good and full. My wife and I love exploring the city—trying new restaurants, hunting down the best 
+                hidden gems, and cooking our way through cuisines we&apos;ve never attempted before. Weekends often involve something bubbling 
+                on the stove or a fresh loaf of bread cooling on the counter. Baking in particular is my kind of therapy: precise, 
+                patient, and deeply satisfying when it works.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                This blog is where I document both worlds—the lessons from managing real buildings and real people, the experiments with 
-                AI-assisted development, and everything I&apos;m learning along the way. Because whether you&apos;re fixing code or fixing 
-                infrastructure, it all comes down to curiosity, persistence, and a willingness to learn new things.
+                We also love to travel. There&apos;s something about being somewhere completely new—navigating a foreign menu, getting 
+                genuinely lost, figuring things out on the fly—that feels a lot like learning to code. Uncomfortable at first, 
+                exhilarating once you find your footing.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                This blog is where I bring it all together—the career lessons, the building stories, the AI experiments, the food finds, 
+                the travel moments. I don&apos;t have everything figured out, but I&apos;m paying attention, and I write about what I notice. 
+                Maybe some of it will be useful to you too.
               </p>
             </div>
           </div>
@@ -117,8 +142,8 @@ export default function AboutPage() {
                   <a
                     key={link.name}
                     href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target={link.href.startsWith('mailto:') ? undefined : '_blank'}
+                    rel={link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
                     className="hover:text-foreground transition-colors"
                   >
                     {link.name}
@@ -149,6 +174,7 @@ export default function AboutPage() {
             </div>
           </section>
         </div>
+        )}
       </div>
     </>
   )

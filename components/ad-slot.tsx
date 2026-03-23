@@ -12,6 +12,7 @@ declare global {
 interface AdSlotProps {
   position: 'top' | 'mid' | 'sidebar' | 'footer'
   adSlot?: string // Your AdSense ad slot ID
+  clientId?: string
 }
 
 const AD_SLOTS: Record<string, string> = {
@@ -21,12 +22,14 @@ const AD_SLOTS: Record<string, string> = {
   footer: process.env.NEXT_PUBLIC_ADSENSE_SLOT_FOOTER || 'XXXXXXXXXX',
 }
 
-export function AdSlot({ position, adSlot }: AdSlotProps) {
+export function AdSlot({ position, adSlot, clientId }: AdSlotProps) {
   const { hasConsented, isLoaded } = useConsent()
   const adRef = useRef<HTMLModElement>(null)
   const adPushed = useRef(false)
 
   const slotId = adSlot || AD_SLOTS[position]
+  const resolvedClientId =
+    clientId || process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || 'ca-pub-XXXXXXXXXXXXXXXX'
 
   useEffect(() => {
     // Only push ad if consent given and not already pushed
@@ -74,7 +77,7 @@ export function AdSlot({ position, adSlot }: AdSlotProps) {
         ref={adRef}
         className="adsbygoogle"
         style={{ display: 'block' }}
-        data-ad-client={process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || 'ca-pub-XXXXXXXXXXXXXXXX'}
+        data-ad-client={resolvedClientId}
         data-ad-slot={slotId}
         data-ad-format="auto"
         data-full-width-responsive="true"

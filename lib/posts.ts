@@ -4,7 +4,7 @@ import type { Post, Author } from './types'
 
 export const defaultAuthor: Author = {
   name: 'Lester J.',
-  avatar: '/avatar.jpg',
+  avatar: '/avatar.png',
   bio: 'Writer, tinkerer, and lifelong learner based in Toronto. I write about work, life, and the things that make me curious.'
 }
 

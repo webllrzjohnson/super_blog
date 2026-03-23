@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { verifySessionToken } from '@/lib/auth-session'
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const isAdmin = request.nextUrl.pathname.startsWith('/admin')
 
   if (!isAdmin) {
@@ -14,7 +15,8 @@ export function middleware(request: NextRequest) {
   }
 
   const session = request.cookies.get('admin_session')?.value
-  if (session !== 'authenticated') {
+  const valid = session ? await verifySessionToken(session) : false
+  if (!valid) {
     return NextResponse.redirect(new URL('/admin', request.url))
   }
 

@@ -1,11 +1,16 @@
 import type { Metadata } from 'next'
+import ReactMarkdown from 'react-markdown'
+import { getSetting } from '@/lib/settings'
 
 export const metadata: Metadata = {
   title: 'Affiliate Disclaimer',
   description: 'FTC-compliant disclosure about affiliate links and sponsored content.',
 }
 
-export default function DisclaimerPage() {
+export default async function DisclaimerPage() {
+  const pages = await getSetting('pages')
+  const customDisclaimer = pages.disclaimer?.trim()
+
   return (
     <div className="max-w-3xl mx-auto px-6 py-12 md:py-20">
       <header className="mb-12">
@@ -17,6 +22,11 @@ export default function DisclaimerPage() {
         </p>
       </header>
 
+      {customDisclaimer ? (
+        <div className="prose prose-neutral dark:prose-invert max-w-none">
+          <ReactMarkdown>{customDisclaimer}</ReactMarkdown>
+        </div>
+      ) : (
       <div className="prose prose-neutral dark:prose-invert max-w-none space-y-8">
         <section>
           <h2 className="text-xl font-semibold text-foreground mb-4">FTC Disclosure</h2>
@@ -90,6 +100,7 @@ export default function DisclaimerPage() {
           </p>
         </section>
       </div>
+      )}
     </div>
   )
 }
