@@ -15,3 +15,6 @@ next.user-config.*
 node_modules
 .next/
 .DS_Store
+
+# n8n workflows (contains sensitive credentials)
+n8n/
