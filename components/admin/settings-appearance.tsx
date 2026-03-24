@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { toast } from 'sonner'
+import { ImagePlus } from 'lucide-react'
 import type { AppearanceSettings, BrandingSettings } from '@/lib/settings'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -52,6 +53,8 @@ export function SettingsAppearance({
   })
   const [isSaving, setIsSaving] = useState(false)
   const [uploadingField, setUploadingField] = useState<'logoUrl' | 'faviconUrl' | null>(null)
+  const logoInputRef = useRef<HTMLInputElement>(null)
+  const faviconInputRef = useRef<HTMLInputElement>(null)
 
   const handleAssetUpload = async (
     field: 'logoUrl' | 'faviconUrl',
@@ -91,6 +94,8 @@ export function SettingsAppearance({
       })
     } finally {
       setUploadingField(null)
+      if (field === 'logoUrl') logoInputRef.current && (logoInputRef.current.value = '')
+      else faviconInputRef.current && (faviconInputRef.current.value = '')
     }
   }
 
@@ -164,57 +169,81 @@ export function SettingsAppearance({
 
         <div className="space-y-2">
           <Label htmlFor="logo-url">Logo URL</Label>
-          <Input
-            id="logo-url"
-            placeholder="https://... or Supabase public URL"
-            value={branding.logoUrl ?? ''}
-            onChange={(event) =>
-              setBranding((current) => ({
-                ...current,
-                logoUrl: event.target.value,
-              }))
-            }
-          />
-          <Input
-            type="file"
-            accept="image/*"
-            disabled={uploadingField === 'logoUrl'}
-            onChange={(event) =>
-              handleAssetUpload('logoUrl', event.target.files?.[0])
-            }
-          />
+          <div className="flex gap-2">
+            <Input
+              id="logo-url"
+              placeholder="Paste URL or upload below"
+              value={branding.logoUrl ?? ''}
+              onChange={(event) =>
+                setBranding((current) => ({
+                  ...current,
+                  logoUrl: event.target.value,
+                }))
+              }
+              className="flex-1"
+            />
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(event) =>
+                handleAssetUpload('logoUrl', event.target.files?.[0])
+              }
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={uploadingField === 'logoUrl'}
+              onClick={() => logoInputRef.current?.click()}
+            >
+              <ImagePlus className="h-4 w-4 mr-2" />
+              {uploadingField === 'logoUrl' ? 'Uploading...' : 'Upload'}
+            </Button>
+          </div>
           <p className="text-sm text-muted-foreground">
-            {uploadingField === 'logoUrl'
-              ? 'Uploading logo...'
-              : 'Paste a URL or upload a logo image.'}
+            Paste a URL or use the Upload button to add your logo.
           </p>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="favicon-url">Favicon URL</Label>
-          <Input
-            id="favicon-url"
-            placeholder="https://... or Supabase public URL"
-            value={branding.faviconUrl ?? ''}
-            onChange={(event) =>
-              setBranding((current) => ({
-                ...current,
-                faviconUrl: event.target.value,
-              }))
-            }
-          />
-          <Input
-            type="file"
-            accept="image/*,.ico"
-            disabled={uploadingField === 'faviconUrl'}
-            onChange={(event) =>
-              handleAssetUpload('faviconUrl', event.target.files?.[0])
-            }
-          />
+          <div className="flex gap-2">
+            <Input
+              id="favicon-url"
+              placeholder="Paste URL or upload below"
+              value={branding.faviconUrl ?? ''}
+              onChange={(event) =>
+                setBranding((current) => ({
+                  ...current,
+                  faviconUrl: event.target.value,
+                }))
+              }
+              className="flex-1"
+            />
+            <input
+              ref={faviconInputRef}
+              type="file"
+              accept="image/*,.ico"
+              className="hidden"
+              onChange={(event) =>
+                handleAssetUpload('faviconUrl', event.target.files?.[0])
+              }
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={uploadingField === 'faviconUrl'}
+              onClick={() => faviconInputRef.current?.click()}
+            >
+              <ImagePlus className="h-4 w-4 mr-2" />
+              {uploadingField === 'faviconUrl' ? 'Uploading...' : 'Upload'}
+            </Button>
+          </div>
           <p className="text-sm text-muted-foreground">
-            {uploadingField === 'faviconUrl'
-              ? 'Uploading favicon...'
-              : 'Paste a URL or upload a favicon image.'}
+            Paste a URL or use the Upload button to add your favicon.
           </p>
         </div>
 

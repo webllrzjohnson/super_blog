@@ -1,13 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { generateSlug } from '@/lib/store'
 import type { Post } from '@/lib/types'
-import { ArrowLeft, Eye } from 'lucide-react'
+import { ArrowLeft, Eye, ImagePlus } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface PostEditorProps {
   post: Post
@@ -22,6 +24,8 @@ export function PostEditor({ post, isNew, onSave, onCancel }: PostEditorProps) {
   const [formData, setFormData] = useState<Post>(post)
   const [showPreview, setShowPreview] = useState(false)
   const [tagsInput, setTagsInput] = useState(post.tags.join(', '))
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -44,21 +48,36 @@ export function PostEditor({ post, isNew, onSave, onCancel }: PostEditorProps) {
     setFormData((prev) => ({ ...prev, tags }))
   }
 
-  const handleSave = (status: 'draft' | 'published') => {
-    onSave({ ...formData, status })
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const formDataUpload = new FormData()
+      formDataUpload.append('file', file)
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formDataUpload,
+        credentials: 'include',
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Upload failed')
+      }
+      const { url } = await res.json()
+      setFormData((prev) => ({ ...prev, featuredImage: url }))
+      toast.success('Image uploaded')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to upload image')
+    } finally {
+      setUploading(false)
+      e.target.value = ''
+    }
   }
 
-  // Simple markdown to HTML conversion for preview
-  const renderContent = (content: string) => {
-    return content
-      .split('\n\n')
-      .map((paragraph, i) => {
-        if (paragraph.startsWith('## ')) {
-          return `<h2 class="text-xl font-semibold mt-6 mb-3">${paragraph.replace('## ', '')}</h2>`
-        }
-        return `<p class="mb-4">${paragraph}</p>`
-      })
-      .join('')
+  const handleSave = (status: 'draft' | 'published') => {
+    onSave({ ...formData, status })
   }
 
   return (
@@ -93,10 +112,9 @@ export function PostEditor({ post, isNew, onSave, onCancel }: PostEditorProps) {
             {formData.title || 'Untitled'}
           </h1>
           <p className="text-muted-foreground mb-6">{formData.excerpt}</p>
-          <div
-            className="prose prose-neutral dark:prose-invert max-w-none"
-            dangerouslySetInnerHTML={{ __html: renderContent(formData.content) }}
-          />
+          <div className="prose prose-neutral dark:prose-invert max-w-none">
+            <ReactMarkdown>{formData.content}</ReactMarkdown>
+          </div>
         </div>
       ) : (
         /* Edit Mode */
@@ -167,14 +185,41 @@ export function PostEditor({ post, isNew, onSave, onCancel }: PostEditorProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="featuredImage">Featured Image URL (optional)</Label>
-            <Input
-              id="featuredImage"
-              name="featuredImage"
-              value={formData.featuredImage || ''}
-              onChange={handleChange}
-              placeholder="/images/my-post.jpg"
-            />
+            <Label htmlFor="featuredImage">Featured Image (optional)</Label>
+            <div className="flex gap-2">
+              <Input
+                id="featuredImage"
+                name="featuredImage"
+                value={formData.featuredImage || ''}
+                onChange={handleChange}
+                placeholder="Paste URL or upload below"
+                className="flex-1"
+              />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={uploading}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <ImagePlus className="h-4 w-4 mr-2" />
+                {uploading ? 'Uploading...' : 'Upload'}
+              </Button>
+            </div>
+            {formData.featuredImage && (
+              <img
+                src={formData.featuredImage}
+                alt="Featured preview"
+                className="mt-2 h-24 w-auto rounded border border-border object-cover"
+              />
+            )}
           </div>
 
           <div className="space-y-2">
