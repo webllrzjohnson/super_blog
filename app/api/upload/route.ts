@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { createServerClient } from '@/lib/supabase/server'
 import { isAdminSession } from '@/lib/auth-session'
+import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'
 
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -45,6 +46,23 @@ function getFileExtension(file: File): string {
 }
 
 export async function POST(request: Request) {
+  const clientId = getClientIdentifier(request)
+  const limit = rateLimit({
+    key: `upload:${clientId}`,
+    windowMs: 10 * 60 * 1000,
+    maxRequests: 20,
+  })
+
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: 'Too many uploads. Please try again later.' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(limit.retryAfterSeconds) },
+      }
+    )
+  }
+
   const isAdmin = await checkAdmin()
   if (!isAdmin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { z } from 'zod'
+import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'
 
 const schema = z.object({
   name: z.string().min(1).max(200),
@@ -10,6 +11,23 @@ const schema = z.object({
 })
 
 export async function POST(request: Request) {
+  const clientId = getClientIdentifier(request)
+  const limit = rateLimit({
+    key: `contact:${clientId}`,
+    windowMs: 10 * 60 * 1000,
+    maxRequests: 5,
+  })
+
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: 'Too many messages. Please try again later.' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(limit.retryAfterSeconds) },
+      }
+    )
+  }
+
   const body = await request.json()
   const parsed = schema.safeParse(body)
 

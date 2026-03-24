@@ -7,6 +7,7 @@ import type { Post } from '@/lib/types'
 import { calculateReadTime } from '@/lib/posts'
 import { z } from 'zod'
 import { isAdminSession } from '@/lib/auth-session'
+import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'
 
 async function checkAdmin(): Promise<boolean> {
   const headersList = await headers()
@@ -42,6 +43,23 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const clientId = getClientIdentifier(request)
+  const limit = rateLimit({
+    key: `posts:write:${clientId}`,
+    windowMs: 10 * 60 * 1000,
+    maxRequests: 30,
+  })
+
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: 'Too many post updates. Please try again later.' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(limit.retryAfterSeconds) },
+      }
+    )
+  }
+
   const isAdmin = await checkAdmin()
   if (!isAdmin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -57,8 +75,24 @@ export async function POST(request: Request) {
     )
   }
 
+  const normalizedSlug = parsed.data.slug.trim().toLowerCase()
+  const allPosts = await getPostsFromDb()
+  const duplicateSlug = allPosts.find(
+    (existing) =>
+      existing.id !== parsed.data.id &&
+      existing.slug.trim().toLowerCase() === normalizedSlug
+  )
+
+  if (duplicateSlug) {
+    return NextResponse.json(
+      { error: 'A post with this slug already exists.' },
+      { status: 409 }
+    )
+  }
+
   const post: Post = {
     ...parsed.data,
+    slug: normalizedSlug,
     readTime: calculateReadTime(parsed.data.content),
     updatedAt: new Date().toISOString().split('T')[0],
   }

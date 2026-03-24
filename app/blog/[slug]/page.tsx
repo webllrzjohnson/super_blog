@@ -2,15 +2,23 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import ReactMarkdown from 'react-markdown'
+import { headers } from 'next/headers'
 import { getPostBySlugFromDb, getPostsFromDb } from '@/lib/db/posts'
 import { getRelatedPosts, getPublishedPosts, getAdjacentPosts } from '@/lib/posts'
 import { PostCard } from '@/components/post-card'
 import { AffiliateDisclosure } from '@/components/affiliate-disclosure'
 import { GoogleAd } from '@/components/google-ad'
 import { ReadingProgressBar } from '@/components/reading-progress-bar'
+import { isAdminSession } from '@/lib/auth-session'
 
 interface Props {
   params: Promise<{ slug: string }>
+}
+
+async function hasAdminAccess(): Promise<boolean> {
+  const headersList = await headers()
+  return isAdminSession(headersList.get('cookie'))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -19,6 +27,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   
   if (!post) {
     return { title: 'Post Not Found' }
+  }
+
+  const isAdmin = await hasAdminAccess()
+  if (post.status !== 'published' && !isAdmin) {
+    return {
+      title: 'Post Not Found',
+      robots: { index: false, follow: false },
+    }
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
@@ -50,7 +66,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export async function generateStaticParams() {
   const posts = await getPostsFromDb()
-  return posts.map((post) => ({
+  const publishedPosts = getPublishedPosts(posts)
+  return publishedPosts.map((post) => ({
     slug: post.slug,
   }))
 }
@@ -63,12 +80,17 @@ export default async function BlogPostPage({ params }: Props) {
     notFound()
   }
 
+  const isAdmin = await hasAdminAccess()
+  if (post.status !== 'published' && !isAdmin) {
+    notFound()
+  }
+
   const allPosts = await getPostsFromDb()
   const relatedPosts = getRelatedPosts(getPublishedPosts(allPosts), post)
   const { newer, older } = getAdjacentPosts(allPosts, slug)
 
-  // Convert markdown-style content to HTML paragraphs
-  const contentParagraphs = post.content
+  // Split into blocks for ad placement, then render each with ReactMarkdown
+  const contentBlocks = post.content
     .split('\n\n')
     .filter(p => p.trim())
 
@@ -139,24 +161,31 @@ export default async function BlogPostPage({ params }: Props) {
         </header>
 
         <div className="prose prose-neutral dark:prose-invert max-w-none">
-          {contentParagraphs.map((paragraph, index) => {
+          {contentBlocks.map((block, index) => {
             const showMidAd = index === 3
-            if (paragraph.startsWith('## ')) {
-              return (
-                <div key={index}>
-                  {showMidAd && <GoogleAd position="mid-content" />}
-                  <h2 id={paragraph.replace('## ', '').toLowerCase().replace(/\s+/g, '-')} className="text-lg font-medium text-foreground mt-8 mb-4">
-                    {paragraph.replace('## ', '')}
-                  </h2>
-                </div>
-              )
-            }
             return (
               <div key={index}>
                 {showMidAd && <GoogleAd position="mid-content" />}
-                <p className="text-foreground/90 leading-relaxed mb-4">
-                  {paragraph}
-                </p>
+                <ReactMarkdown
+                  components={{
+                    h2: ({ children, ...props }) => {
+                      const text = String(children)
+                      const id = text.toLowerCase().replace(/\s+/g, '-')
+                      return (
+                        <h2 id={id} className="text-lg font-medium text-foreground mt-8 mb-4" {...props}>
+                          {children}
+                        </h2>
+                      )
+                    },
+                    p: ({ children, ...props }) => (
+                      <p className="text-foreground/90 leading-relaxed mb-4" {...props}>
+                        {children}
+                      </p>
+                    ),
+                  }}
+                >
+                  {block}
+                </ReactMarkdown>
               </div>
             )
           })}

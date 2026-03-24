@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,6 +26,33 @@ export function PostEditor({ post, isNew, onSave, onCancel }: PostEditorProps) {
   const [tagsInput, setTagsInput] = useState(post.tags.join(', '))
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const initialSnapshotRef = useRef(JSON.stringify(post))
+
+  useEffect(() => {
+    setFormData(post)
+    setTagsInput(post.tags.join(', '))
+    setShowPreview(false)
+    initialSnapshotRef.current = JSON.stringify(post)
+  }, [post])
+
+  const hasUnsavedChanges =
+    JSON.stringify(formData) !== initialSnapshotRef.current
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) {
+      return
+    }
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [hasUnsavedChanges])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -80,12 +107,24 @@ export function PostEditor({ post, isNew, onSave, onCancel }: PostEditorProps) {
     onSave({ ...formData, status })
   }
 
+  const handleCancel = () => {
+    if (hasUnsavedChanges) {
+      const confirmed = confirm(
+        'You have unsaved changes. Are you sure you want to leave this editor?'
+      )
+      if (!confirmed) {
+        return
+      }
+    }
+    onCancel()
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <button
-          onClick={onCancel}
+          onClick={handleCancel}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -248,7 +287,7 @@ Separate paragraphs with blank lines"
         <Button onClick={() => handleSave('published')}>
           Publish
         </Button>
-        <Button variant="ghost" onClick={onCancel}>
+        <Button variant="ghost" onClick={handleCancel}>
           Cancel
         </Button>
       </div>

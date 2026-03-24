@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { BlogList } from '@/components/blog-list'
 import { GoogleAd } from '@/components/google-ad'
 import { getPostsFromDb } from '@/lib/db/posts'
+import { getPublishedPosts } from '@/lib/posts'
 
 export const metadata: Metadata = {
   title: 'Blog',
@@ -10,7 +11,8 @@ export const metadata: Metadata = {
 }
 
 export default async function BlogPage() {
-  const posts = await getPostsFromDb()
+  const allPosts = await getPostsFromDb()
+  const posts = getPublishedPosts(allPosts)
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-12 md:py-16">
