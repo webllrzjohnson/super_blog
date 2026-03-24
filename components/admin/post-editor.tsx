@@ -15,16 +15,42 @@ interface PostEditorProps {
   post: Post
   isNew: boolean
   onSave: (post: Post) => void
+  onAutoSave?: (post: Post) => Promise<void> | void
   onCancel: () => void
 }
 
 const categories = ['Life', 'Work', 'Hobbies', 'Experience'] as const
 
-export function PostEditor({ post, isNew, onSave, onCancel }: PostEditorProps) {
+function toDateTimeLocalValue(value: string): string {
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return ''
+
+  const adjusted = new Date(parsed.getTime() - parsed.getTimezoneOffset() * 60000)
+  return adjusted.toISOString().slice(0, 16)
+}
+
+function fromDateTimeLocalValue(value: string): string {
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return ''
+  return parsed.toISOString()
+}
+
+export function PostEditor({
+  post,
+  isNew,
+  onSave,
+  onAutoSave,
+  onCancel,
+}: PostEditorProps) {
   const [formData, setFormData] = useState<Post>(post)
   const [showPreview, setShowPreview] = useState(false)
   const [tagsInput, setTagsInput] = useState(post.tags.join(', '))
   const [uploading, setUploading] = useState(false)
+  const [isAutoSaving, setIsAutoSaving] = useState(false)
+  const [lastAutoSavedAt, setLastAutoSavedAt] = useState<Date | null>(null)
+  const [scheduleInput, setScheduleInput] = useState(
+    toDateTimeLocalValue(post.publishedAt)
+  )
   const fileInputRef = useRef<HTMLInputElement>(null)
   const initialSnapshotRef = useRef(JSON.stringify(post))
 
@@ -32,6 +58,8 @@ export function PostEditor({ post, isNew, onSave, onCancel }: PostEditorProps) {
     setFormData(post)
     setTagsInput(post.tags.join(', '))
     setShowPreview(false)
+    setScheduleInput(toDateTimeLocalValue(post.publishedAt))
+    setLastAutoSavedAt(null)
     initialSnapshotRef.current = JSON.stringify(post)
   }, [post])
 
@@ -53,6 +81,52 @@ export function PostEditor({ post, isNew, onSave, onCancel }: PostEditorProps) {
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
   }, [hasUnsavedChanges])
+
+  useEffect(() => {
+    if (!onAutoSave || !hasUnsavedChanges || uploading || isAutoSaving) {
+      return
+    }
+
+    if (!formData.title.trim() || !formData.slug.trim()) {
+      return
+    }
+
+    if (formData.status === 'published') {
+      return
+    }
+
+    const interval = window.setInterval(async () => {
+      const autoSaveStatus: Post['status'] =
+        formData.status === 'scheduled' ? 'scheduled' : 'draft'
+      const payload: Post = {
+        ...formData,
+        status: autoSaveStatus,
+      }
+
+      if (autoSaveStatus === 'scheduled') {
+        const scheduleDate = new Date(payload.publishedAt)
+        if (
+          Number.isNaN(scheduleDate.getTime()) ||
+          scheduleDate.getTime() <= Date.now()
+        ) {
+          return
+        }
+      }
+
+      setIsAutoSaving(true)
+      try {
+        await onAutoSave(payload)
+        initialSnapshotRef.current = JSON.stringify(payload)
+        setLastAutoSavedAt(new Date())
+      } finally {
+        setIsAutoSaving(false)
+      }
+    }, 20000)
+
+    return () => {
+      window.clearInterval(interval)
+    }
+  }, [formData, hasUnsavedChanges, isAutoSaving, onAutoSave, uploading])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -103,8 +177,33 @@ export function PostEditor({ post, isNew, onSave, onCancel }: PostEditorProps) {
     }
   }
 
-  const handleSave = (status: 'draft' | 'published') => {
-    onSave({ ...formData, status })
+  const handleScheduleInputChange = (value: string) => {
+    setScheduleInput(value)
+    const isoValue = fromDateTimeLocalValue(value)
+    if (!isoValue) return
+    setFormData((prev) => ({ ...prev, publishedAt: isoValue }))
+  }
+
+  const handleSave = (status: 'draft' | 'scheduled' | 'published') => {
+    if (status === 'scheduled') {
+      const scheduleDate = new Date(formData.publishedAt)
+      if (Number.isNaN(scheduleDate.getTime())) {
+        toast.error('Please choose a valid date and time to schedule.')
+        return
+      }
+
+      if (scheduleDate.getTime() <= Date.now()) {
+        toast.error('Scheduled publish time must be in the future.')
+        return
+      }
+    }
+
+    const publishedAt =
+      status === 'published' && formData.status !== 'published'
+        ? new Date().toISOString()
+        : formData.publishedAt
+
+    onSave({ ...formData, status, publishedAt })
   }
 
   const handleCancel = () => {
@@ -143,6 +242,16 @@ export function PostEditor({ post, isNew, onSave, onCancel }: PostEditorProps) {
       <h2 className="text-xl font-semibold text-foreground">
         {isNew ? 'Create New Post' : 'Edit Post'}
       </h2>
+      <div className="text-sm text-muted-foreground">
+        {isAutoSaving
+          ? 'Autosaving...'
+          : lastAutoSavedAt
+            ? `Last autosaved at ${lastAutoSavedAt.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+              })}`
+            : 'Autosave runs every 20 seconds for draft/scheduled edits.'}
+      </div>
 
       {showPreview ? (
         /* Preview Mode */
@@ -223,6 +332,19 @@ export function PostEditor({ post, isNew, onSave, onCancel }: PostEditorProps) {
             </div>
           </div>
 
+          <div className="space-y-2 max-w-sm">
+            <Label htmlFor="scheduleAt">Schedule Publish (optional)</Label>
+            <Input
+              id="scheduleAt"
+              type="datetime-local"
+              value={scheduleInput}
+              onChange={(e) => handleScheduleInputChange(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Set a future date and use the Schedule button to queue this post.
+            </p>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="featuredImage">Featured Image (optional)</Label>
             <div className="flex gap-2">
@@ -283,6 +405,9 @@ Separate paragraphs with blank lines"
       <div className="flex items-center gap-4 pt-4 border-t border-border">
         <Button onClick={() => handleSave('draft')} variant="outline">
           Save as Draft
+        </Button>
+        <Button onClick={() => handleSave('scheduled')} variant="outline">
+          Schedule
         </Button>
         <Button onClick={() => handleSave('published')}>
           Publish

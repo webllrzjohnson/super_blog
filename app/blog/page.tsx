@@ -5,9 +5,14 @@ import { GoogleAd } from '@/components/google-ad'
 import { getPostsFromDb } from '@/lib/db/posts'
 import { getPublishedPosts } from '@/lib/posts'
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
+
 export const metadata: Metadata = {
   title: 'Blog',
   description: 'Thoughts on work, life, hobbies, and experiences. Read all my blog posts here.',
+  alternates: {
+    canonical: `${BASE_URL}/blog`,
+  },
 }
 
 export default async function BlogPage() {

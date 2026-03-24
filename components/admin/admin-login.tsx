@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -45,7 +46,13 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6">
+    <div className="min-h-screen flex items-center justify-center px-6 relative">
+      <Link
+        href="/"
+        className="absolute top-6 left-6 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        ← Home
+      </Link>
       <div className="w-full max-w-sm">
         <h1 className="text-2xl font-semibold text-foreground mb-2">Admin Login</h1>
         <p className="text-muted-foreground mb-8">

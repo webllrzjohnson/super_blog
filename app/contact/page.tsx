@@ -3,9 +3,14 @@ import ReactMarkdown from 'react-markdown'
 import { ContactForm } from '@/components/contact-form'
 import { getSetting } from '@/lib/settings'
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
+
 export const metadata: Metadata = {
   title: 'Contact',
   description: 'Get in touch with me. I\'d love to hear from you.',
+  alternates: {
+    canonical: `${BASE_URL}/contact`,
+  },
 }
 
 export default async function ContactPage() {

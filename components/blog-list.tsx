@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, type ReactNode } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { PostCard } from '@/components/post-card'
 import { Input } from '@/components/ui/input'
@@ -16,23 +16,27 @@ interface BlogListProps {
 }
 
 export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
+  const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
-  const initialSearch = searchParams.get('search') || ''
-  const initialTag = searchParams.get('tag') || ''
+  const urlSearch = searchParams.get('search') || ''
+  const urlTag = searchParams.get('tag') || ''
+  const urlPage = Number(searchParams.get('page') || '1')
+  const initialPage = Number.isNaN(urlPage) || urlPage < 1 ? 1 : urlPage
   
-  const [searchQuery, setSearchQuery] = useState(initialSearch)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [searchQuery, setSearchQuery] = useState(urlSearch)
+  const [currentPage, setCurrentPage] = useState(initialPage)
 
   useEffect(() => {
-    setSearchQuery(initialSearch)
-    setCurrentPage(1)
-  }, [initialSearch, initialTag])
+    setSearchQuery(urlSearch)
+    setCurrentPage(initialPage)
+  }, [initialPage, urlSearch])
 
   const filteredPosts = useMemo(() => {
     let posts = getPublishedPosts(initialPosts)
 
-    if (initialTag) {
-      posts = getPostsByTag(posts, initialTag)
+    if (urlTag) {
+      posts = getPostsByTag(posts, urlTag)
     }
 
     if (searchQuery.trim()) {
@@ -40,7 +44,29 @@ export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
     }
 
     return posts
-  }, [initialPosts, initialTag, searchQuery])
+  }, [initialPosts, searchQuery, urlTag])
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString())
+
+    if (searchQuery.trim()) {
+      params.set('search', searchQuery.trim())
+    } else {
+      params.delete('search')
+    }
+
+    if (currentPage > 1) {
+      params.set('page', String(currentPage))
+    } else {
+      params.delete('page')
+    }
+
+    const nextQuery = params.toString()
+    const currentQuery = searchParams.toString()
+    if (nextQuery !== currentQuery) {
+      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname)
+    }
+  }, [currentPage, pathname, router, searchParams, searchQuery])
 
   const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE)
   const paginatedPosts = filteredPosts.slice(
@@ -48,10 +74,17 @@ export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
     currentPage * POSTS_PER_PAGE
   )
 
+  useEffect(() => {
+    if (totalPages === 0) return
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
+
   return (
     <div className="space-y-10">
       {/* Minimal search */}
-      <div>
+      <div className="space-y-3">
         <Input
           type="search"
           placeholder="Search posts..."
@@ -62,6 +95,21 @@ export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
           }}
           className="max-w-xs text-sm"
         />
+        {(urlTag || searchQuery.trim()) && (
+          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+            <span>
+              Filtering
+              {urlTag ? ` #${urlTag}` : ''}
+              {searchQuery.trim() ? ` for "${searchQuery.trim()}"` : ''}
+            </span>
+            <Link
+              href="/blog"
+              className="hover:text-foreground transition-colors underline underline-offset-4"
+            >
+              Clear filters
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Posts - cassidoo style: just the list */}
@@ -98,7 +146,7 @@ export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
         </>
       ) : (
         <p className="text-muted-foreground py-12">
-          No posts found{initialTag ? ` for tag #${initialTag}` : ''}.
+          No posts found{urlTag ? ` for tag #${urlTag}` : ''}.
         </p>
       )}
     </div>

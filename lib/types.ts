@@ -13,7 +13,7 @@ export interface Post {
   publishedAt: string
   updatedAt?: string
   readTime: number
-  status: 'draft' | 'published'
+  status: 'draft' | 'scheduled' | 'published'
 }
 
 export interface Author {

@@ -28,10 +28,10 @@ const postSchema = z.object({
     avatar: z.string().optional(),
     bio: z.string().optional(),
   }),
-  publishedAt: z.string(),
+  publishedAt: z.string().min(1),
   updatedAt: z.string().optional(),
   readTime: z.number(),
-  status: z.enum(['draft', 'published']),
+  status: z.enum(['draft', 'scheduled', 'published']),
 })
 
 export async function GET() {
@@ -75,6 +75,18 @@ export async function POST(request: Request) {
     )
   }
 
+  const publishDate = new Date(parsed.data.publishedAt)
+  if (Number.isNaN(publishDate.getTime())) {
+    return NextResponse.json({ error: 'Invalid publish date' }, { status: 400 })
+  }
+
+  if (parsed.data.status === 'scheduled' && publishDate.getTime() <= Date.now()) {
+    return NextResponse.json(
+      { error: 'Scheduled posts must have a future publish date.' },
+      { status: 400 }
+    )
+  }
+
   const normalizedSlug = parsed.data.slug.trim().toLowerCase()
   const allPosts = await getPostsFromDb()
   const duplicateSlug = allPosts.find(
@@ -93,6 +105,7 @@ export async function POST(request: Request) {
   const post: Post = {
     ...parsed.data,
     slug: normalizedSlug,
+    publishedAt: publishDate.toISOString(),
     readTime: calculateReadTime(parsed.data.content),
     updatedAt: new Date().toISOString().split('T')[0],
   }

@@ -3,9 +3,14 @@ import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import { getSetting } from '@/lib/settings'
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
+
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description: 'Our GDPR-compliant privacy policy explains how we collect, use, and protect your personal information when using Google AdSense and Amazon affiliate links.',
+  alternates: {
+    canonical: `${BASE_URL}/privacy`,
+  },
 }
 
 export default async function PrivacyPage() {

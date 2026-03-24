@@ -5,9 +5,14 @@ import ReactMarkdown from 'react-markdown'
 import { defaultAuthor } from '@/lib/posts'
 import { getSetting } from '@/lib/settings'
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
+
 export const metadata: Metadata = {
   title: 'About',
   description: 'Learn more about me, what I write about, and how to connect.',
+  alternates: {
+    canonical: `${BASE_URL}/about`,
+  },
 }
 
 export default async function AboutPage() {

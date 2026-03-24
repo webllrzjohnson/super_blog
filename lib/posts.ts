@@ -196,8 +196,26 @@ Remember: every yes is a no to something else. Make sure you're saying yes to th
 ]
 
 // Helper functions for filtering and searching posts
+export function isPostPubliclyVisible(post: Post, now = new Date()): boolean {
+  if (post.status === 'published') {
+    return true
+  }
+
+  if (post.status !== 'scheduled') {
+    return false
+  }
+
+  const publishAt = new Date(post.publishedAt)
+  return !Number.isNaN(publishAt.getTime()) && publishAt.getTime() <= now.getTime()
+}
+
 export function getPublishedPosts(posts: Post[]): Post[] {
-  return posts.filter(post => post.status === 'published')
+  return posts
+    .filter((post) => isPostPubliclyVisible(post))
+    .sort(
+      (a, b) =>
+        new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+    )
 }
 
 export function getPostsByCategory(posts: Post[], category: string): Post[] {
@@ -252,7 +270,7 @@ export function searchPosts(posts: Post[], query: string): Post[] {
 
 export function getRelatedPosts(posts: Post[], currentPost: Post, limit = 3): Post[] {
   return posts
-    .filter(post => post.id !== currentPost.id && post.status === 'published')
+    .filter((post) => post.id !== currentPost.id && isPostPubliclyVisible(post))
     .filter(post =>
       post.category === currentPost.category ||
       post.tags.some(tag => currentPost.tags.includes(tag))

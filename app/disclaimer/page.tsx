@@ -2,9 +2,14 @@ import type { Metadata } from 'next'
 import ReactMarkdown from 'react-markdown'
 import { getSetting } from '@/lib/settings'
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
+
 export const metadata: Metadata = {
   title: 'Affiliate Disclaimer',
   description: 'FTC-compliant disclosure about affiliate links and sponsored content.',
+  alternates: {
+    canonical: `${BASE_URL}/disclaimer`,
+  },
 }
 
 export default async function DisclaimerPage() {

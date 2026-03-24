@@ -5,7 +5,12 @@ import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import { headers } from 'next/headers'
 import { getPostBySlugFromDb, getPostsFromDb } from '@/lib/db/posts'
-import { getRelatedPosts, getPublishedPosts, getAdjacentPosts } from '@/lib/posts'
+import {
+  getRelatedPosts,
+  getPublishedPosts,
+  getAdjacentPosts,
+  isPostPubliclyVisible,
+} from '@/lib/posts'
 import { PostCard } from '@/components/post-card'
 import { AffiliateDisclosure } from '@/components/affiliate-disclosure'
 import { GoogleAd } from '@/components/google-ad'
@@ -30,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const isAdmin = await hasAdminAccess()
-  if (post.status !== 'published' && !isAdmin) {
+  if (!isPostPubliclyVisible(post) && !isAdmin) {
     return {
       title: 'Post Not Found',
       robots: { index: false, follow: false },
@@ -45,6 +50,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: post.title,
     description: post.excerpt,
+    alternates: {
+      canonical: `${baseUrl}/blog/${slug}`,
+    },
     openGraph: {
       title: post.title,
       description: post.excerpt,
@@ -81,7 +89,7 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   const isAdmin = await hasAdminAccess()
-  if (post.status !== 'published' && !isAdmin) {
+  if (!isPostPubliclyVisible(post) && !isAdmin) {
     notFound()
   }
 

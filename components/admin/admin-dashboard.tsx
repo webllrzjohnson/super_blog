@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PostList } from '@/components/admin/post-list'
@@ -14,7 +15,7 @@ import { getPosts, savePost, deletePost, generateId } from '@/lib/store'
 import { defaultAuthor, calculateReadTime } from '@/lib/posts'
 import type { Post } from '@/lib/types'
 import type { SettingsMap } from '@/lib/settings'
-import { LogOut, Plus } from 'lucide-react'
+import { LogOut, Plus, Home } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface AdminDashboardProps {
@@ -28,6 +29,19 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [isCreating, setIsCreating] = useState(false)
   const [activeTab, setActiveTab] = useState('posts')
   const [loading, setLoading] = useState(true)
+
+  const upsertLocalPost = (savedPost: Post) => {
+    setPosts((prev) => {
+      const existingIndex = prev.findIndex((post) => post.id === savedPost.id)
+      if (existingIndex === -1) {
+        return [savedPost, ...prev]
+      }
+
+      const next = [...prev]
+      next[existingIndex] = savedPost
+      return next
+    })
+  }
 
   useEffect(() => {
     Promise.all([
@@ -61,7 +75,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       category: 'Life',
       tags: [],
       author: defaultAuthor,
-      publishedAt: new Date().toISOString().split('T')[0],
+      publishedAt: new Date().toISOString(),
       readTime: 1,
       status: 'draft',
     }
@@ -81,8 +95,8 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       updatedAt: new Date().toISOString().split('T')[0],
     }
     try {
-      await savePost(updatedPost)
-      setPosts(await getPosts())
+      const saved = await savePost(updatedPost)
+      upsertLocalPost(saved)
       setEditingPost(null)
       setIsCreating(false)
       toast.success('Post saved successfully')
@@ -90,6 +104,21 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       toast.error('Failed to save', {
         description: err instanceof Error ? err.message : 'Unknown error',
       })
+    }
+  }
+
+  const handleAutoSave = async (post: Post) => {
+    const updatedPost = {
+      ...post,
+      readTime: calculateReadTime(post.content),
+      updatedAt: new Date().toISOString().split('T')[0],
+    }
+
+    try {
+      const saved = await savePost(updatedPost)
+      upsertLocalPost(saved)
+    } catch {
+      // Autosave is best-effort; explicit saves still show full errors.
     }
   }
 
@@ -123,7 +152,16 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-foreground">Admin Dashboard</h1>
+          <div className="flex items-center gap-6">
+            <h1 className="text-xl font-semibold text-foreground">Admin Dashboard</h1>
+            <Link
+              href="/"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+            >
+              <Home className="h-4 w-4" />
+              Home
+            </Link>
+          </div>
           <div className="flex items-center gap-4">
             {activeTab === 'posts' && !editingPost && (
               <Button onClick={handleCreateNew} size="sm">
@@ -156,6 +194,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
                 post={editingPost}
                 isNew={isCreating}
                 onSave={handleSave}
+                onAutoSave={handleAutoSave}
                 onCancel={handleCancel}
               />
             ) : (
