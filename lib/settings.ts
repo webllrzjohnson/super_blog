@@ -218,7 +218,29 @@ export const getSettings = cache(async (): Promise<SettingsMap> => {
   const settings = cloneDefaults()
 
   for (const row of data as SiteSettingsRow[]) {
-    settings[row.key] = normalizeSetting(row.key, row.value)
+    switch (row.key) {
+      case 'links':
+        settings.links = normalizeSetting('links', row.value)
+        break
+      case 'branding':
+        settings.branding = normalizeSetting('branding', row.value)
+        break
+      case 'appearance':
+        settings.appearance = normalizeSetting('appearance', row.value)
+        break
+      case 'ads':
+        settings.ads = normalizeSetting('ads', row.value)
+        break
+      case 'pages':
+        settings.pages = normalizeSetting('pages', row.value)
+        break
+      case 'admin_password_hash':
+        settings.admin_password_hash = normalizeSetting(
+          'admin_password_hash',
+          row.value
+        )
+        break
+    }
   }
 
   return settings
