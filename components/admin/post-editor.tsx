@@ -8,8 +8,19 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { generateSlug } from '@/lib/store'
 import type { Post } from '@/lib/types'
-import { evaluatePublishChecklist } from '@/lib/editorial-checklist'
-import { ArrowLeft, Eye, ImagePlus } from 'lucide-react'
+import {
+  evaluatePublishChecklist,
+  RECOMMENDED_EXCERPT_LENGTH,
+} from '@/lib/editorial-checklist'
+import {
+  insertAroundSelection,
+  insertImageMarkdown,
+  insertLinkMarkdown,
+  insertSnippet,
+} from '@/lib/markdown-content-helpers'
+import { MarkdownContentToolbar } from '@/components/admin/markdown-content-toolbar'
+import { calculateReadTime } from '@/lib/posts'
+import { ArrowLeft, Eye, ImagePlus, Upload } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface PostEditorProps {
@@ -36,13 +47,22 @@ function fromDateTimeLocalValue(value: string): string {
   return parsed.toISOString()
 }
 
+function countWords(text: string): number {
+  const t = text.trim()
+  if (!t) return 0
+  return t.split(/\s+/).length
+}
+
 function PublishChecklistPanel({ formData }: { formData: Post }) {
   const { errors, warnings } = evaluatePublishChecklist(formData)
   const allClear = errors.length === 0 && warnings.length === 0
+  const hasIssues = errors.length > 0 || warnings.length > 0
 
   return (
     <div
-      className="rounded-lg border border-border bg-muted/30 p-4 space-y-3"
+      id="admin-publish-checklist"
+      tabIndex={-1}
+      className="rounded-lg border border-border bg-muted/30 p-4 space-y-3 scroll-mt-24 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       role="region"
       aria-label="Publish checklist"
     >
@@ -50,15 +70,23 @@ function PublishChecklistPanel({ formData }: { formData: Post }) {
       <p className="text-xs text-muted-foreground">
         Publishing and scheduling run these checks. Saving a draft does not.
       </p>
+      {hasIssues && (
+        <p className="text-xs font-medium text-foreground">
+          {errors.length} blocking · {warnings.length} warning{warnings.length === 1 ? '' : 's'}
+        </p>
+      )}
       <ul className="text-sm space-y-2 list-none m-0 p-0">
-        {errors.map((e) => (
-          <li key={e} className="text-destructive flex gap-2">
+        {errors.map((e, i) => (
+          <li key={`err-${i}-${e.slice(0, 40)}`} className="text-destructive flex gap-2">
             <span aria-hidden>✗</span>
             <span>{e}</span>
           </li>
         ))}
-        {warnings.map((w) => (
-          <li key={w} className="text-amber-700 dark:text-amber-500 flex gap-2">
+        {warnings.map((w, i) => (
+          <li
+            key={`warn-${i}-${w.slice(0, 40)}`}
+            className="text-amber-700 dark:text-amber-500 flex gap-2"
+          >
             <span aria-hidden>!</span>
             <span>{w}</span>
           </li>
@@ -91,7 +119,28 @@ export function PostEditor({
     toDateTimeLocalValue(post.publishedAt)
   )
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const contentImageInputRef = useRef<HTMLInputElement>(null)
+  const contentInsertSelectionRef = useRef<{ start: number; end: number }>({
+    start: 0,
+    end: 0,
+  })
+  const contentTextareaRef = useRef<HTMLTextAreaElement>(null)
   const initialSnapshotRef = useRef(JSON.stringify(post))
+
+  const applyMarkdownEdit = (result: {
+    text: string
+    selStart: number
+    selEnd: number
+  }) => {
+    setFormData((prev) => ({ ...prev, content: result.text }))
+    requestAnimationFrame(() => {
+      const ta = contentTextareaRef.current
+      if (!ta) return
+      ta.focus()
+      ta.selectionStart = result.selStart
+      ta.selectionEnd = result.selEnd
+    })
+  }
 
   useEffect(() => {
     setFormData(post)
@@ -216,6 +265,54 @@ export function PostEditor({
     }
   }
 
+  const openContentImagePicker = () => {
+    const ta = contentTextareaRef.current
+    if (ta) {
+      contentInsertSelectionRef.current = {
+        start: ta.selectionStart,
+        end: ta.selectionEnd,
+      }
+    } else {
+      contentInsertSelectionRef.current = {
+        start: formData.content.length,
+        end: formData.content.length,
+      }
+    }
+    contentImageInputRef.current?.click()
+  }
+
+  const handleContentImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const formDataUpload = new FormData()
+      formDataUpload.append('file', file)
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formDataUpload,
+        credentials: 'include',
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Upload failed')
+      }
+      const { url } = await res.json()
+      const ta = contentTextareaRef.current
+      const { start, end } = contentInsertSelectionRef.current
+      const value = ta?.value ?? formData.content
+      const snippet = `\n\n![Describe this image](${url})\n\n`
+      applyMarkdownEdit(insertSnippet(value, { start, end }, snippet))
+      toast.success('Image inserted in post')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to upload image')
+    } finally {
+      setUploading(false)
+      e.target.value = ''
+    }
+  }
+
   const handleScheduleInputChange = (value: string) => {
     setScheduleInput(value)
     const isoValue = fromDateTimeLocalValue(value)
@@ -229,6 +326,15 @@ export function PostEditor({
       if (errors.length > 0) {
         toast.error('Fix checklist issues first', {
           description: errors.join(' · '),
+        })
+        requestAnimationFrame(() => {
+          document.getElementById('admin-publish-checklist')?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          })
+          ;(document.getElementById('admin-publish-checklist') as HTMLElement | null)?.focus({
+            preventScroll: true,
+          })
         })
         return
       }
@@ -272,6 +378,46 @@ export function PostEditor({
     }
     onCancel()
   }
+
+  const handleContentKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (!e.ctrlKey && !e.metaKey) return
+    const ta = e.currentTarget
+    const key = e.key.toLowerCase()
+    const sel = { start: ta.selectionStart, end: ta.selectionEnd }
+    const value = ta.value
+
+    if (key === 'b') {
+      e.preventDefault()
+      applyMarkdownEdit(insertAroundSelection(value, sel, '**', '**', 'bold'))
+      return
+    }
+    if (key === 'i') {
+      e.preventDefault()
+      applyMarkdownEdit(insertAroundSelection(value, sel, '*', '*', 'italic'))
+      return
+    }
+    if (key === 'k') {
+      e.preventDefault()
+      applyMarkdownEdit(insertLinkMarkdown(value, sel))
+      return
+    }
+    if (key === '`') {
+      e.preventDefault()
+      applyMarkdownEdit(insertAroundSelection(value, sel, '`', '`', 'code'))
+      return
+    }
+    if (e.shiftKey && key === 'i') {
+      e.preventDefault()
+      applyMarkdownEdit(insertImageMarkdown(value, sel))
+    }
+  }
+
+  const featuredAltInvalid =
+    Boolean(formData.featuredImage?.trim()) && !formData.featuredImageAlt?.trim()
+
+  const bodyWords = countWords(formData.content)
+  const bodyReadMinutes = calculateReadTime(formData.content)
+  const excerptLen = formData.excerpt.length
 
   return (
     <div className="space-y-6">
@@ -319,7 +465,12 @@ export function PostEditor({
           <h1 className="text-2xl font-semibold text-foreground mb-2">
             {formData.title || 'Untitled'}
           </h1>
-          <p className="text-muted-foreground mb-6">{formData.excerpt}</p>
+          <p className="text-muted-foreground mb-1">{formData.excerpt}</p>
+          <p className="text-xs text-muted-foreground mb-6">
+            {bodyWords > 0
+              ? `${bodyWords.toLocaleString()} words · ${bodyReadMinutes} min read`
+              : 'No body text yet'}
+          </p>
           <div className="prose prose-neutral dark:prose-invert max-w-none">
             <ReactMarkdown>{formData.content}</ReactMarkdown>
           </div>
@@ -360,7 +511,18 @@ export function PostEditor({
               onChange={handleChange}
               placeholder="Brief description of the post..."
               rows={2}
+              aria-describedby="excerpt-length-hint"
             />
+            <p id="excerpt-length-hint" className="text-xs text-muted-foreground">
+              {excerptLen.toLocaleString()} characters
+              {excerptLen > 0 && excerptLen < RECOMMENDED_EXCERPT_LENGTH ? (
+                <span className="text-amber-700 dark:text-amber-500">
+                  {' '}
+                  · longer excerpts (around {RECOMMENDED_EXCERPT_LENGTH}+) read better in listings and
+                  previews
+                </span>
+              ) : null}
+            </p>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
@@ -447,9 +609,10 @@ export function PostEditor({
                     onChange={handleChange}
                     placeholder="Describe the image for screen readers and SEO"
                     aria-describedby="featured-alt-hint"
+                    aria-invalid={featuredAltInvalid || undefined}
                   />
                   <p id="featured-alt-hint" className="text-xs text-muted-foreground">
-                    Required for accessibility when a hero image is shown on the post.
+                    Required before publish when a hero image is set (see checklist).
                   </p>
                 </div>
                 <img
@@ -462,18 +625,59 @@ export function PostEditor({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="content">Content (Markdown supported)</Label>
+            <Label htmlFor="content">Content (Markdown)</Label>
+            <p id="content-markdown-hint" className="text-xs text-muted-foreground">
+              Toolbar or shortcuts: Ctrl+B bold, Ctrl+I italic, Ctrl+` code, Ctrl+K link, Ctrl+Shift+I
+              image (⌘ on Mac). Upload inserts a figure at the cursor.
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+              <div className="min-w-0 flex-1">
+                <MarkdownContentToolbar
+                  textareaRef={contentTextareaRef}
+                  disabled={showPreview}
+                  onEdit={applyMarkdownEdit}
+                />
+              </div>
+              <input
+                ref={contentImageInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+                className="hidden"
+                aria-label="Upload image into post body"
+                onChange={handleContentImageUpload}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="shrink-0"
+                disabled={uploading}
+                onClick={openContentImagePicker}
+                aria-label="Upload image into post body at cursor"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                {uploading ? 'Uploading...' : 'Upload into post'}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {bodyWords > 0
+                ? `${bodyWords.toLocaleString()} words · ~${bodyReadMinutes} min read (same estimate as on the live site)`
+                : 'Start writing to see word count and read time'}
+            </p>
             <Textarea
+              ref={contentTextareaRef}
               id="content"
               name="content"
               value={formData.content}
               onChange={handleChange}
+              onKeyDown={handleContentKeyDown}
               placeholder="Write your post content here...
 
 Use ## for headings
 Separate paragraphs with blank lines"
               rows={20}
               className="font-mono text-sm"
+              aria-describedby="content-markdown-hint"
             />
           </div>
 

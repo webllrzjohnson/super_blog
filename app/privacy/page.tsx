@@ -97,7 +97,10 @@ export default async function PrivacyPage() {
           <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
             <li>Subscribe to our newsletter (email address, name)</li>
             <li>Submit a contact form (name, email address, message content)</li>
-            <li>Leave comments on blog posts (name, email address, comment content)</li>
+            <li>
+              Leave comments on blog posts (display name and comment text; an opaque hashed device id may be stored
+              for spam prevention; comments are reviewed before publication)
+            </li>
             <li>Participate in surveys or promotions</li>
           </ul>
 

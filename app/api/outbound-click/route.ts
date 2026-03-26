@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'
 import { isLikelyAffiliateUrl } from '@/lib/affiliate-url'
+import { recordOutboundClickEvent } from '@/lib/db/outbound-clicks'
 
 const bodySchema = z.object({
   slug: z.string().min(1).max(200),
@@ -11,7 +12,8 @@ const bodySchema = z.object({
 })
 
 /**
- * Lightweight affiliate / outbound instrumentation. No cookies; optional Sentry breadcrumb.
+ * Affiliate / outbound instrumentation. No cookies; events may be stored when Supabase
+ * is configured; optional Sentry breadcrumb for affiliate clicks.
  */
 export async function POST(request: Request) {
   const clientId = getClientIdentifier(request)
@@ -46,6 +48,12 @@ export async function POST(request: Request) {
   if (process.env.NODE_ENV === 'development') {
     console.info('[outbound-click]', { slug, affiliate, href: href.slice(0, 80) })
   }
+
+  await recordOutboundClickEvent({
+    postSlug: slug,
+    href,
+    isAffiliate: affiliate,
+  })
 
   if (affiliate) {
     Sentry.addBreadcrumb({

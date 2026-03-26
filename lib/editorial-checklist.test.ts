@@ -10,7 +10,7 @@ import { defaultAuthor } from '@/lib/posts'
 function basePost(overrides: Partial<Post>): Post {
   return {
     id: '1',
-    title: 'Title',
+    title: 'A strong post title',
     slug: 'slug',
     excerpt: 'A reasonable excerpt for the post that is long enough to avoid warnings.',
     content: 'x'.repeat(MIN_PUBLISH_CONTENT_LENGTH),
@@ -40,16 +40,31 @@ describe('evaluatePublishChecklist', () => {
     expect(r.warnings.some((w) => w.toLowerCase().includes('excerpt'))).toBe(true)
   })
 
-  it('warns when featured image has no alt', () => {
+  it('errors when featured image has no alt', () => {
     const r = evaluatePublishChecklist(
       basePost({ featuredImage: '/img.jpg', featuredImageAlt: '' })
     )
-    expect(r.warnings.some((w) => w.toLowerCase().includes('alt'))).toBe(true)
+    expect(r.errors.some((e) => e.toLowerCase().includes('alt'))).toBe(true)
+    expect(r.warnings.some((w) => w.toLowerCase().includes('alt'))).toBe(false)
   })
 
   it('warns when tags are empty', () => {
     const r = evaluatePublishChecklist(basePost({ tags: [] }))
     expect(r.warnings.some((w) => w.toLowerCase().includes('tag'))).toBe(true)
+  })
+
+  it('warns when title is very short', () => {
+    const r = evaluatePublishChecklist(basePost({ title: 'Hi' }))
+    expect(r.errors).toHaveLength(0)
+    expect(r.warnings.some((w) => w.toLowerCase().includes('title'))).toBe(true)
+  })
+
+  it('warns when markdown images omit alt text', () => {
+    const content =
+      `${'x'.repeat(MIN_PUBLISH_CONTENT_LENGTH)}\n\n![](https://example.com/a.png)`
+    const r = evaluatePublishChecklist(basePost({ content }))
+    expect(r.errors).toHaveLength(0)
+    expect(r.warnings.some((w) => w.includes('markdown image'))).toBe(true)
   })
 })
 

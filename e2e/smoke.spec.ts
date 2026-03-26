@@ -44,6 +44,26 @@ test.describe('api smoke', () => {
     const res = await request.get('/api/revalidate-posts')
     expect(res.status()).toBe(401)
   })
+
+  test('reactions api returns 404 for unknown slug', async ({ request }) => {
+    const res = await request.get('/api/blog/nonexistent-slug-xyz/reactions')
+    expect(res.status()).toBe(404)
+  })
+
+  test('outbound stats requires admin session', async ({ request }) => {
+    const res = await request.get('/api/outbound-stats')
+    expect(res.status()).toBe(401)
+  })
+
+  test('blog comments api returns 404 for unknown slug', async ({ request }) => {
+    const res = await request.get('/api/blog/nonexistent-slug-xyz/comments')
+    expect(res.status()).toBe(404)
+  })
+
+  test('comment moderation requires admin session', async ({ request }) => {
+    const res = await request.get('/api/comments/moderate')
+    expect(res.status()).toBe(401)
+  })
 })
 
 test.describe('admin', () => {

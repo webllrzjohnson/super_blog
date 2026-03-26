@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next'
+import type { Metadata } from 'next'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -16,6 +16,8 @@ import { AffiliateDisclosure } from '@/components/affiliate-disclosure'
 import { GoogleAd } from '@/components/google-ad'
 import { ReadingProgressBar } from '@/components/reading-progress-bar'
 import { PostBookmarkButton } from '@/components/post-bookmark-button'
+import { PostReactions } from '@/components/post-reactions'
+import { PostComments } from '@/components/post-comments'
 import { MarkdownAffiliateAnchor } from '@/components/markdown-affiliate-anchor'
 import { isAdminSession } from '@/lib/auth-session'
 
@@ -212,6 +214,13 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
 
         <GoogleAd position="end-of-article" />
+
+        {isPostPubliclyVisible(post) && (
+          <div className="mt-10 space-y-10">
+            <PostReactions slug={post.slug} />
+            <PostComments slug={post.slug} />
+          </div>
+        )}
 
         <hr className="my-10 border-border/60" />
 

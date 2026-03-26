@@ -11,6 +11,8 @@ import { SettingsAppearance } from '@/components/admin/settings-appearance'
 import { SettingsAds } from '@/components/admin/settings-ads'
 import { SettingsPages } from '@/components/admin/settings-pages'
 import { SettingsAccount } from '@/components/admin/settings-account'
+import { AdminOutboundStats } from '@/components/admin/admin-outbound-stats'
+import { AdminCommentsModeration } from '@/components/admin/admin-comments-moderation'
 import { getPosts, savePost, deletePost, generateId } from '@/lib/store'
 import { defaultAuthor, calculateReadTime } from '@/lib/posts'
 import type { Post } from '@/lib/types'
@@ -186,6 +188,8 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
             <TabsTrigger value="ads">Ads</TabsTrigger>
             <TabsTrigger value="pages">Pages</TabsTrigger>
             <TabsTrigger value="account">Account</TabsTrigger>
+            <TabsTrigger value="comments">Comments</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="posts">
@@ -227,6 +231,14 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
           <TabsContent value="account">
             <SettingsAccount />
+          </TabsContent>
+
+          <TabsContent value="comments">
+            <AdminCommentsModeration />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AdminOutboundStats />
           </TabsContent>
         </Tabs>
       </main>

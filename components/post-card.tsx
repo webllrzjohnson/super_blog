@@ -22,6 +22,10 @@ export function PostCard({ post, featured = false }: PostCardProps) {
             })}
             {post.updatedAt && ' (updated)'}
           </time>
+          <span className="mx-2 opacity-60" aria-hidden>
+            ·
+          </span>
+          <span>{post.readTime} min read</span>
         </div>
         <p className="text-muted-foreground leading-relaxed text-sm mb-2">
           {post.excerpt}
