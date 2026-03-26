@@ -1,9 +1,14 @@
 // Server-side post operations using Supabase
 // Falls back to sample posts when Supabase is not configured
 
-import { createServerClient } from '@/lib/supabase/server'
-import type { Post, Author } from '@/lib/types'
+import { unstable_cache } from 'next/cache'
+import { createServerClient, hasSupabaseConfig } from '@/lib/supabase/server'
+import type { Post } from '@/lib/types'
 import { samplePosts } from '@/lib/posts'
+import {
+  CACHE_TAG_POSTS,
+  POSTS_CACHE_REVALIDATE_SECONDS,
+} from '@/lib/cache-tags'
 
 function mapRowToPost(row: {
   id: string
@@ -14,6 +19,7 @@ function mapRowToPost(row: {
   category: string
   tags: string[]
   featured_image: string | null
+  featured_image_alt?: string | null
   author_name: string
   author_avatar: string | null
   author_bio: string | null
@@ -31,6 +37,9 @@ function mapRowToPost(row: {
     category: row.category as Post['category'],
     tags: row.tags || [],
     featuredImage: row.featured_image ?? undefined,
+    featuredImageAlt: row.featured_image_alt?.trim()
+      ? row.featured_image_alt.trim()
+      : undefined,
     author: {
       name: row.author_name,
       avatar: row.author_avatar ?? undefined,
@@ -53,6 +62,7 @@ function mapPostToRow(post: Post) {
     category: post.category,
     tags: post.tags,
     featured_image: post.featuredImage ?? null,
+    featured_image_alt: post.featuredImageAlt?.trim() || null,
     author_name: post.author.name,
     author_avatar: post.author.avatar ?? null,
     author_bio: post.author.bio ?? null,
@@ -63,11 +73,7 @@ function mapPostToRow(post: Post) {
   }
 }
 
-export async function getPostsFromDb(): Promise<Post[]> {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return samplePosts
-  }
-
+async function fetchPostsFromSupabase(): Promise<Post[]> {
   try {
     const supabase = createServerClient()
     const { data, error } = await supabase
@@ -89,6 +95,19 @@ export async function getPostsFromDb(): Promise<Post[]> {
     console.error('getPostsFromDb error:', err)
     return samplePosts
   }
+}
+
+const getPostsFromSupabaseCached = unstable_cache(fetchPostsFromSupabase, ['posts-all'], {
+  tags: [CACHE_TAG_POSTS],
+  revalidate: POSTS_CACHE_REVALIDATE_SECONDS,
+})
+
+export async function getPostsFromDb(): Promise<Post[]> {
+  if (!hasSupabaseConfig()) {
+    return samplePosts
+  }
+
+  return getPostsFromSupabaseCached()
 }
 
 export async function getPostBySlugFromDb(slug: string): Promise<Post | null> {

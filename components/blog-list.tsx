@@ -27,9 +27,12 @@ export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
   const [searchQuery, setSearchQuery] = useState(urlSearch)
   const [currentPage, setCurrentPage] = useState(initialPage)
 
+  // Keep UI in sync when the URL changes (e.g. browser back/forward).
   useEffect(() => {
-    setSearchQuery(urlSearch)
-    setCurrentPage(initialPage)
+    queueMicrotask(() => {
+      setSearchQuery(urlSearch)
+      setCurrentPage(initialPage)
+    })
   }, [initialPage, urlSearch])
 
   const filteredPosts = useMemo(() => {
@@ -77,7 +80,9 @@ export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
   useEffect(() => {
     if (totalPages === 0) return
     if (currentPage > totalPages) {
-      setCurrentPage(totalPages)
+      queueMicrotask(() => {
+        setCurrentPage(totalPages)
+      })
     }
   }, [currentPage, totalPages])
 

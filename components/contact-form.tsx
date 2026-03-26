@@ -56,7 +56,11 @@ export function ContactForm() {
 
   if (status === 'success') {
     return (
-      <div className="p-6 bg-secondary rounded-lg">
+      <div
+        className="p-6 bg-secondary rounded-lg"
+        role="status"
+        aria-live="polite"
+      >
         <h2 className="text-lg font-semibold text-foreground mb-2">Message sent!</h2>
         <p className="text-muted-foreground">
           Thanks for reaching out. I&apos;ll get back to you as soon as I can.
@@ -131,7 +135,7 @@ export function ContactForm() {
       </div>
 
       {status === 'error' && (
-        <p className="text-sm text-destructive">
+        <p className="text-sm text-destructive" role="alert">
           Something went wrong. Please try again.
         </p>
       )}

@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { createServerClient } from '@/lib/supabase/server'
 import { getSetting } from '@/lib/settings'
 import { isAdminSession } from '@/lib/auth-session'
+import { revalidateSettingsCache } from '@/lib/revalidate-cache'
 
 async function checkAdmin(): Promise<boolean> {
   const headersList = await headers()
@@ -76,6 +77,8 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
+
+  revalidateSettingsCache()
 
   const apiKey = process.env.RESEND_API_KEY
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'

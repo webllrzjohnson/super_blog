@@ -1,5 +1,10 @@
 import { cache } from 'react'
-import { createServerClient } from '@/lib/supabase/server'
+import { unstable_cache } from 'next/cache'
+import { createServerClient, hasSupabaseConfig } from '@/lib/supabase/server'
+import {
+  CACHE_TAG_SETTINGS,
+  SETTINGS_CACHE_REVALIDATE_SECONDS,
+} from '@/lib/cache-tags'
 
 export interface LinksSettings {
   github?: string
@@ -205,7 +210,7 @@ function cloneDefaults(): SettingsMap {
   }
 }
 
-export const getSettings = cache(async (): Promise<SettingsMap> => {
+async function loadSettingsFromSupabase(): Promise<SettingsMap> {
   const supabase = createServerClient()
   const { data, error } = await supabase
     .from('site_settings')
@@ -244,6 +249,22 @@ export const getSettings = cache(async (): Promise<SettingsMap> => {
   }
 
   return settings
+}
+
+const getSettingsFromSupabaseCached = unstable_cache(
+  loadSettingsFromSupabase,
+  ['site-settings-map'],
+  {
+    tags: [CACHE_TAG_SETTINGS],
+    revalidate: SETTINGS_CACHE_REVALIDATE_SECONDS,
+  }
+)
+
+export const getSettings = cache(async (): Promise<SettingsMap> => {
+  if (!hasSupabaseConfig()) {
+    return cloneDefaults()
+  }
+  return getSettingsFromSupabaseCached()
 })
 
 export const getSetting = cache(async <K extends SettingsKey>(key: K): Promise<SettingsMap[K]> => {

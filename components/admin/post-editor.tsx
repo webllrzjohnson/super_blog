@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { generateSlug } from '@/lib/store'
 import type { Post } from '@/lib/types'
+import { evaluatePublishChecklist } from '@/lib/editorial-checklist'
 import { ArrowLeft, Eye, ImagePlus } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -33,6 +34,44 @@ function fromDateTimeLocalValue(value: string): string {
   const parsed = new Date(value)
   if (Number.isNaN(parsed.getTime())) return ''
   return parsed.toISOString()
+}
+
+function PublishChecklistPanel({ formData }: { formData: Post }) {
+  const { errors, warnings } = evaluatePublishChecklist(formData)
+  const allClear = errors.length === 0 && warnings.length === 0
+
+  return (
+    <div
+      className="rounded-lg border border-border bg-muted/30 p-4 space-y-3"
+      role="region"
+      aria-label="Publish checklist"
+    >
+      <p className="text-sm font-medium text-foreground">Publish checklist</p>
+      <p className="text-xs text-muted-foreground">
+        Publishing and scheduling run these checks. Saving a draft does not.
+      </p>
+      <ul className="text-sm space-y-2 list-none m-0 p-0">
+        {errors.map((e) => (
+          <li key={e} className="text-destructive flex gap-2">
+            <span aria-hidden>✗</span>
+            <span>{e}</span>
+          </li>
+        ))}
+        {warnings.map((w) => (
+          <li key={w} className="text-amber-700 dark:text-amber-500 flex gap-2">
+            <span aria-hidden>!</span>
+            <span>{w}</span>
+          </li>
+        ))}
+        {allClear && (
+          <li className="text-green-700 dark:text-green-600 flex gap-2">
+            <span aria-hidden>✓</span>
+            <span>No blocking issues — ready to publish or schedule.</span>
+          </li>
+        )}
+      </ul>
+    </div>
+  )
 }
 
 export function PostEditor({
@@ -185,6 +224,22 @@ export function PostEditor({
   }
 
   const handleSave = (status: 'draft' | 'scheduled' | 'published') => {
+    if (status !== 'draft') {
+      const { errors, warnings } = evaluatePublishChecklist(formData)
+      if (errors.length > 0) {
+        toast.error('Fix checklist issues first', {
+          description: errors.join(' · '),
+        })
+        return
+      }
+      if (warnings.length > 0) {
+        const proceed = window.confirm(
+          ['Warnings:', ...warnings.map((w) => `• ${w}`), '', 'Continue anyway?'].join('\n')
+        )
+        if (!proceed) return
+      }
+    }
+
     if (status === 'scheduled') {
       const scheduleDate = new Date(formData.publishedAt)
       if (Number.isNaN(scheduleDate.getTime())) {
@@ -223,8 +278,10 @@ export function PostEditor({
       {/* Header */}
       <div className="flex items-center justify-between">
         <button
+          type="button"
           onClick={handleCancel}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          aria-label="Back to posts list"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to posts
@@ -232,7 +289,10 @@ export function PostEditor({
         <Button
           variant="outline"
           size="sm"
+          type="button"
           onClick={() => setShowPreview(!showPreview)}
+          aria-pressed={showPreview}
+          aria-label={showPreview ? 'Switch to edit mode' : 'Preview post'}
         >
           <Eye className="h-4 w-4 mr-2" />
           {showPreview ? 'Edit' : 'Preview'}
@@ -361,6 +421,7 @@ export function PostEditor({
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
                 className="hidden"
+                aria-label="Upload image file for featured image"
                 onChange={handleImageUpload}
               />
               <Button
@@ -369,17 +430,34 @@ export function PostEditor({
                 size="sm"
                 disabled={uploading}
                 onClick={() => fileInputRef.current?.click()}
+                aria-label="Upload featured image from file"
               >
                 <ImagePlus className="h-4 w-4 mr-2" />
                 {uploading ? 'Uploading...' : 'Upload'}
               </Button>
             </div>
             {formData.featuredImage && (
-              <img
-                src={formData.featuredImage}
-                alt="Featured preview"
-                className="mt-2 h-24 w-auto rounded border border-border object-cover"
-              />
+              <>
+                <div className="space-y-2 mt-3">
+                  <Label htmlFor="featuredImageAlt">Featured image alt text</Label>
+                  <Input
+                    id="featuredImageAlt"
+                    name="featuredImageAlt"
+                    value={formData.featuredImageAlt || ''}
+                    onChange={handleChange}
+                    placeholder="Describe the image for screen readers and SEO"
+                    aria-describedby="featured-alt-hint"
+                  />
+                  <p id="featured-alt-hint" className="text-xs text-muted-foreground">
+                    Required for accessibility when a hero image is shown on the post.
+                  </p>
+                </div>
+                <img
+                  src={formData.featuredImage}
+                  alt={formData.featuredImageAlt?.trim() || 'Featured preview'}
+                  className="mt-2 h-24 w-auto rounded border border-border object-cover"
+                />
+              </>
             )}
           </div>
 
@@ -398,21 +476,23 @@ Separate paragraphs with blank lines"
               className="font-mono text-sm"
             />
           </div>
+
+          <PublishChecklistPanel formData={formData} />
         </div>
       )}
 
       {/* Actions */}
       <div className="flex items-center gap-4 pt-4 border-t border-border">
-        <Button onClick={() => handleSave('draft')} variant="outline">
+        <Button type="button" onClick={() => handleSave('draft')} variant="outline">
           Save as Draft
         </Button>
-        <Button onClick={() => handleSave('scheduled')} variant="outline">
+        <Button type="button" onClick={() => handleSave('scheduled')} variant="outline">
           Schedule
         </Button>
-        <Button onClick={() => handleSave('published')}>
+        <Button type="button" onClick={() => handleSave('published')}>
           Publish
         </Button>
-        <Button variant="ghost" onClick={handleCancel}>
+        <Button type="button" variant="ghost" onClick={handleCancel}>
           Cancel
         </Button>
       </div>

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -15,6 +15,8 @@ import { PostCard } from '@/components/post-card'
 import { AffiliateDisclosure } from '@/components/affiliate-disclosure'
 import { GoogleAd } from '@/components/google-ad'
 import { ReadingProgressBar } from '@/components/reading-progress-bar'
+import { PostBookmarkButton } from '@/components/post-bookmark-button'
+import { MarkdownAffiliateAnchor } from '@/components/markdown-affiliate-anchor'
 import { isAdminSession } from '@/lib/auth-session'
 
 interface Props {
@@ -29,7 +31,7 @@ async function hasAdminAccess(): Promise<boolean> {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const post = await getPostBySlugFromDb(slug)
-  
+
   if (!post) {
     return { title: 'Post Not Found' }
   }
@@ -97,12 +99,10 @@ export default async function BlogPostPage({ params }: Props) {
   const relatedPosts = getRelatedPosts(getPublishedPosts(allPosts), post)
   const { newer, older } = getAdjacentPosts(allPosts, slug)
 
-  // Split into blocks for ad placement, then render each with ReactMarkdown
   const contentBlocks = post.content
     .split('\n\n')
-    .filter(p => p.trim())
+    .filter((p) => p.trim())
 
-  // JSON-LD structured data
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -134,7 +134,7 @@ export default async function BlogPostPage({ params }: Props) {
             <div className="relative w-full aspect-[21/9] mb-6 rounded-lg overflow-hidden bg-muted">
               <Image
                 src={post.featuredImage}
-                alt=""
+                alt={post.featuredImageAlt?.trim() || post.title}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 672px"
@@ -142,9 +142,12 @@ export default async function BlogPostPage({ params }: Props) {
               />
             </div>
           )}
-          <h1 className="text-2xl font-medium text-foreground leading-tight mb-4">
-            {post.title}
-          </h1>
+          <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+            <h1 className="text-2xl font-medium text-foreground leading-tight flex-1 min-w-[12rem]">
+              {post.title}
+            </h1>
+            <PostBookmarkButton slug={post.slug} />
+          </div>
           <div className="text-sm text-muted-foreground mb-4">
             <time dateTime={post.publishedAt}>
               {new Date(post.publishedAt).toLocaleDateString('en-US', {
@@ -190,6 +193,15 @@ export default async function BlogPostPage({ params }: Props) {
                         {children}
                       </p>
                     ),
+                    a: ({ href, children, ...props }) => (
+                      <MarkdownAffiliateAnchor
+                        href={href ?? ''}
+                        postSlug={post.slug}
+                        {...props}
+                      >
+                        {children}
+                      </MarkdownAffiliateAnchor>
+                    ),
                   }}
                 >
                   {block}
@@ -203,14 +215,13 @@ export default async function BlogPostPage({ params }: Props) {
 
         <hr className="my-10 border-border/60" />
 
-        {/* Cassidoo-style post nav */}
         <nav className="flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground mb-10">
           {newer ? (
             <Link href={`/blog/${newer.slug}`} className="hover:text-foreground transition-colors">
-              ← Newer post
+              ? Newer post
             </Link>
           ) : (
-            <span className="opacity-50">← Newer post</span>
+            <span className="opacity-50">? Newer post</span>
           )}
           <span>•</span>
           <Link href="/blog/random" className="hover:text-foreground transition-colors">
@@ -219,16 +230,16 @@ export default async function BlogPostPage({ params }: Props) {
           <span>•</span>
           {older ? (
             <Link href={`/blog/${older.slug}`} className="hover:text-foreground transition-colors">
-              Older post →
+              Older post ?
             </Link>
           ) : (
-            <span className="opacity-50">Older post →</span>
+            <span className="opacity-50">Older post ?</span>
           )}
         </nav>
 
         <div className="mt-10 pt-8 border-t border-border/60">
           <Link href="/blog/tags" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            View posts by tag →
+            View posts by tag ?
           </Link>
         </div>
 
@@ -247,10 +258,13 @@ export default async function BlogPostPage({ params }: Props) {
 
         <div className="mt-10">
           <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            ← Back to all posts
+            ? Back to all posts
           </Link>
         </div>
       </article>
     </>
   )
 }
+
+
+

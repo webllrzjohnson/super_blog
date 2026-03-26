@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs'
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { getPostsFromDb } from '@/lib/db/posts'
@@ -8,6 +9,7 @@ import { calculateReadTime } from '@/lib/posts'
 import { z } from 'zod'
 import { isAdminSession } from '@/lib/auth-session'
 import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'
+import { revalidatePostsCache } from '@/lib/revalidate-cache'
 
 async function checkAdmin(): Promise<boolean> {
   const headersList = await headers()
@@ -23,6 +25,7 @@ const postSchema = z.object({
   category: z.enum(['Life', 'Work', 'Hobbies', 'Experience']),
   tags: z.array(z.string()),
   featuredImage: z.string().optional(),
+  featuredImageAlt: z.string().optional(),
   author: z.object({
     name: z.string(),
     avatar: z.string().optional(),
@@ -112,11 +115,16 @@ export async function POST(request: Request) {
 
   const saved = await savePostToDb(post)
   if (!saved) {
+    Sentry.captureMessage('savePostToDb returned null', {
+      level: 'error',
+      extra: { postId: post.id, slug: post.slug },
+    })
     return NextResponse.json(
       { error: 'Failed to save post. Ensure Supabase is configured.' },
       { status: 500 }
     )
   }
 
+  revalidatePostsCache()
   return NextResponse.json(saved)
 }

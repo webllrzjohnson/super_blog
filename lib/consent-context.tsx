@@ -56,16 +56,20 @@ export function ConsentProvider({ children, adsenseClientId }: ConsentProviderPr
   // Load consent from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem(CONSENT_KEY)
-    if (stored === 'accepted' || stored === 'declined') {
-      setStatus(stored)
-    }
-    setIsLoaded(true)
+    queueMicrotask(() => {
+      if (stored === 'accepted' || stored === 'declined') {
+        setStatus(stored)
+      }
+      setIsLoaded(true)
+    })
   }, [])
 
   // Load AdSense script when consent is accepted
   useEffect(() => {
     if (status === 'accepted' && adsenseClientId && !adsenseLoaded && typeof window !== 'undefined') {
-      loadAdsenseScript()
+      queueMicrotask(() => {
+        loadAdsenseScript()
+      })
     }
   }, [status, adsenseClientId, adsenseLoaded, loadAdsenseScript])
 

@@ -268,14 +268,102 @@ export function searchPosts(posts: Post[], query: string): Post[] {
   )
 }
 
-export function getRelatedPosts(posts: Post[], currentPost: Post, limit = 3): Post[] {
-  return posts
-    .filter((post) => post.id !== currentPost.id && isPostPubliclyVisible(post))
-    .filter(post =>
-      post.category === currentPost.category ||
-      post.tags.some(tag => currentPost.tags.includes(tag))
+function normalizedTagSet(tags: string[]): Set<string> {
+  return new Set(tags.map((t) => t.toLowerCase()))
+}
+
+function sharedTagCount(a: string[], b: string[]): number {
+  if (a.length === 0 || b.length === 0) return 0
+  const setA = normalizedTagSet(a)
+  let n = 0
+  for (const t of b) {
+    if (setA.has(t.toLowerCase())) n++
+  }
+  return n
+}
+
+function titleTokenOverlap(titleA: string, titleB: string): number {
+  const tokenize = (s: string) =>
+    new Set(
+      s
+        .toLowerCase()
+        .split(/\W+/)
+        .filter((w) => w.length > 2)
     )
-    .slice(0, limit)
+  const A = tokenize(titleA)
+  const B = tokenize(titleB)
+  if (A.size === 0 || B.size === 0) return 0
+  let inter = 0
+  for (const w of B) {
+    if (A.has(w)) inter++
+  }
+  return inter
+}
+
+/**
+ * Relevance score for ranking related posts (higher = more related).
+ * Exported for unit tests.
+ */
+export function scoreRelatedPost(current: Post, candidate: Post): number {
+  const tags = sharedTagCount(current.tags, candidate.tags)
+  const categoryMatch = current.category === candidate.category ? 1 : 0
+  const titleOverlap = titleTokenOverlap(current.title, candidate.title)
+  const base = tags * 12 + categoryMatch * 6 + titleOverlap * 4
+  if (base === 0) return 0
+  const pub = new Date(candidate.publishedAt).getTime()
+  const ageMs = Date.now() - pub
+  const year = 365 * 24 * 60 * 60 * 1000
+  const recency = Math.max(0, Math.min(1, 1 - ageMs / year))
+  return base + recency * 2
+}
+
+export function getRelatedPosts(posts: Post[], currentPost: Post, limit = 3): Post[] {
+  const candidates = posts.filter(
+    (post) => post.id !== currentPost.id && isPostPubliclyVisible(post)
+  )
+
+  const scored = candidates
+    .map((post) => ({ post, score: scoreRelatedPost(currentPost, post) }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score
+      return (
+        new Date(b.post.publishedAt).getTime() - new Date(a.post.publishedAt).getTime()
+      )
+    })
+
+  const result: Post[] = []
+  const used = new Set<string>([currentPost.id])
+
+  for (const { post } of scored) {
+    if (result.length >= limit) break
+    if (used.has(post.id)) continue
+    used.add(post.id)
+    result.push(post)
+  }
+
+  const fillBy = (predicate: (p: Post) => boolean) => {
+    const pool = candidates
+      .filter((p) => !used.has(p.id) && predicate(p))
+      .sort(
+        (a, b) =>
+          new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+      )
+    for (const p of pool) {
+      if (result.length >= limit) break
+      used.add(p.id)
+      result.push(p)
+    }
+  }
+
+  if (result.length < limit) {
+    fillBy((p) => p.category === currentPost.category)
+  }
+  if (result.length < limit) {
+    fillBy(() => true)
+  }
+
+  return result
 }
 
 export function calculateReadTime(content: string): number {

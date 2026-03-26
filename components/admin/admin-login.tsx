@@ -49,11 +49,11 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
     <div className="min-h-screen flex items-center justify-center px-6 relative">
       <Link
         href="/"
-        className="absolute top-6 left-6 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        className="absolute top-6 left-6 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         ← Home
       </Link>
-      <div className="w-full max-w-sm">
+      <main className="w-full max-w-sm">
         <h1 className="text-2xl font-semibold text-foreground mb-2">Admin Login</h1>
         <p className="text-muted-foreground mb-8">
           Enter your password to access the dashboard.
@@ -87,7 +87,7 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
         <p className="text-xs text-muted-foreground mt-6 text-center">
           Set ADMIN_PASSWORD in .env.local to configure.
         </p>
-      </div>
+      </main>
     </div>
   )
 }

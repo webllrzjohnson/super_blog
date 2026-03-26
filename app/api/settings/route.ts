@@ -1,9 +1,11 @@
+import * as Sentry from '@sentry/nextjs'
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { z } from 'zod'
 import { createServerClient } from '@/lib/supabase/server'
 import { getSetting, getSettings } from '@/lib/settings'
 import { isAdminSession } from '@/lib/auth-session'
+import { revalidateSettingsCache } from '@/lib/revalidate-cache'
 
 async function checkAdmin(): Promise<boolean> {
   const headersList = await headers()
@@ -115,12 +117,14 @@ export async function POST(request: Request) {
     )
 
   if (error) {
+    Sentry.captureException(error, { extra: { settingsKey: key } })
     return NextResponse.json(
       { error: 'Failed to save settings' },
       { status: 500 }
     )
   }
 
+  revalidateSettingsCache()
   const savedSetting = await getSetting(key)
   return NextResponse.json({ key, value: savedSetting })
 }

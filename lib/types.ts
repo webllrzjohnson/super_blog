@@ -9,6 +9,8 @@ export interface Post {
   category: 'Life' | 'Work' | 'Hobbies' | 'Experience'
   tags: string[]
   featuredImage?: string
+  /** Accessibility / SEO description when `featuredImage` is set */
+  featuredImageAlt?: string
   author: Author
   publishedAt: string
   updatedAt?: string
