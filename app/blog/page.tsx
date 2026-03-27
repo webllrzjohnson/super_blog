@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { BlogList } from '@/components/blog-list'
 import { GoogleAd } from '@/components/google-ad'
 import { getPostsFromDb } from '@/lib/db/posts'
@@ -30,10 +31,16 @@ export default async function BlogPage() {
         </p>
       </header>
 
-      <BlogList
-        initialPosts={posts}
-        betweenPostsAd={<GoogleAd position="between-posts" />}
-      />
+      <Suspense
+        fallback={
+          <p className="text-muted-foreground py-12 text-sm">Loading posts…</p>
+        }
+      >
+        <BlogList
+          initialPosts={posts}
+          betweenPostsAd={<GoogleAd position="between-posts" />}
+        />
+      </Suspense>
 
       <div className="mt-12 pt-8 border-t border-border/60">
         <Link href="/blog/tags" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
