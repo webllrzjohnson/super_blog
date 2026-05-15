@@ -2,6 +2,7 @@ import { withSentryConfig } from '@sentry/nextjs'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    serverExternalPackages: ['postgres'],
   async rewrites() {
     return [{ source: '/rss.xml', destination: '/feed' }]
   },
