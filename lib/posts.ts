@@ -1,7 +1,6 @@
 import { unstable_cache } from 'next/cache'
 import sql from '@/lib/db'
 import type { Post } from '@/lib/types'
-import { samplePosts } from '@/lib/posts'
 import {
   CACHE_TAG_POSTS,
   POSTS_CACHE_REVALIDATE_SECONDS,
@@ -76,11 +75,11 @@ async function fetchPosts(): Promise<Post[]> {
       SELECT * FROM posts 
       ORDER BY published_at DESC
     `
-    if (!rows || rows.length === 0) return samplePosts
+    if (!rows || rows.length === 0) return []
     return rows.map(mapRowToPost)
   } catch (err) {
     console.error('fetchPosts error:', err)
-    return samplePosts
+    return []
   }
 }
 
@@ -121,4 +120,62 @@ export async function deletePostFromDb(id: string): Promise<boolean> {
     console.error('deletePostFromDb error:', err)
     return false
   }
+}
+
+// Helper exports used throughout the app
+export const samplePosts: Post[] = []
+
+export function calculateReadTime(content: string): number {
+  const wordsPerMinute = 200
+  const words = content.trim().split(/\s+/).length
+  return Math.ceil(words / wordsPerMinute)
+}
+
+export const defaultAuthor = {
+  name: 'Admin',
+  avatar: undefined as string | undefined,
+  bio: undefined as string | undefined,
+}
+
+export function getPublishedPosts(posts: Post[]): Post[] {
+  return posts.filter((p) => p.status === 'published')
+}
+
+export function getRelatedPosts(post: Post, posts: Post[], limit = 3): Post[] {
+  return posts
+    .filter((p) => p.slug !== post.slug && p.status === 'published')
+    .filter((p) => p.category === post.category || p.tags?.some((t) => post.tags?.includes(t)))
+    .slice(0, limit)
+}
+
+export function getAdjacentPosts(post: Post, posts: Post[]): { prev: Post | null; next: Post | null } {
+  const published = getPublishedPosts(posts)
+  const index = published.findIndex((p) => p.slug === post.slug)
+  return {
+    prev: index > 0 ? published[index - 1] : null,
+    next: index < published.length - 1 ? published[index + 1] : null,
+  }
+}
+
+export function getAllTags(posts: Post[]): string[] {
+  const tags = posts.flatMap((p) => p.tags || [])
+  return [...new Set(tags)]
+}
+
+export function getPostsByTag(posts: Post[], tag: string): Post[] {
+  return posts.filter((p) => p.tags?.includes(tag) && p.status === 'published')
+}
+
+export function searchPosts(posts: Post[], query: string): Post[] {
+  const q = query.toLowerCase()
+  return posts.filter(
+    (p) =>
+      p.title.toLowerCase().includes(q) ||
+      p.excerpt.toLowerCase().includes(q) ||
+      p.content.toLowerCase().includes(q)
+  )
+}
+
+export function isPostPubliclyVisible(post: Post): boolean {
+  return post.status === 'published'
 }
