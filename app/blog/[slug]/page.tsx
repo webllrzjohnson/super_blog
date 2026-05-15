@@ -98,7 +98,7 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   const allPosts = await getPostsFromDb()
-  const relatedPosts = getRelatedPosts(getPublishedPosts(allPosts), post)
+  const relatedPosts = getRelatedPosts(post, getPublishedPosts(allPosts))
   const { newer, older } = getAdjacentPosts(allPosts, slug)
 
   const contentBlocks = post.content
