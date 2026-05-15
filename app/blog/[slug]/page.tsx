@@ -99,7 +99,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   const allPosts = await getPostsFromDb()
   const relatedPosts = getRelatedPosts(post, getPublishedPosts(allPosts))
-  const { newer, older } = getAdjacentPosts(allPosts, slug)
+  const { prev: older, next: newer } = getAdjacentPosts(post, allPosts)
 
   const contentBlocks = post.content
     .split('\n\n')
