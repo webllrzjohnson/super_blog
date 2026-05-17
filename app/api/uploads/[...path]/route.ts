@@ -4,13 +4,14 @@ import path from 'path'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
-    const filePath = path.join('/app/public/uploads', ...params.path)
-    const file = await readFile(filePath)
+    const { path: filePath } = await params
+    const fullPath = path.join('/app/public/uploads', ...filePath)
+    const file = await readFile(fullPath)
     
-    const ext = params.path[params.path.length - 1].split('.').pop()
+    const ext = filePath[filePath.length - 1].split('.').pop()
     const contentType = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg'
       : ext === 'png' ? 'image/png'
       : ext === 'gif' ? 'image/gif'
