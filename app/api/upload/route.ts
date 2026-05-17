@@ -91,7 +91,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to save file' }, { status: 500 })
   }
  
-  const publicUrl = `https://maplehub.cloud/uploads/${filename}`
+  const publicUrl = `https://maplehub.cloud/api/uploads/${filename}`
  
   return NextResponse.json({ url: publicUrl, filename })
 }
