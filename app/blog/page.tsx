@@ -21,7 +21,7 @@ export default async function BlogPage() {
   const posts = getPublishedPosts(allPosts)
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-12 md:py-16">
+    <div className="max-w-4xl mx-auto px-6 py-12 md:py-16">
       <header className="mb-10">
         <h1 className="text-2xl font-medium text-foreground mb-2">
           Blog

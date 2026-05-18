@@ -19,7 +19,7 @@ export default async function HomePage() {
   const recentPosts = posts.slice(0, 5)
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-12 md:py-16">
+    <div className="max-w-4xl mx-auto px-6 py-12 md:py-16">
       {/* Hero - cassidoo style */}
       <section className="mb-12">
         <h1 className="text-2xl font-medium text-foreground mb-4">
