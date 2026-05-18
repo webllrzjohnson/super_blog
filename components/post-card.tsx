@@ -7,6 +7,8 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, featured = false }: PostCardProps) {
+  const visibleTags = post.tags.slice(0, 2)
+
   return (
     <article className={`group ${featured ? 'mb-8' : ''}`}>
       <Link href={`/blog/${post.slug}`} className="block">
@@ -22,18 +24,17 @@ export function PostCard({ post, featured = false }: PostCardProps) {
             })}
             {post.updatedAt && ' (updated)'}
           </time>
-          <span className="mx-2 opacity-60" aria-hidden>
-            ·
-          </span>
+          <span className="mx-2 opacity-60" aria-hidden>·</span>
           <span>{post.readTime} min read</span>
         </div>
-        <p className="text-muted-foreground leading-relaxed text-sm mb-2">
-          {post.excerpt}
-        </p>
+        {post.excerpt && (
+          <p className="text-muted-foreground leading-relaxed text-sm mb-2 line-clamp-2">
+            {post.excerpt}
+          </p>
+        )}
       </Link>
-      {/* Tags as links - cassidoo style */}
       <div className="flex flex-wrap gap-x-2 gap-y-1">
-        {post.tags.map((tag) => (
+        {visibleTags.map((tag) => (
           <Link
             key={tag}
             href={`/blog?tag=${encodeURIComponent(tag.toLowerCase())}`}
@@ -42,6 +43,11 @@ export function PostCard({ post, featured = false }: PostCardProps) {
             #{tag}
           </Link>
         ))}
+        {post.tags.length > 2 && (
+          <span className="text-sm text-muted-foreground opacity-50">
+            +{post.tags.length - 2} more
+          </span>
+        )}
       </div>
     </article>
   )
