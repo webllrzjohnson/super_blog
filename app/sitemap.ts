@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { getPostsFromDb } from '@/lib/db/posts'
+import { getPostsFromDb } from '@/lib/db-posts'
 import { getPublishedPosts } from '@/lib/posts'
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'

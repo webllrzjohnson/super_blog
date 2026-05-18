@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { PostCard } from '@/components/post-card'
 import { NewsletterForm } from '@/components/newsletter-form'
-import { getPostsFromDb } from '@/lib/db/posts'
+import { getPostsFromDb } from '@/lib/db-posts'
 import { getPublishedPosts } from '@/lib/posts'
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'

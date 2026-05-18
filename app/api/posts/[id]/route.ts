@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
-import { deletePostFromDb } from '@/lib/db/posts'
+import { deletePostFromDb } from '@/lib/db-posts'
 import { isAdminSession } from '@/lib/auth-session'
 import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'
 import { revalidatePostsCache } from '@/lib/revalidate-cache'

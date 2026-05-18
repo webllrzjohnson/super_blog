@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getPostBySlugFromDb } from '@/lib/db/posts'
+import { getPostBySlugFromDb } from '@/lib/db-posts'
 import { getReactionSummaryForPost, setPostReaction } from '@/lib/db/reactions'
 import { isPostPubliclyVisible } from '@/lib/posts'
 import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'

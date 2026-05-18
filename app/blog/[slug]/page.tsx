@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import { headers } from 'next/headers'
-import { getPostBySlugFromDb, getPostsFromDb } from '@/lib/db/posts'
+import { getPostBySlugFromDb, getPostsFromDb } from '@/lib/db-posts'
 import {
   getRelatedPosts,
   getPublishedPosts,

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getPostsFromDb } from '@/lib/db/posts'
+import { getPostsFromDb } from '@/lib/db-posts'
 import { getPublishedPosts } from '@/lib/posts'
 
 export default async function RandomPostPage() {

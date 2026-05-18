@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { seedSamplePosts } from '@/lib/db/posts'
+import { seedSamplePosts } from '@/lib/db-posts'
 import { isAdminSession } from '@/lib/auth-session'
 import { revalidatePostsCache } from '@/lib/revalidate-cache'
 

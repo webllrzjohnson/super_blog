@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import { BlogList } from '@/components/blog-list'
 import { GoogleAd } from '@/components/google-ad'
-import { getPostsFromDb } from '@/lib/db/posts'
+import { getPostsFromDb } from '@/lib/db-posts'
 import { getPublishedPosts } from '@/lib/posts'
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
