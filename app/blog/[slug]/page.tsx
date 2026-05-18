@@ -127,7 +127,7 @@ export default async function BlogPostPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="max-w-4xl mx-auto px-6 py-12 md:py-16">
+      <article className="max-w-4xl mx-auto px-6 py-12 md:py-16">
         <AffiliateDisclosure />
         <GoogleAd position="top-of-content" />
 
