@@ -19,6 +19,8 @@ import type { Post } from '@/lib/types'
 import type { SettingsMap } from '@/lib/settings'
 import { LogOut, Plus, Home } from 'lucide-react'
 import { toast } from 'sonner'
+import { GeneratePostModal } from '@/components/admin/generate-post-modal'
+import { Sparkles } from 'lucide-react' // already imported via lucide
 
 interface AdminDashboardProps {
   onLogout: () => void
@@ -32,6 +34,9 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState('posts')
   const [loading, setLoading] = useState(true)
 
+  // Add to state
+  const [showGenerateModal, setShowGenerateModal] = useState(false)
+  
   const upsertLocalPost = (savedPost: Post) => {
     setPosts((prev) => {
       const existingIndex = prev.findIndex((post) => post.id === savedPost.id)
@@ -166,10 +171,16 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
           </div>
           <div className="flex items-center gap-4">
             {activeTab === 'posts' && !editingPost && (
-              <Button onClick={handleCreateNew} size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                New Post
-              </Button>
+              <>
+                <Button variant="outline" size="sm" onClick={() => setShowGenerateModal(true)}>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate with AI
+                </Button>
+                <Button onClick={handleCreateNew} size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Post
+                </Button>
+              </>
             )}
             <Button variant="ghost" size="sm" onClick={onLogout}>
               <LogOut className="h-4 w-4 mr-2" />
@@ -242,6 +253,9 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
           </TabsContent>
         </Tabs>
       </main>
+      {showGenerateModal && (
+        <GeneratePostModal onClose={() => setShowGenerateModal(false)} />
+      )}
     </div>
   )
 }
