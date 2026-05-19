@@ -177,7 +177,7 @@ export default async function BlogPostPage({ params }: Props) {
               </div>
             </header>
 
-            <div className="prose prose-neutral dark:prose-invert max-w-none">
+            <div className="prose prose-lg prose-neutral dark:prose-invert max-w-none">
               {contentBlocks.map((block, index) => {
                 const showMidAd = index === 3
                 return (

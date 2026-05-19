@@ -9,7 +9,7 @@ interface SidebarProps {
 
 export function Sidebar({ recentPosts = [], tags = [] }: SidebarProps) {
   return (
-    <aside className="space-y-10">
+    <aside className="space-y-10 lg:sticky lg:top-24 lg:self-start">
 
       {/* About */}
       <div>
