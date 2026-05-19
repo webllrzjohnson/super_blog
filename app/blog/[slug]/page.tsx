@@ -19,6 +19,7 @@ import { PostBookmarkButton } from '@/components/post-bookmark-button'
 import { PostReactions } from '@/components/post-reactions'
 import { PostComments } from '@/components/post-comments'
 import { MarkdownAffiliateAnchor } from '@/components/markdown-affiliate-anchor'
+import { Sidebar } from '@/components/sidebar'
 import { isAdminSession } from '@/lib/auth-session'
 
 interface Props {
@@ -88,18 +89,17 @@ export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params
   const post = await getPostBySlugFromDb(slug)
 
-  if (!post) {
-    notFound()
-  }
+  if (!post) notFound()
 
   const isAdmin = await hasAdminAccess()
-  if (!isPostPubliclyVisible(post) && !isAdmin) {
-    notFound()
-  }
+  if (!isPostPubliclyVisible(post) && !isAdmin) notFound()
 
   const allPosts = await getPostsFromDb()
-  const relatedPosts = getRelatedPosts(post, getPublishedPosts(allPosts))
+  const publishedPosts = getPublishedPosts(allPosts)
+  const relatedPosts = getRelatedPosts(post, publishedPosts)
   const { prev: older, next: newer } = getAdjacentPosts(post, allPosts)
+  const recentPosts = publishedPosts.slice(0, 5)
+  const allTags = [...new Set(publishedPosts.flatMap((p) => p.tags))]
 
   const contentBlocks = post.content
     .split('\n\n')
@@ -127,153 +127,160 @@ export default async function BlogPostPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <article className="max-w-4xl mx-auto px-6 py-12 md:py-16">
-        <AffiliateDisclosure />
-        <GoogleAd position="top-of-content" />
+      <div className="max-w-4xl mx-auto px-6 py-12 md:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-12">
 
-        <header className="mb-10">
-          {post.featuredImage && (
-            <div className="relative w-full aspect-[21/9] mb-6 rounded-lg overflow-hidden bg-muted">
-              <Image
-                src={post.featuredImage}
-                alt={post.featuredImageAlt?.trim() || post.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 672px"
-                priority
-              />
-            </div>
-          )}
-          <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-            <h1 className="text-2xl font-medium text-foreground leading-tight flex-1 min-w-[12rem]">
-              {post.title}
-            </h1>
-            <PostBookmarkButton slug={post.slug} />
-          </div>
-          <div className="text-sm text-muted-foreground mb-4">
-            <time dateTime={post.publishedAt}>
-              {new Date(post.publishedAt).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              })}
-              {post.updatedAt && ' (updated)'}
-            </time>
-          </div>
-          <div className="flex flex-wrap gap-x-2 gap-y-1">
-            {post.tags.map((tag) => (
-              <Link
-                key={tag}
-                href={`/blog?tag=${encodeURIComponent(tag.toLowerCase())}`}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                #{tag}
-              </Link>
-            ))}
-          </div>
-        </header>
+          {/* Main content */}
+          <article>
+            <AffiliateDisclosure />
+            <GoogleAd position="top-of-content" />
 
-        <div className="prose prose-neutral dark:prose-invert max-w-none">
-          {contentBlocks.map((block, index) => {
-            const showMidAd = index === 3
-            return (
-              <div key={index}>
-                {showMidAd && <GoogleAd position="mid-content" />}
-                <ReactMarkdown
-                  components={{
-                    h2: ({ children, ...props }) => {
-                      const text = String(children)
-                      const id = text.toLowerCase().replace(/\s+/g, '-')
-                      return (
-                        <h2 id={id} className="text-lg font-medium text-foreground mt-8 mb-4" {...props}>
-                          {children}
-                        </h2>
-                      )
-                    },
-                    p: ({ children, ...props }) => (
-                      <p className="text-foreground/90 leading-relaxed mb-4" {...props}>
-                        {children}
-                      </p>
-                    ),
-                    a: ({ href, children, ...props }) => (
-                      <MarkdownAffiliateAnchor
-                        href={href ?? ''}
-                        postSlug={post.slug}
-                        {...props}
-                      >
-                        {children}
-                      </MarkdownAffiliateAnchor>
-                    ),
-                  }}
-                >
-                  {block}
-                </ReactMarkdown>
+            <header className="mb-10">
+              {post.featuredImage && (
+                <div className="relative w-full aspect-[21/9] mb-6 rounded-lg overflow-hidden bg-muted">
+                  <Image
+                    src={post.featuredImage}
+                    alt={post.featuredImageAlt?.trim() || post.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 672px"
+                    priority
+                  />
+                </div>
+              )}
+              <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+                <h1 className="text-2xl font-medium text-foreground leading-tight flex-1 min-w-[12rem]">
+                  {post.title}
+                </h1>
+                <PostBookmarkButton slug={post.slug} />
               </div>
-            )
-          })}
-        </div>
+              <div className="text-sm text-muted-foreground mb-4">
+                <time dateTime={post.publishedAt}>
+                  {new Date(post.publishedAt).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                  {post.updatedAt && ' (updated)'}
+                </time>
+              </div>
+              <div className="flex flex-wrap gap-x-2 gap-y-1">
+                {post.tags.map((tag) => (
+                  <Link
+                    key={tag}
+                    href={`/blog?tag=${encodeURIComponent(tag.toLowerCase())}`}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    #{tag}
+                  </Link>
+                ))}
+              </div>
+            </header>
 
-        <GoogleAd position="end-of-article" />
-
-        {isPostPubliclyVisible(post) && (
-          <div className="mt-10 space-y-10">
-            <PostReactions slug={post.slug} />
-            <PostComments slug={post.slug} />
-          </div>
-        )}
-
-        <hr className="my-10 border-border/60" />
-
-        <nav className="flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground mb-10">
-          {newer ? (
-            <Link href={`/blog/${newer.slug}`} className="hover:text-foreground transition-colors">
-              ? Newer post
-            </Link>
-          ) : (
-            <span className="opacity-50">? Newer post</span>
-          )}
-          <span>•</span>
-          <Link href="/blog/random" className="hover:text-foreground transition-colors">
-            Random post
-          </Link>
-          <span>•</span>
-          {older ? (
-            <Link href={`/blog/${older.slug}`} className="hover:text-foreground transition-colors">
-              Older post ?
-            </Link>
-          ) : (
-            <span className="opacity-50">Older post ?</span>
-          )}
-        </nav>
-
-        <div className="mt-10 pt-8 border-t border-border/60">
-          <Link href="/blog/tags" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            View posts by tag ?
-          </Link>
-        </div>
-
-        {relatedPosts.length > 0 && (
-          <section className="mt-12 pt-8 border-t border-border/60">
-            <h2 className="text-lg font-medium text-foreground mb-6">
-              Related posts
-            </h2>
-            <div className="space-y-8">
-              {relatedPosts.map((relatedPost) => (
-                <PostCard key={relatedPost.id} post={relatedPost} />
-              ))}
+            <div className="prose prose-neutral dark:prose-invert max-w-none">
+              {contentBlocks.map((block, index) => {
+                const showMidAd = index === 3
+                return (
+                  <div key={index}>
+                    {showMidAd && <GoogleAd position="mid-content" />}
+                    <ReactMarkdown
+                      components={{
+                        h2: ({ children, ...props }) => {
+                          const text = String(children)
+                          const id = text.toLowerCase().replace(/\s+/g, '-')
+                          return (
+                            <h2 id={id} className="text-lg font-medium text-foreground mt-8 mb-4" {...props}>
+                              {children}
+                            </h2>
+                          )
+                        },
+                        p: ({ children, ...props }) => (
+                          <p className="text-foreground/90 leading-relaxed mb-4" {...props}>
+                            {children}
+                          </p>
+                        ),
+                        a: ({ href, children, ...props }) => (
+                          <MarkdownAffiliateAnchor
+                            href={href ?? ''}
+                            postSlug={post.slug}
+                            {...props}
+                          >
+                            {children}
+                          </MarkdownAffiliateAnchor>
+                        ),
+                      }}
+                    >
+                      {block}
+                    </ReactMarkdown>
+                  </div>
+                )
+              })}
             </div>
-          </section>
-        )}
 
-        <div className="mt-10">
-          <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            ? Back to all posts
-          </Link>
+            <GoogleAd position="end-of-article" />
+
+            {isPostPubliclyVisible(post) && (
+              <div className="mt-10 space-y-10">
+                <PostReactions slug={post.slug} />
+                <PostComments slug={post.slug} />
+              </div>
+            )}
+
+            <hr className="my-10 border-border/60" />
+
+            <nav className="flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground mb-10">
+              {newer ? (
+                <Link href={`/blog/${newer.slug}`} className="hover:text-foreground transition-colors">
+                  ← Newer post
+                </Link>
+              ) : (
+                <span className="opacity-50">← Newer post</span>
+              )}
+              <span>•</span>
+              <Link href="/blog/random" className="hover:text-foreground transition-colors">
+                Random post
+              </Link>
+              <span>•</span>
+              {older ? (
+                <Link href={`/blog/${older.slug}`} className="hover:text-foreground transition-colors">
+                  Older post →
+                </Link>
+              ) : (
+                <span className="opacity-50">Older post →</span>
+              )}
+            </nav>
+
+            <div className="mt-10 pt-8 border-t border-border/60">
+              <Link href="/blog/tags" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                View posts by tag →
+              </Link>
+            </div>
+
+            {relatedPosts.length > 0 && (
+              <section className="mt-12 pt-8 border-t border-border/60">
+                <h2 className="text-lg font-medium text-foreground mb-6">
+                  Related posts
+                </h2>
+                <div className="space-y-8">
+                  {relatedPosts.map((relatedPost) => (
+                    <PostCard key={relatedPost.id} post={relatedPost} />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <div className="mt-10">
+              <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                ← Back to all posts
+              </Link>
+            </div>
+          </article>
+
+          {/* Sidebar */}
+          <Sidebar recentPosts={recentPosts} tags={allTags} />
+
         </div>
-      </article>
+      </div>
     </>
   )
 }
-
-
-

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import { BlogList } from '@/components/blog-list'
 import { GoogleAd } from '@/components/google-ad'
+import { Sidebar } from '@/components/sidebar'
 import { getPostsFromDb } from '@/lib/db-posts'
 import { getPublishedPosts } from '@/lib/posts'
 
@@ -19,33 +20,38 @@ export const metadata: Metadata = {
 export default async function BlogPage() {
   const allPosts = await getPostsFromDb()
   const posts = getPublishedPosts(allPosts)
+  const recentPosts = posts.slice(0, 5)
+  const allTags = [...new Set(posts.flatMap((p) => p.tags))]
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12 md:py-16">
       <header className="mb-10">
-        <h1 className="text-2xl font-medium text-foreground mb-2">
-          Blog
-        </h1>
+        <h1 className="text-2xl font-medium text-foreground mb-2">Blog</h1>
         <p className="text-muted-foreground">
-          Here&apos;s my most recent posts or <Link href="/blog/random" className="underline decoration-2 underline-offset-2 hover:text-foreground transition-colors">read a random one</Link>!
+          Here&apos;s my most recent posts or{' '}
+          <Link href="/blog/random" className="underline decoration-2 underline-offset-2 hover:text-foreground transition-colors">
+            read a random one
+          </Link>!
         </p>
       </header>
 
-      <Suspense
-        fallback={
-          <p className="text-muted-foreground py-12 text-sm">Loading posts…</p>
-        }
-      >
-        <BlogList
-          initialPosts={posts}
-          betweenPostsAd={<GoogleAd position="between-posts" />}
-        />
-      </Suspense>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-12">
+        <div>
+          <Suspense fallback={<p className="text-muted-foreground py-12 text-sm">Loading posts…</p>}>
+            <BlogList
+              initialPosts={posts}
+              betweenPostsAd={<GoogleAd position="between-posts" />}
+            />
+          </Suspense>
 
-      <div className="mt-12 pt-8 border-t border-border/60">
-        <Link href="/blog/tags" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-          View posts by tag →
-        </Link>
+          <div className="mt-12 pt-8 border-t border-border/60">
+            <Link href="/blog/tags" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              View posts by tag →
+            </Link>
+          </div>
+        </div>
+
+        <Sidebar recentPosts={recentPosts} tags={allTags} />
       </div>
     </div>
   )
