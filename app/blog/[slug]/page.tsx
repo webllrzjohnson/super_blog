@@ -127,8 +127,8 @@ export default async function BlogPostPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="max-w-4xl mx-auto px-6 py-12 md:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-12">
+      <div className="max-w-6xl mx-auto px-6 py-12 md:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12">
 
           {/* Main content */}
           <article>
