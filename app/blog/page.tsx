@@ -24,7 +24,7 @@ export default async function BlogPage() {
   const allTags = [...new Set(posts.flatMap((p) => p.tags))]
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12 md:py-16">
+    <div className="max-w-6xl mx-auto px-6 py-12 md:py-16">
       <header className="mb-10">
         <h1 className="text-2xl font-medium text-foreground mb-2">Blog</h1>
         <p className="text-muted-foreground">
@@ -35,7 +35,7 @@ export default async function BlogPage() {
         </p>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12">
         <div>
           <Suspense fallback={<p className="text-muted-foreground py-12 text-sm">Loading posts…</p>}>
             <BlogList

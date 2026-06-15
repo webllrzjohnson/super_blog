@@ -8,20 +8,30 @@ interface SidebarProps {
 }
 
 export function Sidebar({ recentPosts = [], tags = [] }: SidebarProps) {
+  const visibleTags = tags.slice(0, 20)
+
   return (
-    <aside className="space-y-10 lg:sticky lg:top-24 lg:self-start">
+    <aside className="space-y-8 lg:sticky lg:top-24 lg:self-start">
 
       {/* About */}
       <div>
         <h3 className="text-sm font-medium text-foreground mb-3">About</h3>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <span className="text-xs font-medium text-primary">LJ</span>
+          </div>
+          <span className="text-sm font-medium text-foreground">Lester J.</span>
+        </div>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          I&apos;m Lester — building superintendent in Toronto, coding on the side. 
+          Building superintendent in Toronto, coding on the side.
           I write about building management, running, food, and everyday life.
         </p>
         <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-2 inline-block">
           More about me →
         </Link>
       </div>
+
+      <div className="border-t border-border/50" />
 
       {/* Newsletter */}
       <div>
@@ -32,39 +42,51 @@ export function Sidebar({ recentPosts = [], tags = [] }: SidebarProps) {
 
       {/* Recent Posts */}
       {recentPosts.length > 0 && (
-        <div>
-          <h3 className="text-sm font-medium text-foreground mb-3">Recent Posts</h3>
-          <ul className="space-y-3">
-            {recentPosts.map((post) => (
-              <li key={post.id}>
-                <Link
-                  href={`/blog/${post.slug}`}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors leading-snug"
-                >
-                  {post.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <>
+          <div className="border-t border-border/50" />
+          <div>
+            <h3 className="text-sm font-medium text-foreground mb-3">Recent Posts</h3>
+            <ul className="space-y-3">
+              {recentPosts.map((post) => (
+                <li key={post.id} className="flex gap-2 items-start">
+                  <span className="text-muted-foreground/40 mt-0.5 text-xs">→</span>
+                  <Link
+                    href={`/blog/${post.slug}`}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors leading-snug"
+                  >
+                    {post.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </>
       )}
 
       {/* Tags */}
-      {tags.length > 0 && (
-        <div>
-          <h3 className="text-sm font-medium text-foreground mb-3">Tags</h3>
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <Link
-                key={tag}
-                href={`/blog?tag=${encodeURIComponent(tag.toLowerCase())}`}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                #{tag}
+      {visibleTags.length > 0 && (
+        <>
+          <div className="border-t border-border/50" />
+          <div>
+            <h3 className="text-sm font-medium text-foreground mb-3">Tags</h3>
+            <div className="flex flex-wrap gap-1.5">
+              {visibleTags.map((tag) => (
+                <Link
+                  key={tag}
+                  href={`/blog?tag=${encodeURIComponent(tag.toLowerCase())}`}
+                  className="text-xs px-2.5 py-0.5 rounded-full border border-border/60 text-muted-foreground hover:text-foreground hover:border-border transition-colors"
+                >
+                  #{tag}
+                </Link>
+              ))}
+            </div>
+            {tags.length > 20 && (
+              <Link href="/blog/tags" className="text-xs text-muted-foreground hover:text-foreground transition-colors mt-3 inline-block">
+                View all {tags.length} tags →
               </Link>
-            ))}
+            )}
           </div>
-        </div>
+        </>
       )}
 
     </aside>
