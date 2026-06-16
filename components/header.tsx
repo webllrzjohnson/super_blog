@@ -11,7 +11,6 @@ const navItems = [
   { label: 'Home', href: '/' },
   { label: 'Blog', href: '/blog' },
   { label: 'Bookmarks', href: '/bookmarks' },
-  { label: 'Newsletter', href: '/#newsletter' },
   { label: 'About', href: '/about' },
 ]
 
@@ -31,10 +30,10 @@ export function Header({ branding }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-sm border-b border-border/60">
-      <nav className="max-w-2xl mx-auto px-6 py-3" aria-label="Main">
+      <nav className="max-w-6xl mx-auto px-6 py-3" aria-label="Main">
         <div className="flex items-center justify-between">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="flex items-center gap-3 text-lg font-medium text-foreground hover:text-muted-foreground transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             {branding?.logoUrl ? (

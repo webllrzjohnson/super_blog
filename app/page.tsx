@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { PostCard } from '@/components/post-card'
 import { NewsletterForm } from '@/components/newsletter-form'
 import { getPostsFromDb } from '@/lib/db-posts'
@@ -16,41 +17,88 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   const allPosts = await getPostsFromDb()
   const posts = getPublishedPosts(allPosts)
-  const recentPosts = posts.slice(0, 5)
+  const [featured, ...recentPosts] = posts.slice(0, 5)
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-12 md:py-16">
 
       {/* Hero */}
-      <section className="max-w-2xl mb-16">
-        <p className="text-sm text-muted-foreground mb-3">
-          Building superintendent · Toronto, ON
-        </p>
-        <h1 className="text-2xl font-medium text-foreground mb-4">
-          Lester J.
-        </h1>
-        <p className="text-lg text-foreground leading-relaxed mb-4">
-          Hi! I&apos;m Lester, and I like to make things and write about them.
-        </p>
-        <p className="text-muted-foreground leading-relaxed">
-          Software engineer turned building superintendent, still coding on the side. Based in Toronto with my wife.
-          I bake bread, cook, eat out too much, and travel whenever we can. This is where I write about all of it.
-        </p>
+      <section className="max-w-2xl mb-16 flex flex-col sm:flex-row gap-6 items-start">
+        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+          <span className="text-xl font-medium text-primary">LJ</span>
+        </div>
+        <div>
+          <p className="text-sm text-muted-foreground mb-1">
+            Building superintendent · Toronto, ON
+          </p>
+          <h1 className="text-2xl font-medium text-foreground mb-3">
+            Lester J.
+          </h1>
+          <p className="text-muted-foreground leading-relaxed">
+            Software engineer turned building superintendent, still coding on the side.
+            I write about building management, AI experiments, running, food, and life in Toronto.
+          </p>
+          <div className="flex gap-4 mt-4">
+            <Link href="/blog" className="text-sm text-foreground hover:text-muted-foreground transition-colors">
+              Read the blog →
+            </Link>
+            <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              About me
+            </Link>
+          </div>
+        </div>
       </section>
+
+      {/* Featured Post */}
+      {featured && (
+        <section className="mb-16">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">Featured post</p>
+          <Link href={`/blog/${featured.slug}`} className="group block">
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 items-start p-6 rounded-xl border border-border/60 hover:border-border transition-colors bg-secondary/20 hover:bg-secondary/40">
+              <div>
+                <h2 className="text-xl font-medium text-foreground group-hover:text-muted-foreground transition-colors leading-snug mb-2">
+                  {featured.title}
+                </h2>
+                <p className="text-muted-foreground leading-relaxed text-sm mb-3 line-clamp-2">
+                  {featured.excerpt}
+                </p>
+                <div className="text-xs text-muted-foreground">
+                  {new Date(featured.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  <span className="mx-2 opacity-60">·</span>
+                  {featured.readTime} min read
+                </div>
+              </div>
+              {featured.featuredImage && (
+                <div className="w-full md:w-32 h-32 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                  <Image
+                    src={featured.featuredImage}
+                    alt={featured.featuredImageAlt || featured.title}
+                    width={128}
+                    height={128}
+                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              )}
+            </div>
+          </Link>
+        </section>
+      )}
 
       {/* Recent Posts */}
       <section className="mb-16">
-        <h2 className="text-lg font-medium text-foreground mb-8">
-          Most recent posts or{' '}
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-lg font-medium text-foreground">
+            Recent posts
+          </h2>
           <Link
             href="/blog/random"
-            className="underline decoration-2 underline-offset-2 hover:text-muted-foreground transition-colors"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            read a random one
+            Read a random one →
           </Link>
-        </h2>
+        </div>
 
-        <div className="space-y-10">
+        <div className="space-y-8">
           {recentPosts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
@@ -59,7 +107,7 @@ export default async function HomePage() {
         <div className="mt-10">
           <Link
             href="/blog"
-            className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             View all posts →
           </Link>
@@ -67,7 +115,7 @@ export default async function HomePage() {
       </section>
 
       {/* Newsletter */}
-      <section id="newsletter" className="max-w-2xl">
+      <section id="newsletter" className="max-w-lg">
         <h2 className="text-lg font-medium text-foreground mb-2">
           Stay in the loop
         </h2>
