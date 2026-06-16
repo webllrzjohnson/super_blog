@@ -24,18 +24,17 @@ export default async function ContactPage() {
           Contact me
         </h1>
         <p className="text-muted-foreground leading-relaxed">
-          Have a question, comment, or just want to say hi? I&apos;d love to hear from you. 
+          Have a question, comment, or just want to say hi? I&apos;d love to hear from you.
           Fill out the form below and I&apos;ll get back to you as soon as I can.
         </p>
       </header>
 
-      {customContact ? (
-        <div className="prose prose-neutral dark:prose-invert max-w-none">
+      {customContact && (
+        <div className="prose prose-neutral dark:prose-invert max-w-none mb-12">
           <ReactMarkdown>{customContact}</ReactMarkdown>
         </div>
-      ) : (
-        <ContactForm />
       )}
+      <ContactForm />
     </div>
   )
 }
