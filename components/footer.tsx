@@ -20,8 +20,6 @@ export function Footer({ links, siteName = 'Lester J.' }: FooterProps) {
     <footer className="border-t border-border/60 mt-12">
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-
-          {/* Nav links */}
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
             <Link href="/blog" className="hover:text-foreground transition-colors">Blog</Link>
             <Link href="/blog/tags" className="hover:text-foreground transition-colors">Tags</Link>
@@ -31,29 +29,29 @@ export function Footer({ links, siteName = 'Lester J.' }: FooterProps) {
             <Link href="/disclaimer" className="hover:text-foreground transition-colors">Disclaimer</Link>
             <a href="/feed" className="hover:text-foreground transition-colors">RSS</a>
           </div>
-
-          {/* Social links */}
           {socialLinks.length > 0 && (
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-              {socialLinks.map((link) => (
-
-                MediaKeyMessageEvent={link.label}
-                  href={link.href}
-                  target={link.href.startsWith('mailto:') ? undefined : '_blank'}
-                  rel={link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-                  className="hover:text-foreground transition-colors"
-                >
-                {link.label}
-                </a>
-          ))}
-        </div>
+              {socialLinks.map((link) => {
+                const isEmail = link.href.startsWith('mailto:')
+                return (
+                  
+                    key={link.label}
+                    href={link.href}
+                    target={isEmail ? undefined : '_blank'}
+                    rel={isEmail ? undefined : 'noopener noreferrer'}
+                    className="hover:text-foreground transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                )
+              })}
+            </div>
           )}
+        </div>
+        <p className="text-sm text-muted-foreground mt-8">
+          &copy; {new Date().getFullYear()} {siteName}
+        </p>
       </div>
-
-      <p className="text-sm text-muted-foreground mt-8">
-        &copy; {new Date().getFullYear()} {siteName}
-      </p>
-    </div>
-    </footer >
+    </footer>
   )
 }
