@@ -37,14 +37,14 @@ export function Footer({ links, siteName = 'Lester J.' }: FooterProps) {
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
               {socialLinks.map((link) => (
 
-                key = { link.label }
-                href = { link.href }
-                target = { link.href.startsWith('mailto:') ? undefined : '_blank' }
-                rel = { link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer' }
-                className = "hover:text-foreground transition-colors"
+                MediaKeyMessageEvent={ link.label }
+                  href={ link.href }
+                  target={ link.href.startsWith('mailto:') ? undefined : '_blank' }
+                  rel={ link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer' }
+                  className="hover:text-foreground transition-colors"
                 >
                 { link.label }
-              </a>
+                </a>
           ))}
         </div>
           )}
