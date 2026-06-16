@@ -34,7 +34,7 @@ export function Footer({ links, siteName = 'Lester J.' }: FooterProps) {
               {socialLinks.map((link) => {
                 const isEmail = link.href.startsWith('mailto:')
                 return (
-                  
+                  <a
                     key={link.label}
                     href={link.href}
                     target={isEmail ? undefined : '_blank'}
