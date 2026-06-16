@@ -38,13 +38,13 @@ export function Footer({ links, siteName = 'Lester J.' }: FooterProps) {
               {socialLinks.map((link) => (
 
                 key = { link.label }
-                  href = { link.href }
-                  target = { link.href.startsWith('mailto:') ? undefined : '_blank' }
-                  rel = { link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer' }
-                  className = "hover:text-foreground transition-colors"
+                href = { link.href }
+                target = { link.href.startsWith('mailto:') ? undefined : '_blank' }
+                rel = { link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer' }
+                className = "hover:text-foreground transition-colors"
                 >
                 { link.label }
-                </a>
+              </a>
           ))}
         </div>
           )}
