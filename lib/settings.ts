@@ -208,7 +208,7 @@ export const getSetting = cache(async <K extends SettingsKey>(key: K): Promise<S
 export async function upsertSetting(key: SettingsKey, value: unknown): Promise<void> {
   await sql`
     INSERT INTO site_settings (key, value, updated_at)
-    VALUES (${key}, ${sql.json(value as object)}, NOW())
+    VALUES (${key}, ${JSON.stringify(value)}, NOW())
     ON CONFLICT (key) DO UPDATE
     SET value = EXCLUDED.value, updated_at = EXCLUDED.updated_at
   `
