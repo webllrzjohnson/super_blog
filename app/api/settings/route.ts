@@ -2,8 +2,7 @@ import * as Sentry from '@sentry/nextjs'
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { z } from 'zod'
-import { createServerClient } from '@/lib/supabase/server'
-import { getSetting, getSettings } from '@/lib/settings'
+import { getSetting, getSettings, upsertSetting } from '@/lib/settings'
 import { isAdminSession } from '@/lib/auth-session'
 import { revalidateSettingsCache } from '@/lib/revalidate-cache'
 
@@ -104,19 +103,9 @@ export async function POST(request: Request) {
     )
   }
 
-  const supabase = createServerClient()
-  const { error } = await supabase
-    .from('site_settings')
-    .upsert(
-      {
-        key,
-        value: parsedValue.data,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'key' }
-    )
-
-  if (error) {
+  try {
+    await upsertSetting(key, parsedValue.data)
+  } catch (error) {
     Sentry.captureException(error, { extra: { settingsKey: key } })
     return NextResponse.json(
       { error: 'Failed to save settings' },

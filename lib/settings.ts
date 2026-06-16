@@ -1,6 +1,6 @@
 import { cache } from 'react'
 import { unstable_cache } from 'next/cache'
-import { createServerClient, hasSupabaseConfig } from '@/lib/supabase/server'
+import sql from '@/lib/db'
 import {
   CACHE_TAG_SETTINGS,
   SETTINGS_CACHE_REVALIDATE_SECONDS,
@@ -85,10 +85,7 @@ function readOptionalString(record: Record<string, unknown>, key: string): strin
 }
 
 function sanitizeLinksSettings(value: unknown): LinksSettings {
-  if (!isRecord(value)) {
-    return { ...defaultSettings.links }
-  }
-
+  if (!isRecord(value)) return { ...defaultSettings.links }
   return {
     github: readOptionalString(value, 'github'),
     linkedin: readOptionalString(value, 'linkedin'),
@@ -98,10 +95,7 @@ function sanitizeLinksSettings(value: unknown): LinksSettings {
 }
 
 function sanitizeBrandingSettings(value: unknown): BrandingSettings {
-  if (!isRecord(value)) {
-    return { ...defaultSettings.branding }
-  }
-
+  if (!isRecord(value)) return { ...defaultSettings.branding }
   return {
     siteName: readOptionalString(value, 'siteName') ?? defaultSettings.branding.siteName,
     logoUrl: readOptionalString(value, 'logoUrl'),
@@ -110,10 +104,7 @@ function sanitizeBrandingSettings(value: unknown): BrandingSettings {
 }
 
 function sanitizeAppearanceSettings(value: unknown): AppearanceSettings {
-  if (!isRecord(value)) {
-    return { ...defaultSettings.appearance }
-  }
-
+  if (!isRecord(value)) return { ...defaultSettings.appearance }
   return {
     fontPair: readOptionalString(value, 'fontPair') ?? defaultSettings.appearance.fontPair,
     colorPreset: readOptionalString(value, 'colorPreset') ?? defaultSettings.appearance.colorPreset,
@@ -122,13 +113,7 @@ function sanitizeAppearanceSettings(value: unknown): AppearanceSettings {
 }
 
 function sanitizeAdsSettings(value: unknown): AdsSettings {
-  if (!isRecord(value)) {
-    return {
-      clientId: defaultSettings.ads.clientId,
-      slots: [...defaultSettings.ads.slots],
-    }
-  }
-
+  if (!isRecord(value)) return { clientId: defaultSettings.ads.clientId, slots: [...defaultSettings.ads.slots] }
   const rawSlots = Array.isArray(value.slots) ? value.slots : []
   const slots = rawSlots
     .filter(isRecord)
@@ -137,34 +122,16 @@ function sanitizeAdsSettings(value: unknown): AdsSettings {
       const slotId = typeof rawSlotId === 'string' ? rawSlotId.trim() : ''
       const position = readOptionalString(slot, 'position')
       const enabled = slot.enabled
-
-      if (!position || typeof enabled !== 'boolean') {
-        return null
-      }
-
-      if (enabled && !slotId) {
-        return null
-      }
-
-      return {
-        slotId,
-        position,
-        enabled,
-      }
+      if (!position || typeof enabled !== 'boolean') return null
+      if (enabled && !slotId) return null
+      return { slotId, position, enabled }
     })
     .filter((slot): slot is AdSlotSetting => slot !== null)
-
-  return {
-    clientId: readOptionalString(value, 'clientId'),
-    slots,
-  }
+  return { clientId: readOptionalString(value, 'clientId'), slots }
 }
 
 function sanitizePagesSettings(value: unknown): PagesSettings {
-  if (!isRecord(value)) {
-    return { ...defaultSettings.pages }
-  }
-
+  if (!isRecord(value)) return { ...defaultSettings.pages }
   return {
     about: readOptionalString(value, 'about'),
     privacy: readOptionalString(value, 'privacy'),
@@ -179,20 +146,13 @@ function sanitizeAdminPasswordHash(value: unknown): string | null {
 
 function normalizeSetting<K extends SettingsKey>(key: K, value: unknown): SettingsMap[K] {
   switch (key) {
-    case 'links':
-      return sanitizeLinksSettings(value) as SettingsMap[K]
-    case 'branding':
-      return sanitizeBrandingSettings(value) as SettingsMap[K]
-    case 'appearance':
-      return sanitizeAppearanceSettings(value) as SettingsMap[K]
-    case 'ads':
-      return sanitizeAdsSettings(value) as SettingsMap[K]
-    case 'pages':
-      return sanitizePagesSettings(value) as SettingsMap[K]
-    case 'admin_password_hash':
-      return sanitizeAdminPasswordHash(value) as SettingsMap[K]
-    default:
-      return defaultSettings[key]
+    case 'links': return sanitizeLinksSettings(value) as SettingsMap[K]
+    case 'branding': return sanitizeBrandingSettings(value) as SettingsMap[K]
+    case 'appearance': return sanitizeAppearanceSettings(value) as SettingsMap[K]
+    case 'ads': return sanitizeAdsSettings(value) as SettingsMap[K]
+    case 'pages': return sanitizePagesSettings(value) as SettingsMap[K]
+    case 'admin_password_hash': return sanitizeAdminPasswordHash(value) as SettingsMap[K]
+    default: return defaultSettings[key]
   }
 }
 
@@ -201,58 +161,34 @@ function cloneDefaults(): SettingsMap {
     links: { ...defaultSettings.links },
     branding: { ...defaultSettings.branding },
     appearance: { ...defaultSettings.appearance },
-    ads: {
-      clientId: defaultSettings.ads.clientId,
-      slots: [...defaultSettings.ads.slots],
-    },
+    ads: { clientId: defaultSettings.ads.clientId, slots: [...defaultSettings.ads.slots] },
     pages: { ...defaultSettings.pages },
     admin_password_hash: defaultSettings.admin_password_hash,
   }
 }
 
-async function loadSettingsFromSupabase(): Promise<SettingsMap> {
-  const supabase = createServerClient()
-  const { data, error } = await supabase
-    .from('site_settings')
-    .select('key, value')
-
-  if (error || !data) {
+async function loadSettingsFromDb(): Promise<SettingsMap> {
+  try {
+    const rows = await sql<SiteSettingsRow[]>`SELECT key, value FROM site_settings`
+    const settings = cloneDefaults()
+    for (const row of rows) {
+      switch (row.key) {
+        case 'links': settings.links = normalizeSetting('links', row.value); break
+        case 'branding': settings.branding = normalizeSetting('branding', row.value); break
+        case 'appearance': settings.appearance = normalizeSetting('appearance', row.value); break
+        case 'ads': settings.ads = normalizeSetting('ads', row.value); break
+        case 'pages': settings.pages = normalizeSetting('pages', row.value); break
+        case 'admin_password_hash': settings.admin_password_hash = normalizeSetting('admin_password_hash', row.value); break
+      }
+    }
+    return settings
+  } catch {
     return cloneDefaults()
   }
-
-  const settings = cloneDefaults()
-
-  for (const row of data as SiteSettingsRow[]) {
-    switch (row.key) {
-      case 'links':
-        settings.links = normalizeSetting('links', row.value)
-        break
-      case 'branding':
-        settings.branding = normalizeSetting('branding', row.value)
-        break
-      case 'appearance':
-        settings.appearance = normalizeSetting('appearance', row.value)
-        break
-      case 'ads':
-        settings.ads = normalizeSetting('ads', row.value)
-        break
-      case 'pages':
-        settings.pages = normalizeSetting('pages', row.value)
-        break
-      case 'admin_password_hash':
-        settings.admin_password_hash = normalizeSetting(
-          'admin_password_hash',
-          row.value
-        )
-        break
-    }
-  }
-
-  return settings
 }
 
-const getSettingsFromSupabaseCached = unstable_cache(
-  loadSettingsFromSupabase,
+const getSettingsFromDbCached = unstable_cache(
+  loadSettingsFromDb,
   ['site-settings-map'],
   {
     tags: [CACHE_TAG_SETTINGS],
@@ -261,13 +197,19 @@ const getSettingsFromSupabaseCached = unstable_cache(
 )
 
 export const getSettings = cache(async (): Promise<SettingsMap> => {
-  if (!hasSupabaseConfig()) {
-    return cloneDefaults()
-  }
-  return getSettingsFromSupabaseCached()
+  return getSettingsFromDbCached()
 })
 
 export const getSetting = cache(async <K extends SettingsKey>(key: K): Promise<SettingsMap[K]> => {
   const settings = await getSettings()
   return settings[key]
 })
+
+export async function upsertSetting(key: SettingsKey, value: unknown): Promise<void> {
+  await sql`
+    INSERT INTO site_settings (key, value, updated_at)
+    VALUES (${key}, ${sql.json(value as object)}, NOW())
+    ON CONFLICT (key) DO UPDATE
+    SET value = EXCLUDED.value, updated_at = EXCLUDED.updated_at
+  `
+}
