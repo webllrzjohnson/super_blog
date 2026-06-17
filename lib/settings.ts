@@ -94,7 +94,7 @@ function sanitizeLinksSettings(value: unknown): LinksSettings {
   }
 }
 
-sync function loadSettingsFromDb(): Promise<SettingsMap> {
+async function loadSettingsFromDb(): Promise<SettingsMap> {
   try {
     const rows = await sql<SiteSettingsRow[]>`SELECT key, value FROM site_settings`
     console.log('loadSettingsFromDb rows:', JSON.stringify(rows))
