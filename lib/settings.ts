@@ -1,11 +1,6 @@
 import { cache } from 'react'
-//import { unstable_cache } from 'next/cache'
 import sql from '@/lib/db'
-/*import {
-  CACHE_TAG_SETTINGS,
-  SETTINGS_CACHE_REVALIDATE_SECONDS,
-} from '@/lib/cache-tags'
-*/
+
 export interface LinksSettings {
   github?: string
   linkedin?: string
@@ -192,16 +187,7 @@ async function loadSettingsFromDb(): Promise<SettingsMap> {
     return cloneDefaults()
   }
 }
-/*
-const getSettingsFromDbCached = unstable_cache(
-  loadSettingsFromDb,
-  ['site-settings-map'],
-  {
-    tags: [CACHE_TAG_SETTINGS],
-    revalidate: SETTINGS_CACHE_REVALIDATE_SECONDS,
-  }
-)
-*/
+
 export const getSettings = cache(async (): Promise<SettingsMap> => {
   return loadSettingsFromDb()
 })
@@ -219,4 +205,3 @@ export async function upsertSetting(key: SettingsKey, value: unknown): Promise<v
     SET value = EXCLUDED.value, updated_at = EXCLUDED.updated_at
   `
 }
-
