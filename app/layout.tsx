@@ -121,7 +121,7 @@ const colorPresets = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings()
-  const siteName = settings.branding.siteName || 'Lester J.'
+  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || settings.branding.siteName || 'Lester J.'
   const description =
     'A building superintendent in Toronto writing about property management, AI experiments, running, food, and everyday life.'
 

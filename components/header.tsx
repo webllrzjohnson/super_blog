@@ -22,7 +22,7 @@ export function Header({ branding }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const siteName = branding?.siteName || 'Lester J.'
+  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || branding?.siteName || 'Lester J.'
 
   React.useEffect(() => {
     setMounted(true)
