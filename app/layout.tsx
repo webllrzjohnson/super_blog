@@ -94,6 +94,8 @@ const fontPairClasses = {
   'nunito-libre-baskerville': `${nunito.variable} ${libreBaskerville.variable}`,
 } as const
 
+export const dynamic = 'force-dynamic'
+
 const colorPresets = {
   'warm-terracotta': {
     lightPrimary: 'oklch(0.622 0.138 44)',
