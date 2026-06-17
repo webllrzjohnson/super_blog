@@ -165,7 +165,6 @@ function cloneDefaults(): SettingsMap {
 async function loadSettingsFromDb(): Promise<SettingsMap> {
   try {
     const rows = await sql<SiteSettingsRow[]>`SELECT key, value FROM site_settings`
-    console.log('loadSettingsFromDb called, rows:', JSON.stringify(rows))
     const settings = cloneDefaults()
     for (const row of rows) {
       switch (row.key) {
