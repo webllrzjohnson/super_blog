@@ -94,6 +94,12 @@ function sanitizeLinksSettings(value: unknown): LinksSettings {
   }
 }
 
+sync function loadSettingsFromDb(): Promise<SettingsMap> {
+  try {
+    const rows = await sql<SiteSettingsRow[]>`SELECT key, value FROM site_settings`
+    console.log('loadSettingsFromDb rows:', JSON.stringify(rows))
+   
+
 function sanitizeBrandingSettings(value: unknown): BrandingSettings {
   if (!isRecord(value)) return { ...defaultSettings.branding }
   return {
@@ -213,3 +219,4 @@ export async function upsertSetting(key: SettingsKey, value: unknown): Promise<v
     SET value = EXCLUDED.value, updated_at = EXCLUDED.updated_at
   `
 }
+
