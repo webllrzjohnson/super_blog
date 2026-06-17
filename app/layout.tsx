@@ -169,6 +169,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const settings = await getSettings()
+  console.log('RootLayout siteName:', settings.branding.siteName)
   const fontPairClass =
     fontPairClasses[
       settings.appearance.fontPair as keyof typeof fontPairClasses
