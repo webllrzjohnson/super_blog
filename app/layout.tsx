@@ -121,7 +121,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings()
   const siteName = settings.branding.siteName || 'Lester J.'
   const description =
-    'Writing about work, life, hobbies, and experiences. A personal blog about the things that make me curious.'
+    'A building superintendent in Toronto writing about property management, AI experiments, running, food, and everyday life.'
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
 

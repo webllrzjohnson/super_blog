@@ -2,7 +2,7 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { CACHE_TAG_POSTS, CACHE_TAG_SETTINGS } from '@/lib/cache-tags'
 
 /** Cache life profile for on-demand tag invalidation (Next.js 16). */
-const TAG_PROFILE = 'max' as const
+//const TAG_PROFILE = 'max' as const
 /*
 export function revalidatePostsCache() {
   revalidateTag(CACHE_TAG_POSTS, TAG_PROFILE)
@@ -12,12 +12,13 @@ export function revalidatePostsCache() {
 }*/
 
 export function revalidatePostsCache() {
-  revalidateTag(CACHE_TAG_POSTS, TAG_PROFILE)
+  revalidateTag(CACHE_TAG_POSTS)
   revalidatePath('/', 'layout')
   revalidatePath('/blog', 'layout')
   revalidatePath('/api/posts', 'layout')
 }
 
 export function revalidateSettingsCache() {
-  revalidateTag(CACHE_TAG_SETTINGS, TAG_PROFILE)
+  revalidateTag(CACHE_TAG_SETTINGS)
+  revalidatePath('/', 'layout')
 }

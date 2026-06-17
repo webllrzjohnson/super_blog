@@ -38,6 +38,9 @@ export default async function HomePage() {
             Software engineer turned building superintendent, still coding on the side.
             I write about building management, AI experiments, running, food, and life in Toronto.
           </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            {posts.length}+ posts published
+          </p>
           <div className="flex gap-4 mt-4">
             <Link href="/blog" className="text-sm text-foreground hover:text-muted-foreground transition-colors">
               Read the blog →
