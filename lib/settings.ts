@@ -186,7 +186,7 @@ async function loadSettingsFromDb(): Promise<SettingsMap> {
     return cloneDefaults()
   }
 }
-
+/*
 const getSettingsFromDbCached = unstable_cache(
   loadSettingsFromDb,
   ['site-settings-map'],
@@ -195,7 +195,7 @@ const getSettingsFromDbCached = unstable_cache(
     revalidate: SETTINGS_CACHE_REVALIDATE_SECONDS,
   }
 )
-
+*/
 export const getSettings = cache(async (): Promise<SettingsMap> => {
   return loadSettingsFromDb()
 })
