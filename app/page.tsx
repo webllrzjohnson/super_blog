@@ -5,6 +5,7 @@ import { PostCard } from '@/components/post-card'
 import { NewsletterForm } from '@/components/newsletter-form'
 import { getPostsFromDb } from '@/lib/db-posts'
 import { getPublishedPosts } from '@/lib/posts'
+import { getSettings } from '@/lib/settings'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,17 +18,33 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const allPosts = await getPostsFromDb()
+  const [allPosts, settings] = await Promise.all([
+    getPostsFromDb(),
+    getSettings(),
+  ])
   const posts = getPublishedPosts(allPosts)
   const [featured, ...recentPosts] = posts.slice(0, 5)
+  const avatarUrl = settings.branding.avatarUrl
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-12 md:py-16">
 
       {/* Hero */}
       <section className="max-w-2xl mb-16 flex flex-col sm:flex-row gap-6 items-start">
-        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-          <span className="text-xl font-medium text-primary">LJ</span>
+        <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
+          {avatarUrl ? (
+            <Image
+              src={avatarUrl}
+              alt="Lester J."
+              width={64}
+              height={64}
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <span className="text-xl font-medium text-primary">LJ</span>
+            </div>
+          )}
         </div>
         <div>
           <p className="text-sm text-muted-foreground mb-1">

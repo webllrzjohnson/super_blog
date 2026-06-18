@@ -11,6 +11,7 @@ export interface LinksSettings {
 export interface BrandingSettings {
   logoUrl?: string
   faviconUrl?: string
+  avatarUrl?: string
   siteName: string
 }
 
@@ -95,6 +96,7 @@ function sanitizeBrandingSettings(value: unknown): BrandingSettings {
     siteName: readOptionalString(value, 'siteName') ?? defaultSettings.branding.siteName,
     logoUrl: readOptionalString(value, 'logoUrl'),
     faviconUrl: readOptionalString(value, 'faviconUrl'),
+    avatarUrl: readOptionalString(value, 'avatarUrl'),
   }
 }
 

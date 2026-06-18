@@ -37,6 +37,8 @@ const colorPresetOptions = [
   { value: 'monochrome', label: 'Monochrome' },
 ]
 
+const avatarInputRef = useRef<HTMLInputElement>(null)
+
 export function SettingsAppearance({
   initialBranding,
   initialAppearance,
@@ -45,6 +47,7 @@ export function SettingsAppearance({
     siteName: initialBranding?.siteName ?? 'Lester J.',
     logoUrl: initialBranding?.logoUrl ?? '',
     faviconUrl: initialBranding?.faviconUrl ?? '',
+    avatarUrl: initialBranding?.avatarUrl ?? '',
   })
   const [appearance, setAppearance] = useState<AppearanceSettings>({
     fontPair: initialAppearance?.fontPair ?? 'inter-source-serif',
@@ -52,7 +55,7 @@ export function SettingsAppearance({
     customPrimaryOklch: initialAppearance?.customPrimaryOklch ?? '',
   })
   const [isSaving, setIsSaving] = useState(false)
-  const [uploadingField, setUploadingField] = useState<'logoUrl' | 'faviconUrl' | null>(null)
+  const [uploadingField, setUploadingField] = useState<'logoUrl' | 'faviconUrl' | 'avatarUrl' | null>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
   const faviconInputRef = useRef<HTMLInputElement>(null)
 
@@ -245,6 +248,36 @@ export function SettingsAppearance({
           <p className="text-sm text-muted-foreground">
             Paste a URL or use the Upload button to add your favicon.
           </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="avatar-url">Profile photo URL</Label>
+          <div className="flex gap-2">
+            <Input
+              id="avatar-url"
+              placeholder="Paste URL or upload below"
+              value={branding.avatarUrl ?? ''}
+              onChange={(e) => setBranding((c) => ({ ...c, avatarUrl: e.target.value }))}
+              className="flex-1"
+            />
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleAssetUpload('avatarUrl', e.target.files?.[0])}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={uploadingField === 'avatarUrl'}
+              onClick={() => avatarInputRef.current?.click()}
+            >
+              <ImagePlus className="h-4 w-4 mr-2" />
+              {uploadingField === 'avatarUrl' ? 'Uploading...' : 'Upload'}
+            </Button>
+          </div>
         </div>
 
         <div className="space-y-2">
