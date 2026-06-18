@@ -7,10 +7,10 @@ import { Menu, X, Moon, Sun } from 'lucide-react'
 import { useTheme } from '@/components/theme-provider'
 import type { BrandingSettings } from '@/lib/settings'
 
+
 const navItems = [
   { label: 'Home', href: '/' },
   { label: 'Blog', href: '/blog' },
-  { label: 'Bookmarks', href: '/bookmarks' },
   { label: 'About', href: '/about' },
 ]
 
