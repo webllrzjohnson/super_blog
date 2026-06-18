@@ -60,7 +60,7 @@ export function SettingsAppearance({
   const faviconInputRef = useRef<HTMLInputElement>(null)
 
   const handleAssetUpload = async (
-    field: 'logoUrl' | 'faviconUrl',
+    field: 'logoUrl' | 'faviconUrl' | 'avatarUrl',
     file: File | undefined
   ) => {
     if (!file) {
