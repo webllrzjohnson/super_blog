@@ -20,7 +20,7 @@ import {
 } from '@/lib/markdown-content-helpers'
 import { MarkdownContentToolbar } from '@/components/admin/markdown-content-toolbar'
 import { calculateReadTime } from '@/lib/posts'
-import { ArrowLeft, Eye, ImagePlus, Upload } from 'lucide-react'
+import { ArrowLeft, Eye, ImagePlus, Upload, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface PostEditorProps {
@@ -108,8 +108,9 @@ export function PostEditor({
   onSave,
   onAutoSave,
   onCancel,
-}: PostEditorProps) {
+}: PostEditorProps) {  
   const [formData, setFormData] = useState<Post>(post)
+  const [generatingImage, setGeneratingImage] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   const [tagsInput, setTagsInput] = useState(post.tags.join(', '))
   const [uploading, setUploading] = useState(false)
@@ -262,6 +263,34 @@ export function PostEditor({
     } finally {
       setUploading(false)
       e.target.value = ''
+    }
+  }
+
+  const handleGenerateImage = async () => {
+    const topic = formData.title.trim() || formData.excerpt.trim()
+    if (!topic) {
+      toast.error('Add a title or excerpt first so the AI knows what to illustrate.')
+      return
+    }
+    setGeneratingImage(true)
+    try {
+      const res = await fetch('/api/generate-post-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ topic }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Image generation failed')
+      }
+      const { url } = await res.json()
+      setFormData((prev) => ({ ...prev, featuredImage: url }))
+      toast.success('Image generated and set as featured image')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to generate image')
+    } finally {
+      setGeneratingImage(false)
     }
   }
 
@@ -596,6 +625,17 @@ export function PostEditor({
               >
                 <ImagePlus className="h-4 w-4 mr-2" />
                 {uploading ? 'Uploading...' : 'Upload'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={uploading || generatingImage}
+                onClick={handleGenerateImage}
+                aria-label="Generate featured image with AI"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                {generatingImage ? 'Generating...' : 'Generate'}
               </Button>
             </div>
             {formData.featuredImage && (
