@@ -37,7 +37,6 @@ const colorPresetOptions = [
   { value: 'monochrome', label: 'Monochrome' },
 ]
 
-const avatarInputRef = useRef<HTMLInputElement>(null)
 
 export function SettingsAppearance({
   initialBranding,
@@ -58,6 +57,7 @@ export function SettingsAppearance({
   const [uploadingField, setUploadingField] = useState<'logoUrl' | 'faviconUrl' | 'avatarUrl' | null>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
   const faviconInputRef = useRef<HTMLInputElement>(null)
+  const avatarInputRef = useRef<HTMLInputElement>(null)
 
   const handleAssetUpload = async (
     field: 'logoUrl' | 'faviconUrl' | 'avatarUrl',
