@@ -90,7 +90,11 @@ export function SettingsAppearance({
         [field]: data.url,
       }))
 
-      toast.success(field === 'logoUrl' ? 'Logo uploaded' : 'Favicon uploaded')
+      toast.success(
+        field === 'logoUrl' ? 'Logo uploaded' : 
+        field === 'faviconUrl' ? 'Favicon uploaded' : 
+        'Profile photo uploaded'
+      )
     } catch (error) {
       toast.error('Failed to upload asset', {
         description: error instanceof Error ? error.message : 'Unknown error',
@@ -98,7 +102,8 @@ export function SettingsAppearance({
     } finally {
       setUploadingField(null)
       if (field === 'logoUrl') logoInputRef.current && (logoInputRef.current.value = '')
-      else faviconInputRef.current && (faviconInputRef.current.value = '')
+        else if (field === 'faviconUrl') faviconInputRef.current && (faviconInputRef.current.value = '')
+        else if (field === 'avatarUrl') avatarInputRef.current && (avatarInputRef.current.value = '')
     }
   }
 
