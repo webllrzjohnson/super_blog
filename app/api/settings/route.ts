@@ -21,6 +21,7 @@ const linksSchema = z.object({
 const brandingSchema = z.object({
   logoUrl: z.string().trim().optional(),
   faviconUrl: z.string().trim().optional(),
+  avatarUrl: z.string().trim().optional(),
   siteName: z.string().trim().min(1),
 })
 
