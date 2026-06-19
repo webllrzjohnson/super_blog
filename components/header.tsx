@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X, Moon, Sun } from 'lucide-react'
+import { Menu, X, Moon, Sun, Search } from 'lucide-react'
 import { useTheme } from '@/components/theme-provider'
 import type { BrandingSettings } from '@/lib/settings'
 
@@ -60,6 +60,14 @@ export function Header({ branding }: HeaderProps) {
                 </Link>
               ))}
             </div>
+
+            <Link
+                href="/search"
+                className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                aria-label="Search posts"
+              >
+                <Search className="h-4 w-4" />
+            </Link>
 
             <button
               type="button"
