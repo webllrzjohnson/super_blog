@@ -137,16 +137,17 @@ export default async function BlogPostPage({ params }: Props) {
 
             <header className="mb-10">
               {post.featuredImage && (
-                <div className="relative w-full aspect-[21/9] mb-6 rounded-lg overflow-hidden bg-muted">
-                  <Image
-                    src={post.featuredImage}
-                    alt={post.featuredImageAlt?.trim() || post.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 672px"
-                    priority
-                  />
-                </div>
+                <div className="relative w-full mb-6 rounded-lg overflow-hidden bg-muted">
+                <Image
+                  src={post.featuredImage}
+                  alt={post.featuredImageAlt?.trim() || post.title}
+                  width={1536}
+                  height={1024}
+                  className="object-contain w-full h-auto"
+                  sizes="(max-width: 768px) 100vw, 672px"
+                  priority
+                />
+              </div>
               )}
               <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
                 <h1 className="text-2xl font-medium text-foreground leading-tight flex-1 min-w-[12rem]">
