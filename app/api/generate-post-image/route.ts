@@ -23,6 +23,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 })
   }
 
+
+  const prompt = `Generate an image of ${topic} with illustration quality based on Studio Ghibli and Makoto Shinkai inspired environmental art, ultra detailed, crisp linework, high dynamic range, atmospheric storytelling, perfect perspective, 4k, 8k, sharp focus, professional illustration, highly detailed shadows, realistic clutter distribution, award-winning background design.
+
+  People and characters are allowed and encouraged when relevant to the topic — show them in action, in context, from behind or at an angle (avoid direct face close-ups). Dynamic poses, expressive body language, environmental storytelling.
+  
+  Wide 16:9 blog featured image. No speech bubbles. No text. No watermarks. No logos.`
+
+  /*
   const prompt = `Comic-book illustration for a blog post titled: "${topic}".
 
   Read the title carefully and illustrate the core subject matter of that specific topic. If the topic is about running, show a running scene. If it's about an injury, show recovery or physical effort. If it's about building maintenance, show the relevant building environment. Match the illustration to what the post is actually about.
@@ -36,6 +44,8 @@ export async function POST(request: Request) {
   No text. No speech bubbles. No logos. No watermarks.
   
   Wide 16:9 blog featured image.`
+
+  */
 
   try {
     // Generate image via OpenAI
