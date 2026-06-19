@@ -26,8 +26,10 @@ export async function POST(request: Request) {
 
   const prompt = `Generate an image of ${topic} with illustration quality based on Studio Ghibli and Makoto Shinkai inspired environmental art, ultra detailed, crisp linework, high dynamic range, atmospheric storytelling, perfect perspective, 4k, 8k, sharp focus, professional illustration, highly detailed shadows, realistic clutter distribution, award-winning background design.
 
-  People and characters are allowed and encouraged when relevant to the topic — show them in action, in context, from behind or at an angle (avoid direct face close-ups). Dynamic poses, expressive body language, environmental storytelling.
+  Adult People dressed according to the setting described and characters are allowed and encouraged when relevant to the topic — show them in action, in context, from behind or at an angle (avoid direct face close-ups). Dynamic poses, expressive body language, environmental storytelling.
   
+  Focus on the environment itself: stairwells, hallways, garbage rooms, compactor rooms, balcony, parking areas, playground, parks, walkways, patios, backyards, frontyards, lobby, elevators, parking lot, garbage bin, balcony, boiler rooms, rooftops, loading docks, maintenance equipment, tools, supplies, and building infrastructure relevant to the topic.
+
   Wide 16:9 blog featured image. No speech bubbles. No text. No watermarks. No logos.`
 
   /*
