@@ -267,7 +267,7 @@ export function PostEditor({
   }
 
   const handleGenerateImage = async () => {
-    const topic = formData.title.trim() || formData.excerpt.trim()
+    const topic = formData.excerpt.trim() || formData.title.trim()
     if (!topic) {
       toast.error('Add a title or excerpt first so the AI knows what to illustrate.')
       return
