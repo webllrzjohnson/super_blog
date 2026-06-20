@@ -25,11 +25,11 @@ export async function POST(request: Request) {
 
 
 
-const prompt = `${topic}. Professional anime background art, environmental storytelling, realistic scene composition, perfect perspective, Studio Ghibli inspired environmental design, 
+const prompt = `${topic}. Typical government-subsidized Downtown Toronto apartment building and townhouse setting. Never show the CN Tower. No speech bubbles. No text. No watermarks. No logos. Focus on the environment itself: stairwells, hallways, balcony, parking areas, playground, parks, walkways, patios, backyards, frontyards, lobby, elevators, parking lot, balcony, boiler rooms, rooftops, loading docks, maintenance equipment, tools, supplies, and building infrastructure relevant to the topic.
+Professional anime background art, environmental storytelling, realistic scene composition, perfect perspective, Studio Ghibli inspired environmental design, 
 Makoto Shinkai inspired lighting and atmosphere, hand-painted illustration, ultra detailed, crisp linework, high dynamic range, 
 atmospheric depth, realistic reflections, volumetric lighting, sharp focus, masterpiece, award-winning background illustration, 
-production-quality animation background, 8k. Downtown apartment building and townhouse setting in Toronto. Never show the CN Tower.
-`
+production-quality animation background, 8k.`
 
 
 /*
