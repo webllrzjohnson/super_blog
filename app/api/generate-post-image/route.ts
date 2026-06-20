@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 
 
 
-const prompt = `${topic}. Typical government-subsidized Downtown Toronto apartment building and townhouse setting. Occasionally the CN Tower. No speech bubbles. No text. No watermarks. No logos. 
+const prompt = `${topic}. Typical government-subsidized Downtown Toronto apartment building and townhouse setting. Male superintendent's perspective. Occasionally the CN Tower. No speech bubbles. No text. No watermarks. No logos. 
 Professional anime background art, environmental storytelling, realistic scene composition, perfect perspective, Studio Ghibli inspired environmental design, 
 Makoto Shinkai inspired lighting and atmosphere, hand-painted illustration, ultra detailed, crisp linework, high dynamic range, 
 atmospheric depth, realistic reflections, volumetric lighting, sharp focus, masterpiece, award-winning background illustration, 
