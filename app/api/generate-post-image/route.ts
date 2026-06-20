@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 
 
 
-const prompt = `${topic}. Professional anime background art, Downtown Toronto setting, environmental storytelling, realistic scene composition, perfect perspective, Studio Ghibli inspired environmental design, Makoto Shinkai inspired lighting and atmosphere, hand-painted illustration, ultra detailed, crisp linework, high dynamic range, atmospheric depth, realistic reflections, volumetric lighting, sharp focus, masterpiece, award-winning background illustration, production-quality animation background, 8k.`
+const prompt = `${topic}. Professional anime background art, environmental storytelling, realistic scene composition, perfect perspective, Studio Ghibli inspired environmental design, Makoto Shinkai inspired lighting and atmosphere, hand-painted illustration, ultra detailed, crisp linework, high dynamic range, atmospheric depth, realistic reflections, volumetric lighting, sharp focus, masterpiece, award-winning background illustration, production-quality animation background, 8k. Regular environment, the people, and traffic Downtown Toronto setting, but rarely show the CN tower. `
 
 
 /*
