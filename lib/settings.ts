@@ -179,7 +179,8 @@ async function loadSettingsFromDb(): Promise<SettingsMap> {
       }
     }
     return settings
-  } catch {
+  } catch (error){
+    console.error('Failed to load settings from DB:', error)
     return cloneDefaults()
   }
 }
