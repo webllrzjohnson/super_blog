@@ -18,6 +18,7 @@ import { SiteWrapper } from '@/components/site-wrapper'
 import { Toaster } from '@/components/ui/sonner'
 import { getSettings } from '@/lib/settings'
 import './globals.css'
+import { colorPresets } from '@/lib/theme-presets'
 
 const sourceSerif = Source_Serif_4({
   subsets: ['latin'],
@@ -96,29 +97,6 @@ const fontPairClasses = {
 
 export const dynamic = 'force-dynamic'
 
-const colorPresets = {
-  'warm-terracotta': {
-    lightPrimary: 'oklch(0.622 0.138 44)',
-    darkPrimary: 'oklch(0.720 0.120 46)',
-  },
-  'ocean-blue': {
-    lightPrimary: 'oklch(0.60 0.14 240)',
-    darkPrimary: 'oklch(0.72 0.12 240)',
-  },
-  'forest-green': {
-    lightPrimary: 'oklch(0.62 0.13 150)',
-    darkPrimary: 'oklch(0.74 0.11 150)',
-  },
-  'midnight-purple': {
-    lightPrimary: 'oklch(0.56 0.16 310)',
-    darkPrimary: 'oklch(0.70 0.13 310)',
-  },
-  monochrome: {
-    lightPrimary: 'oklch(0.40 0 0)',
-    darkPrimary: 'oklch(0.82 0 0)',
-  },
-} as const
-
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings()
   const siteName = process.env.NEXT_PUBLIC_SITE_NAME || settings.branding.siteName || 'Lester J.'
@@ -177,20 +155,61 @@ export default async function RootLayout({
     colorPresets[
       settings.appearance.colorPreset as keyof typeof colorPresets
     ] ?? colorPresets['warm-terracotta']
-  const primaryLight = settings.appearance.customPrimaryOklch || preset.lightPrimary
-  const primaryDark = settings.appearance.customPrimaryOklch || preset.darkPrimary
+  const { light, dark } = preset
 
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
-        <style>{`
+      <style>{`
           :root {
-            --primary: ${primaryLight};
-            --ring: ${primaryLight};
+            --background: ${light.background};
+            --foreground: ${light.foreground};
+            --card: ${light.card};
+            --card-foreground: ${light.cardForeground};
+            --primary: ${settings.appearance.customPrimaryOklch || light.primary};
+            --primary-foreground: ${light.primaryForeground};
+            --secondary: ${light.secondary};
+            --secondary-foreground: ${light.secondaryForeground};
+            --muted: ${light.muted};
+            --muted-foreground: ${light.mutedForeground};
+            --accent: ${light.accent};
+            --accent-foreground: ${light.accentForeground};
+            --border: ${light.border};
+            --input: ${light.input};
+            --ring: ${settings.appearance.customPrimaryOklch || light.ring};
+            --sidebar: ${light.sidebar};
+            --sidebar-foreground: ${light.sidebarForeground};
+            --sidebar-primary: ${light.sidebarPrimary};
+            --sidebar-primary-foreground: ${light.sidebarPrimaryForeground};
+            --sidebar-accent: ${light.sidebarAccent};
+            --sidebar-accent-foreground: ${light.sidebarAccentForeground};
+            --sidebar-border: ${light.sidebarBorder};
+            --sidebar-ring: ${light.sidebarRing};
           }
           .dark {
-            --primary: ${primaryDark};
-            --ring: ${primaryDark};
+            --background: ${dark.background};
+            --foreground: ${dark.foreground};
+            --card: ${dark.card};
+            --card-foreground: ${dark.cardForeground};
+            --primary: ${settings.appearance.customPrimaryOklch || dark.primary};
+            --primary-foreground: ${dark.primaryForeground};
+            --secondary: ${dark.secondary};
+            --secondary-foreground: ${dark.secondaryForeground};
+            --muted: ${dark.muted};
+            --muted-foreground: ${dark.mutedForeground};
+            --accent: ${dark.accent};
+            --accent-foreground: ${dark.accentForeground};
+            --border: ${dark.border};
+            --input: ${dark.input};
+            --ring: ${settings.appearance.customPrimaryOklch || dark.ring};
+            --sidebar: ${dark.sidebar};
+            --sidebar-foreground: ${dark.sidebarForeground};
+            --sidebar-primary: ${dark.sidebarPrimary};
+            --sidebar-primary-foreground: ${dark.sidebarPrimaryForeground};
+            --sidebar-accent: ${dark.sidebarAccent};
+            --sidebar-accent-foreground: ${dark.sidebarAccentForeground};
+            --sidebar-border: ${dark.sidebarBorder};
+            --sidebar-ring: ${dark.sidebarRing};
           }
         `}</style>
       </head>
