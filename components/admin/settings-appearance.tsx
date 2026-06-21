@@ -27,6 +27,7 @@ const fontPairOptions = [
   { value: 'lato-playfair', label: 'Lato + Playfair Display' },
   { value: 'roboto-lora', label: 'Roboto + Lora' },
   { value: 'nunito-libre-baskerville', label: 'Nunito + Libre Baskerville' },
+  { value: 'plex-newsreader', label: 'IBM Plex Sans + Newsreader' },
 ]
 
 const colorPresetOptions = [

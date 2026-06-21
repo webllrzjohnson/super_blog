@@ -9,6 +9,8 @@ import {
   Lora,
   Nunito,
   Libre_Baskerville,
+  Newsreader,
+  IBM_Plex_Sans,
 } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -87,12 +89,28 @@ const libreBaskerville = Libre_Baskerville({
   preload: false,
 })
 
+const newsreader = Newsreader({
+  subsets: ['latin'],
+  variable: '--font-serif',
+  display: 'swap',
+  preload: false,
+})
+
+const ibmPlexSans = IBM_Plex_Sans({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  weight: ['400', '500', '600'],
+  display: 'swap',
+  preload: false,
+})
+
 const fontPairClasses = {
   'inter-source-serif': `${inter.variable} ${sourceSerif.variable}`,
   'inter-merriweather': `${inter.variable} ${merriweather.variable}`,
   'lato-playfair': `${lato.variable} ${playfairDisplay.variable}`,
   'roboto-lora': `${roboto.variable} ${lora.variable}`,
   'nunito-libre-baskerville': `${nunito.variable} ${libreBaskerville.variable}`,
+  'plex-newsreader': `${ibmPlexSans.variable} ${newsreader.variable}`,
 } as const
 
 export const dynamic = 'force-dynamic'
