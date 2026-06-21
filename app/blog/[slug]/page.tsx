@@ -285,6 +285,7 @@ export default async function BlogPostPage({ params }: Props) {
             tags={allTags}
             avatarUrl={settings.branding.avatarUrl}
             shortBio={settings.branding.shortBio}
+            displayName={settings.branding.displayName}
           />
 
         </div>

@@ -10,9 +10,11 @@ interface SidebarProps {
   tags?: string[]
   avatarUrl?: string
   shortBio?: string
+  displayName?: string
 }
 
-export function Sidebar({ recentPosts = [], tags = [], avatarUrl, shortBio }: SidebarProps) {
+export function Sidebar({ recentPosts = [], tags = [], avatarUrl, shortBio, displayName }: SidebarProps) {
+
   const visibleTags = tags.slice(0, 20)
 
   return (
@@ -35,7 +37,7 @@ export function Sidebar({ recentPosts = [], tags = [], avatarUrl, shortBio }: Si
               <span className="text-xs font-medium text-primary">LJ</span>
             )}
           </div>
-          <span className="text-sm font-medium text-foreground">Lester J.</span>
+          <span className="text-sm font-medium text-foreground">{displayName || 'Lester J.'}</span>
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed">
           {shortBio || 'Building superintendent in Toronto, coding on the side. I write about building management, running, food, and everyday life.'}

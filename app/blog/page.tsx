@@ -59,6 +59,7 @@ export default async function BlogPage() {
           tags={allTags}
           avatarUrl={settings.branding.avatarUrl}
           shortBio={settings.branding.shortBio}
+          displayName={settings.branding.displayName}
         />
 
       </div>
