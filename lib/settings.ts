@@ -46,6 +46,7 @@ export interface SettingsMap {
   ads: AdsSettings
   pages: PagesSettings
   admin_password_hash: string | null
+  _settingsLoadFailed: boolean
 }
 
 export type SettingsKey = keyof SettingsMap
@@ -64,7 +65,9 @@ export const defaultSettings: SettingsMap = {
   },
   pages: {},
   admin_password_hash: null,
+  _settingsLoadFailed: false,
 }
+
 
 interface SiteSettingsRow {
   key: SettingsKey
@@ -161,6 +164,7 @@ function cloneDefaults(): SettingsMap {
     ads: { clientId: defaultSettings.ads.clientId, slots: [...defaultSettings.ads.slots] },
     pages: { ...defaultSettings.pages },
     admin_password_hash: defaultSettings.admin_password_hash,
+    _settingsLoadFailed: false,
   }
 }
 
@@ -179,9 +183,9 @@ async function loadSettingsFromDb(): Promise<SettingsMap> {
       }
     }
     return settings
-  } catch (error){
+  } catch (error) {
     console.error('Failed to load settings from DB:', error)
-    return cloneDefaults()
+    return { ...cloneDefaults(), _settingsLoadFailed: true }
   }
 }
 

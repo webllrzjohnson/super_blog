@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { getSettings } from '@/lib/settings'
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard',
@@ -9,11 +10,21 @@ export const metadata: Metadata = {
   },
 }
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  // Admin pages have their own layout without the site header/footer
-  return <>{children}</>
+  const settings = await getSettings()
+
+  return (
+    <>
+      {settings._settingsLoadFailed && (
+        <div className="bg-destructive text-destructive-foreground px-4 py-2 text-sm text-center font-medium">
+          Settings failed to load from the database. The site is showing default values. Check server logs and database connectivity.
+        </div>
+      )}
+      {children}
+    </>
+  )
 }
