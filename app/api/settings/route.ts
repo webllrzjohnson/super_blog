@@ -23,7 +23,11 @@ const brandingSchema = z.object({
   faviconUrl: z.string().trim().optional(),
   avatarUrl: z.string().trim().optional(),
   siteName: z.string().trim().min(1),
+  shortBio: z.string().trim().optional(),
+  displayName: z.string().trim().optional(),
+  roleLocation: z.string().trim().optional(),
 })
+
 
 const appearanceSchema = z.object({
   fontPair: z.string().trim().min(1),
