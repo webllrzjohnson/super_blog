@@ -14,6 +14,8 @@ export interface BrandingSettings {
   avatarUrl?: string
   siteName: string
   shortBio?: string
+  displayName?: string
+  roleLocation?: string
 }
 
 export interface AppearanceSettings {
@@ -102,6 +104,8 @@ function sanitizeBrandingSettings(value: unknown): BrandingSettings {
     faviconUrl: readOptionalString(value, 'faviconUrl'),
     avatarUrl: readOptionalString(value, 'avatarUrl'),
     shortBio: readOptionalString(value, 'shortBio'),
+    displayName: readOptionalString(value, 'displayName'),
+    roleLocation: readOptionalString(value, 'roleLocation'),    
   }
 }
 

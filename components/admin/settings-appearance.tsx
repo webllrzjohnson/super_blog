@@ -51,7 +51,12 @@ export function SettingsAppearance({
     faviconUrl: initialBranding?.faviconUrl ?? '',
     avatarUrl: initialBranding?.avatarUrl ?? '',
     shortBio: initialBranding?.shortBio ?? '',
+    displayName: initialBranding?.displayName ?? 'Lester J.',
+    roleLocation: initialBranding?.roleLocation ?? 'Building superintendent · Toronto, ON',
+
   })
+
+  
   
   const [appearance, setAppearance] = useState<AppearanceSettings>({
     fontPair: initialAppearance?.fontPair ?? 'inter-source-serif',
@@ -304,6 +309,31 @@ export function SettingsAppearance({
           </p>
         </div>
 
+        <div className="space-y-2">
+          <Label htmlFor="display-name">Display name</Label>
+          <Input
+            id="display-name"
+            placeholder="Lester J."
+            value={branding.displayName ?? ''}
+            onChange={(e) => setBranding((c) => ({ ...c, displayName: e.target.value }))}
+          />
+          <p className="text-sm text-muted-foreground">
+            Shown as the heading on the homepage hero.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="role-location">Role / location</Label>
+          <Input
+            id="role-location"
+            placeholder="Building superintendent · Toronto, ON"
+            value={branding.roleLocation ?? ''}
+            onChange={(e) => setBranding((c) => ({ ...c, roleLocation: e.target.value }))}
+          />
+          <p className="text-sm text-muted-foreground">
+            Shown above your name on the homepage hero.
+          </p>
+        </div>
 
         <div className="space-y-2">
           <Label>Font pair</Label>

@@ -47,11 +47,11 @@ export default async function HomePage() {
           )}
         </div>
         <div>
-          <p className="text-sm text-muted-foreground mb-1">
-            Building superintendent · Toronto, ON
+        <p className="text-sm text-muted-foreground mb-1">
+            {settings.branding.roleLocation || 'Building superintendent · Toronto, ON'}
           </p>
           <h1 className="text-2xl font-medium text-foreground mb-3">
-            Lester J.
+            {settings.branding.displayName || 'Lester J.'}
           </h1>
           <p className="text-muted-foreground leading-relaxed">
             {settings.branding.shortBio || 'Software engineer turned building superintendent, still coding on the side. I write about building management, AI experiments, running, food, and life in Toronto.'}
