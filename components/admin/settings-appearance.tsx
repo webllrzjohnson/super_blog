@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -43,12 +44,15 @@ export function SettingsAppearance({
   initialBranding,
   initialAppearance,
 }: SettingsAppearanceProps) {
+
   const [branding, setBranding] = useState<BrandingSettings>({
     siteName: initialBranding?.siteName ?? 'Lester J.',
     logoUrl: initialBranding?.logoUrl ?? '',
     faviconUrl: initialBranding?.faviconUrl ?? '',
     avatarUrl: initialBranding?.avatarUrl ?? '',
+    shortBio: initialBranding?.shortBio ?? '',
   })
+  
   const [appearance, setAppearance] = useState<AppearanceSettings>({
     fontPair: initialAppearance?.fontPair ?? 'inter-source-serif',
     colorPreset: initialAppearance?.colorPreset ?? 'warm-terracotta',
@@ -285,6 +289,21 @@ export function SettingsAppearance({
             </Button>
           </div>
         </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="short-bio">Short bio</Label>
+          <Textarea
+            id="short-bio"
+            placeholder="A sentence or two about yourself, shown on the homepage and blog sidebar."
+            value={branding.shortBio ?? ''}
+            onChange={(e) => setBranding((c) => ({ ...c, shortBio: e.target.value }))}
+            className="min-h-[100px]"
+          />
+          <p className="text-sm text-muted-foreground">
+            Used on the homepage hero and the blog sidebar.
+          </p>
+        </div>
+
 
         <div className="space-y-2">
           <Label>Font pair</Label>

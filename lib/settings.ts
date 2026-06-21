@@ -13,6 +13,7 @@ export interface BrandingSettings {
   faviconUrl?: string
   avatarUrl?: string
   siteName: string
+  shortBio?: string
 }
 
 export interface AppearanceSettings {
@@ -100,6 +101,7 @@ function sanitizeBrandingSettings(value: unknown): BrandingSettings {
     logoUrl: readOptionalString(value, 'logoUrl'),
     faviconUrl: readOptionalString(value, 'faviconUrl'),
     avatarUrl: readOptionalString(value, 'avatarUrl'),
+    shortBio: readOptionalString(value, 'shortBio'),
   }
 }
 
@@ -139,6 +141,7 @@ function sanitizePagesSettings(value: unknown): PagesSettings {
     disclaimer: readOptionalString(value, 'disclaimer'),
   }
 }
+
 
 function sanitizeAdminPasswordHash(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value : null

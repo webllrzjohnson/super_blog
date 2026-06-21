@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { getSettings } from '@/lib/settings'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -94,12 +95,13 @@ export default async function BlogPostPage({ params }: Props) {
   const isAdmin = await hasAdminAccess()
   if (!isPostPubliclyVisible(post) && !isAdmin) notFound()
 
-  const allPosts = await getPostsFromDb()
-  const publishedPosts = getPublishedPosts(allPosts)
-  const relatedPosts = getRelatedPosts(post, publishedPosts)
-  const { prev: older, next: newer } = getAdjacentPosts(post, allPosts)
-  const recentPosts = publishedPosts.slice(0, 5)
-  const allTags = [...new Set(publishedPosts.flatMap((p) => p.tags))]
+    const allPosts = await getPostsFromDb()
+    const settings = await getSettings()
+    const publishedPosts = getPublishedPosts(allPosts)
+    const relatedPosts = getRelatedPosts(post, publishedPosts)
+    const { prev: older, next: newer } = getAdjacentPosts(post, allPosts)
+    const recentPosts = publishedPosts.slice(0, 5)
+    const allTags = [...new Set(publishedPosts.flatMap((p) => p.tags))]
 
   const contentBlocks = post.content
     .split('\n\n')
@@ -278,7 +280,12 @@ export default async function BlogPostPage({ params }: Props) {
           </article>
 
           {/* Sidebar */}
-          <Sidebar recentPosts={recentPosts} tags={allTags} />
+          <Sidebar
+            recentPosts={recentPosts}
+            tags={allTags}
+            avatarUrl={settings.branding.avatarUrl}
+            shortBio={settings.branding.shortBio}
+          />
 
         </div>
       </div>

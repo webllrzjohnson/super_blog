@@ -1,13 +1,18 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { NewsletterForm } from '@/components/newsletter-form'
 import type { Post } from '@/lib/types'
+
+
 
 interface SidebarProps {
   recentPosts?: Post[]
   tags?: string[]
+  avatarUrl?: string
+  shortBio?: string
 }
 
-export function Sidebar({ recentPosts = [], tags = [] }: SidebarProps) {
+export function Sidebar({ recentPosts = [], tags = [], avatarUrl, shortBio }: SidebarProps) {
   const visibleTags = tags.slice(0, 20)
 
   return (
@@ -17,14 +22,23 @@ export function Sidebar({ recentPosts = [], tags = [] }: SidebarProps) {
       <div>
         <h3 className="text-sm font-medium text-foreground mb-3">About</h3>
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-            <span className="text-xs font-medium text-primary">LJ</span>
+          <div className="w-9 h-9 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center flex-shrink-0">
+            {avatarUrl ? (
+              <Image
+                src={avatarUrl}
+                alt="Lester J."
+                width={36}
+                height={36}
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <span className="text-xs font-medium text-primary">LJ</span>
+            )}
           </div>
           <span className="text-sm font-medium text-foreground">Lester J.</span>
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Building superintendent in Toronto, coding on the side.
-          I write about building management, running, food, and everyday life.
+          {shortBio || 'Building superintendent in Toronto, coding on the side. I write about building management, running, food, and everyday life.'}
         </p>
         <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-2 inline-block">
           More about me →

@@ -54,8 +54,7 @@ export default async function HomePage() {
             Lester J.
           </h1>
           <p className="text-muted-foreground leading-relaxed">
-            Software engineer turned building superintendent, still coding on the side.
-            I write about building management, AI experiments, running, food, and life in Toronto.
+            {settings.branding.shortBio || 'Software engineer turned building superintendent, still coding on the side. I write about building management, AI experiments, running, food, and life in Toronto.'}
           </p>
           <p className="text-xs text-muted-foreground mt-2">
             {posts.length}+ posts published

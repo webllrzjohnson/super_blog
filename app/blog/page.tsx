@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { getSettings } from '@/lib/settings'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { BlogList } from '@/components/blog-list'
@@ -17,8 +18,10 @@ export const metadata: Metadata = {
   },
 }
 
+
 export default async function BlogPage() {
   const allPosts = await getPostsFromDb()
+  const settings = await getSettings()
   const posts = getPublishedPosts(allPosts)
   const recentPosts = posts.slice(0, 5)
   const allTags = [...new Set(posts.flatMap((p) => p.tags))]
@@ -51,7 +54,13 @@ export default async function BlogPage() {
           </div>
         </div>
 
-        <Sidebar recentPosts={recentPosts} tags={allTags} />
+        <Sidebar
+          recentPosts={recentPosts}
+          tags={allTags}
+          avatarUrl={settings.branding.avatarUrl}
+          shortBio={settings.branding.shortBio}
+        />
+
       </div>
     </div>
   )
