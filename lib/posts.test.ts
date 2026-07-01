@@ -108,7 +108,7 @@ describe('getAdjacentPosts', () => {
       slug: 'old',
       publishedAt: '2026-01-01',
     })
-    const { newer, older } = getAdjacentPosts([pNew, pMid, pOld], 'mid')
+    const { prev: older, next: newer } = getAdjacentPosts(pMid, [pNew, pMid, pOld])
     expect(newer?.slug).toBe('new')
     expect(older?.slug).toBe('old')
   })
@@ -134,7 +134,7 @@ describe('getRelatedPosts', () => {
       category: 'Life',
       tags: ['z'],
     })
-    const out = getRelatedPosts([current, related, other], current, 1)
+    const out = getRelatedPosts(current, [current, related, other], 1)
     expect(out).toHaveLength(1)
     expect(out[0].slug).toBe('rel')
   })
@@ -161,7 +161,7 @@ describe('getRelatedPosts', () => {
       tags: ['a', 'b'],
       title: 'Other two',
     })
-    const out = getRelatedPosts([current, weaker, stronger], current, 1)
+    const out = getRelatedPosts(current, [current, weaker, stronger], 1)
     expect(out[0].id).toBe('2')
   })
 })
@@ -170,12 +170,14 @@ describe('scoreRelatedPost', () => {
   it('is zero when category, tags, and title tokens do not connect', () => {
     const a = mockPost({
       id: '1',
+      slug: 'alpha',
       title: 'Alpha Unique',
       tags: ['z'],
       category: 'Life',
     })
     const b = mockPost({
       id: '2',
+      slug: 'beta',
       title: 'Beta Gamma',
       tags: ['q'],
       category: 'Work',
@@ -184,8 +186,8 @@ describe('scoreRelatedPost', () => {
   })
 
   it('is positive when tags overlap', () => {
-    const a = mockPost({ id: '1', title: 'Aa', tags: ['x'], category: 'Life' })
-    const b = mockPost({ id: '2', title: 'Bb', tags: ['x', 'y'], category: 'Work' })
+    const a = mockPost({ id: '1', slug: 'a', title: 'Aa', tags: ['x'], category: 'Life' })
+    const b = mockPost({ id: '2', slug: 'b', title: 'Bb', tags: ['x', 'y'], category: 'Work' })
     expect(scoreRelatedPost(a, b)).toBeGreaterThan(0)
   })
 })
