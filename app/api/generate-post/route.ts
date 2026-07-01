@@ -1,35 +1,55 @@
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { isAdminSession } from '@/lib/auth-session'
+import { generateAndSavePost } from '@/lib/generate-post'
+import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
+  const clientId = getClientIdentifier(request)
+  const limit = rateLimit({
+    key: `generate-post:${clientId}`,
+    windowMs: 10 * 60 * 1000,
+    maxRequests: 5,
+  })
+
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: 'Too many generation requests. Please try again later.' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(limit.retryAfterSeconds) },
+      }
+    )
+  }
+
   const headersList = await headers()
-  const isAdmin = isAdminSession(headersList.get('cookie'))
-  if (!isAdmin) {
+  if (!isAdminSession(headersList.get('cookie'))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const formData = await request.formData()
+  const topic = String(formData.get('topic') ?? '').trim()
+  const context = String(formData.get('context') ?? '').trim()
+  const schedule = String(formData.get('schedule') ?? 'Immediate').trim()
+  const featuredImage = formData.get('featured_image')
 
-  // Forward as FormData directly to n8n
-  const n8nForm = new FormData()
-  n8nForm.append('topic', formData.get('topic') as string)
-  n8nForm.append('context', formData.get('context') as string)
-  n8nForm.append('schedule', formData.get('schedule') as string)
-
-  const image = formData.get('featured_image') as File | null
-  if (image && image.size > 0) {
-    n8nForm.append('featured_image', image)
-  }
-
-  const response = await fetch('https://n8n.maplehub.cloud/webhook/a32e0cfc-7e10-47f1-8827-f53c9abf9cfa', {
-    method: 'POST',
-    body: n8nForm,
+  const result = await generateAndSavePost({
+    topic,
+    context,
+    schedule,
+    featuredImage: featuredImage instanceof File ? featuredImage : null,
   })
 
-  if (!response.ok) {
-    return NextResponse.json({ error: 'Failed to trigger generation' }, { status: 500 })
+  if (!result.ok) {
+    return NextResponse.json({ error: result.message }, { status: 500 })
   }
 
-  return NextResponse.json({ success: true, message: 'Post generation started' })
+  return NextResponse.json({
+    success: true,
+    message: result.published
+      ? `Post published with ${result.model === 'claude' ? 'Claude' : 'Groq'}.`
+      : `Draft saved with ${result.model === 'claude' ? 'Claude' : 'Groq'}. Review it in the admin dashboard.`,
+    slug: result.post.slug,
+    status: result.post.status,
+  })
 }

@@ -38,10 +38,14 @@ export function GeneratePostModal({ onClose }: GeneratePostModalProps) {
         body: formData,
       })
 
-      if (!res.ok) throw new Error('Failed to trigger generation')
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Failed to trigger generation')
+      }
 
-      toast.success('Post generation started', {
-        description: 'Your post will appear shortly after Claude finishes writing.',
+      const data = await res.json()
+      toast.success(data.message || 'Post generation complete', {
+        description: data.slug ? `Slug: ${data.slug}` : undefined,
       })
       onClose()
     } catch (err) {
@@ -120,7 +124,7 @@ export function GeneratePostModal({ onClose }: GeneratePostModalProps) {
 
           <div className="flex gap-3 pt-2">
             <Button onClick={handleSubmit} disabled={loading} className="flex-1">
-              {loading ? 'Starting...' : 'Generate Post'}
+              {loading ? 'Generating...' : 'Generate Post'}
             </Button>
             <Button variant="outline" onClick={onClose} disabled={loading}>
               Cancel

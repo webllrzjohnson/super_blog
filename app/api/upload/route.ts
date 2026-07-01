@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     )
   }
  
-  // Auth: accept either admin session cookie OR bearer token (for n8n)
+  // Auth: accept either admin session cookie OR bearer token (legacy automation)
   const auth = request.headers.get('authorization') ?? ''
   const secret = process.env.UPLOAD_SECRET
   const bearerValid = secret && auth === `Bearer ${secret}`
