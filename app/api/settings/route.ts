@@ -58,16 +58,28 @@ const pagesSchema = z.object({
   disclaimer: z.string().optional(),
 })
 
+const aiSchema = z.object({
+  claudeModel: z.string().trim().min(1),
+  groqModel: z.string().trim().min(1),
+  imageModel: z.string().trim().min(1),
+  claudeSystemPrompt: z.string().trim().min(1),
+  groqSystemPrompt: z.string().trim().min(1),
+  userMessageTemplate: z.string().trim().min(1),
+  groqUserMessageTemplate: z.string().trim().min(1),
+  imagePromptTemplate: z.string().trim().min(1),
+})
+
 const settingSchemas = {
   links: linksSchema,
   branding: brandingSchema,
   appearance: appearanceSchema,
   ads: adsSchema,
   pages: pagesSchema,
+  ai: aiSchema,
 } as const
 
 const bodySchema = z.object({
-  key: z.enum(['links', 'branding', 'appearance', 'ads', 'pages']),
+  key: z.enum(['links', 'branding', 'appearance', 'ads', 'pages', 'ai']),
   value: z.unknown(),
 })
 

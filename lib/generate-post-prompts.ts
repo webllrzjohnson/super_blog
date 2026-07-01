@@ -1,5 +1,4 @@
-export function buildSystemPrompt(): string {
-  return `You are a senior building superintendent with over a decade of hands-on experience working in a government-subsidized residential housing environment in Toronto, Ontario, Canada. Your working hours are typically 8:00 a.m. to 4:30 p.m.
+export const DEFAULT_CLAUDE_SYSTEM_PROMPT = `You are a senior building superintendent with over a decade of hands-on experience working in a government-subsidized residential housing environment in Toronto, Ontario, Canada. Your working hours are typically 8:00 a.m. to 4:30 p.m.
 
 You only respond to after-hours calls for genuine building emergencies or pre-arranged contact with a vendor or contractor. Everything else is handled the next business day. You value work-life balance.
 
@@ -100,10 +99,8 @@ Return your response in this exact format and nothing else. No preamble, no expl
 ---CONTENT---
 Your full blog post in markdown format goes here (minimum 800 words)
 ---END---`
-}
 
-export function buildShortSystemPrompt(): string {
-  return `You are a Toronto building superintendent writing a personal work blog. Write in first person like you're telling a colleague what happened today.
+export const DEFAULT_GROQ_SYSTEM_PROMPT = `You are a Toronto building superintendent writing a personal work blog. Write in first person like you're telling a colleague what happened today.
 
 RULES:
 - You do NOT have all the answers. You are figuring it out as you go.
@@ -126,25 +123,13 @@ RESPONSE FORMAT — no preamble, no markdown fences:
 ---CONTENT---
 Blog post in markdown, minimum 500 words.
 ---END---`
-}
 
-export function buildUserMessage(params: {
-  topic: string
-  context: string
-  schedule: string
-  recentPosts: Array<{ title: string; excerpt: string }>
-}): string {
-  const recentPostsContext =
-    params.recentPosts.length > 0
-      ? params.recentPosts.map((p) => `- "${p.title}": ${p.excerpt}`).join('\n')
-      : 'No previous posts available'
-
-  return `Topic: ${params.topic}
-Context: ${params.context || 'No additional context provided'}
-Schedule: ${params.schedule}
+export const DEFAULT_USER_MESSAGE_TEMPLATE = `Topic: {{topic}}
+Context: {{context}}
+Schedule: {{schedule}}
 
 Recent posts on this blog (for continuity — you may reference or continue these storylines if relevant, but do not repeat them):
-${recentPostsContext}
+{{recentPosts}}
 Generate a blog post with:
 - SEO-friendly title
 - URL-safe slug (lowercase, hyphens only)
@@ -152,11 +137,64 @@ Generate a blog post with:
 - Single category (choose from: Life, Work, Hobbies, Experience)
 - 3-5 relevant tags as a comma-separated string
 - Full blog post content in markdown format (minimum 800 words)`
-}
 
-export function buildGroqUserMessage(topic: string, context: string): string {
-  return `Topic: ${topic}
-Context: ${context || ''}
+export const DEFAULT_GROQ_USER_MESSAGE_TEMPLATE = `Topic: {{topic}}
+Context: {{context}}
 Write the blog post now following the exact format in your instructions.`
+
+function applyTemplate(
+  template: string,
+  values: Record<string, string>
+): string {
+  return Object.entries(values).reduce(
+    (result, [key, value]) => result.replaceAll(`{{${key}}}`, value),
+    template
+  )
 }
 
+export function buildSystemPrompt(override?: string): string {
+  const trimmed = override?.trim()
+  return trimmed || DEFAULT_CLAUDE_SYSTEM_PROMPT
+}
+
+export function buildShortSystemPrompt(override?: string): string {
+  const trimmed = override?.trim()
+  return trimmed || DEFAULT_GROQ_SYSTEM_PROMPT
+}
+
+export function buildUserMessage(
+  params: {
+    topic: string
+    context: string
+    schedule: string
+    recentPosts: Array<{ title: string; excerpt: string }>
+  },
+  templateOverride?: string
+): string {
+  const recentPostsContext =
+    params.recentPosts.length > 0
+      ? params.recentPosts.map((p) => `- "${p.title}": ${p.excerpt}`).join('\n')
+      : 'No previous posts available'
+
+  const template = templateOverride?.trim() || DEFAULT_USER_MESSAGE_TEMPLATE
+
+  return applyTemplate(template, {
+    topic: params.topic,
+    context: params.context || 'No additional context provided',
+    schedule: params.schedule,
+    recentPosts: recentPostsContext,
+  })
+}
+
+export function buildGroqUserMessage(
+  topic: string,
+  context: string,
+  templateOverride?: string
+): string {
+  const template = templateOverride?.trim() || DEFAULT_GROQ_USER_MESSAGE_TEMPLATE
+
+  return applyTemplate(template, {
+    topic,
+    context: context || '',
+  })
+}

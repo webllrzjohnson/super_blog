@@ -1,4 +1,4 @@
-const torontoSettings = [
+export const TORONTO_IMAGE_SETTINGS = [
   'a residential side street with older apartment buildings',
   'a downtown Toronto neighborhood skyline in the background, no specific landmarks',
   'a quiet courtyard between government-subsidized apartment buildings',
@@ -10,14 +10,31 @@ const torontoSettings = [
   'the Beaches neighborhood in Toronto, boardwalk and lakeside apartment buildings',
 ]
 
-export function buildPostImagePrompt(topic: string): string {
-  const setting = torontoSettings[Math.floor(Math.random() * torontoSettings.length)]
-
-  return `${topic}. Typical government-subsidized Toronto apartment building and townhouse setting, ${setting}. Male superintendent's perspective. No speech bubbles. No text. No watermarks. No logos.
+export const DEFAULT_IMAGE_PROMPT_TEMPLATE = `{{topic}}. Typical government-subsidized Toronto apartment building and townhouse setting, {{setting}}. Male superintendent's perspective. No speech bubbles. No text. No watermarks. No logos.
 Professional anime background art, environmental storytelling, realistic scene composition, perfect perspective, Studio Ghibli inspired environmental design,
 Makoto Shinkai inspired lighting and atmosphere, hand-painted illustration, ultra detailed, crisp linework, high dynamic range,
 atmospheric depth, realistic reflections, volumetric lighting, sharp focus, masterpiece, award-winning background illustration,
 production-quality animation background, 8k.`
+
+function applyTemplate(
+  template: string,
+  values: Record<string, string>
+): string {
+  return Object.entries(values).reduce(
+    (result, [key, value]) => result.replaceAll(`{{${key}}}`, value),
+    template
+  )
+}
+
+export function buildPostImagePrompt(topic: string, templateOverride?: string): string {
+  const setting =
+    TORONTO_IMAGE_SETTINGS[Math.floor(Math.random() * TORONTO_IMAGE_SETTINGS.length)]
+  const template = templateOverride?.trim() || DEFAULT_IMAGE_PROMPT_TEMPLATE
+
+  return applyTemplate(template, {
+    topic,
+    setting,
+  })
 }
 
 export function buildPostImageAlt(topic: string): string {

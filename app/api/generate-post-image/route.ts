@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { isAdminSession } from '@/lib/auth-session'
 import { buildPostImagePrompt } from '@/lib/generate-post-image-prompt'
+import { getSetting } from '@/lib/settings'
 
 async function checkAdmin(): Promise<boolean> {
   const headersList = await headers()
@@ -24,7 +25,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 })
   }
 
-  const prompt = buildPostImagePrompt(topic)
+  const ai = await getSetting('ai')
+  const prompt = buildPostImagePrompt(topic, ai.imagePromptTemplate)
 
   try {
     const imageRes = await fetch('https://api.openai.com/v1/images/generations', {
@@ -34,7 +36,7 @@ export async function POST(request: Request) {
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-image-1',
+        model: ai.imageModel.trim() || 'gpt-image-1',
         prompt,
         size: '1536x1024',
       }),

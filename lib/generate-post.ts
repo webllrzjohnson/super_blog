@@ -15,11 +15,17 @@ import {
 import { calculateReadTime, defaultAuthor, getPublishedPosts } from '@/lib/posts'
 import { revalidatePostsCache } from '@/lib/revalidate-cache'
 import { saveUploadedImageBuffer, saveUploadedImageFile } from '@/lib/save-uploaded-image'
+import { getSetting } from '@/lib/settings'
+import type { AiSettings } from '@/lib/settings'
 import type { Post } from '@/lib/types'
 
-const CLAUDE_MODEL =
-  process.env.ANTHROPIC_MODEL?.trim() || 'claude-sonnet-4-6'
-const GROQ_MODEL = 'llama-3.3-70b-versatile'
+function resolveClaudeModel(ai: AiSettings): string {
+  return (
+    ai.claudeModel.trim() ||
+    process.env.ANTHROPIC_MODEL?.trim() ||
+    'claude-sonnet-4-6'
+  )
+}
 
 export type GeneratePostParams = {
   topic: string
@@ -41,6 +47,7 @@ async function fetchRecentPublishedPosts(): Promise<Array<{ title: string; excer
 
 async function resolveFeaturedImage(
   topic: string,
+  ai: AiSettings,
   featuredImage?: File | null
 ): Promise<{ url?: string; alt: string }> {
   const alt = buildPostImageAlt(topic)
@@ -63,8 +70,8 @@ async function resolveFeaturedImage(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-image-1',
-        prompt: buildPostImagePrompt(topic),
+        model: ai.imageModel.trim() || 'gpt-image-1',
+        prompt: buildPostImagePrompt(topic, ai.imagePromptTemplate),
         size: '1536x1024',
       }),
     })
@@ -85,7 +92,11 @@ async function resolveFeaturedImage(
   }
 }
 
-async function callClaude(system: string, user: string): Promise<string> {
+async function callClaude(
+  model: string,
+  system: string,
+  user: string
+): Promise<string> {
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -94,7 +105,7 @@ async function callClaude(system: string, user: string): Promise<string> {
       'x-api-key': process.env.ANTHROPIC_API_KEY ?? '',
     },
     body: JSON.stringify({
-      model: CLAUDE_MODEL,
+      model,
       max_tokens: 16000,
       system,
       messages: [{ role: 'user', content: user }],
@@ -110,7 +121,11 @@ async function callClaude(system: string, user: string): Promise<string> {
   return data.content?.[0]?.text ?? ''
 }
 
-async function callGroq(system: string, user: string): Promise<string> {
+async function callGroq(
+  model: string,
+  system: string,
+  user: string
+): Promise<string> {
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -118,7 +133,7 @@ async function callGroq(system: string, user: string): Promise<string> {
       Authorization: `Bearer ${process.env.GROQ_API_KEY ?? ''}`,
     },
     body: JSON.stringify({
-      model: GROQ_MODEL,
+      model,
       max_tokens: 8192,
       messages: [
         { role: 'system', content: system },
@@ -138,12 +153,15 @@ async function callGroq(system: string, user: string): Promise<string> {
   return data.choices?.[0]?.message?.content ?? ''
 }
 
-async function generateRawPostText(params: {
-  topic: string
-  context: string
-  schedule: string
-  recentPosts: Array<{ title: string; excerpt: string }>
-}): Promise<{ raw: string; model: 'claude' | 'groq' }> {
+async function generateRawPostText(
+  ai: AiSettings,
+  params: {
+    topic: string
+    context: string
+    schedule: string
+    recentPosts: Array<{ title: string; excerpt: string }>
+  }
+): Promise<{ raw: string; model: 'claude' | 'groq' }> {
   const hasClaude = Boolean(process.env.ANTHROPIC_API_KEY)
   const hasGroq = Boolean(process.env.GROQ_API_KEY)
 
@@ -153,13 +171,18 @@ async function generateRawPostText(params: {
     )
   }
 
-  const systemPrompt = buildSystemPrompt()
-  const userMessage = buildUserMessage({
-    topic: params.topic,
-    context: params.context,
-    schedule: params.schedule,
-    recentPosts: params.recentPosts,
-  })
+  const claudeModel = resolveClaudeModel(ai)
+  const groqModel = ai.groqModel.trim() || 'llama-3.3-70b-versatile'
+  const systemPrompt = buildSystemPrompt(ai.claudeSystemPrompt)
+  const userMessage = buildUserMessage(
+    {
+      topic: params.topic,
+      context: params.context,
+      schedule: params.schedule,
+      recentPosts: params.recentPosts,
+    },
+    ai.userMessageTemplate
+  )
 
   const providers: Array<'claude' | 'groq'> = []
   if (hasClaude) providers.push('claude')
@@ -171,10 +194,15 @@ async function generateRawPostText(params: {
     try {
       const raw =
         provider === 'claude'
-          ? await callClaude(systemPrompt, userMessage)
+          ? await callClaude(claudeModel, systemPrompt, userMessage)
           : await callGroq(
-              buildShortSystemPrompt(),
-              buildGroqUserMessage(params.topic, params.context)
+              groqModel,
+              buildShortSystemPrompt(ai.groqSystemPrompt),
+              buildGroqUserMessage(
+                params.topic,
+                params.context,
+                ai.groqUserMessageTemplate
+              )
             )
 
       if (!raw.trim()) {
@@ -209,13 +237,14 @@ export async function generateAndSavePost(
   const schedule = params.schedule?.trim() || 'Immediate'
 
   try {
+    const ai = await getSetting('ai')
     const recentPosts = await fetchRecentPublishedPosts()
-    const [image, ai] = await Promise.all([
-      resolveFeaturedImage(topic, params.featuredImage),
-      generateRawPostText({ topic, context, schedule, recentPosts }),
+    const [image, generated] = await Promise.all([
+      resolveFeaturedImage(topic, ai, params.featuredImage),
+      generateRawPostText(ai, { topic, context, schedule, recentPosts }),
     ])
 
-    const parsed = parseAiPostResponse(ai.raw)
+    const parsed = parseAiPostResponse(generated.raw)
     const slug = sanitizeSlug(parsed.meta.slug) || sanitizeSlug(parsed.meta.title)
     if (!slug) {
       return { ok: false, message: 'AI response did not include a valid slug' }
@@ -259,7 +288,7 @@ export async function generateAndSavePost(
     return {
       ok: true,
       post: saved,
-      model: ai.model,
+      model: generated.model,
       published: status === 'published',
     }
   } catch (error) {

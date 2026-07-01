@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache'
 import { cache } from 'react'
+import { defaultAiSettings } from '@/lib/ai-defaults'
 import sql from '@/lib/db'
 import {
   CACHE_TAG_SETTINGS,
@@ -47,12 +48,24 @@ export interface PagesSettings {
   disclaimer?: string
 }
 
+export interface AiSettings {
+  claudeModel: string
+  groqModel: string
+  imageModel: string
+  claudeSystemPrompt: string
+  groqSystemPrompt: string
+  userMessageTemplate: string
+  groqUserMessageTemplate: string
+  imagePromptTemplate: string
+}
+
 export interface SettingsMap {
   links: LinksSettings
   branding: BrandingSettings
   appearance: AppearanceSettings
   ads: AdsSettings
   pages: PagesSettings
+  ai: AiSettings
   admin_password_hash: string | null
   _settingsLoadFailed: boolean
 }
@@ -72,6 +85,7 @@ export const defaultSettings: SettingsMap = {
     slots: [],
   },
   pages: {},
+  ai: { ...defaultAiSettings },
   admin_password_hash: null,
   _settingsLoadFailed: false,
 }
@@ -151,6 +165,44 @@ function sanitizePagesSettings(value: unknown): PagesSettings {
   }
 }
 
+function readRequiredString(record: Record<string, unknown>, key: string, fallback: string): string {
+  const value = record[key]
+  return typeof value === 'string' && value.trim() ? value : fallback
+}
+
+function sanitizeAiSettings(value: unknown): AiSettings {
+  if (!isRecord(value)) return { ...defaultSettings.ai }
+  return {
+    claudeModel: readRequiredString(value, 'claudeModel', defaultSettings.ai.claudeModel),
+    groqModel: readRequiredString(value, 'groqModel', defaultSettings.ai.groqModel),
+    imageModel: readRequiredString(value, 'imageModel', defaultSettings.ai.imageModel),
+    claudeSystemPrompt: readRequiredString(
+      value,
+      'claudeSystemPrompt',
+      defaultSettings.ai.claudeSystemPrompt
+    ),
+    groqSystemPrompt: readRequiredString(
+      value,
+      'groqSystemPrompt',
+      defaultSettings.ai.groqSystemPrompt
+    ),
+    userMessageTemplate: readRequiredString(
+      value,
+      'userMessageTemplate',
+      defaultSettings.ai.userMessageTemplate
+    ),
+    groqUserMessageTemplate: readRequiredString(
+      value,
+      'groqUserMessageTemplate',
+      defaultSettings.ai.groqUserMessageTemplate
+    ),
+    imagePromptTemplate: readRequiredString(
+      value,
+      'imagePromptTemplate',
+      defaultSettings.ai.imagePromptTemplate
+    ),
+  }
+}
 
 function sanitizeAdminPasswordHash(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value : null
@@ -163,6 +215,7 @@ function normalizeSetting<K extends SettingsKey>(key: K, value: unknown): Settin
     case 'appearance': return sanitizeAppearanceSettings(value) as SettingsMap[K]
     case 'ads': return sanitizeAdsSettings(value) as SettingsMap[K]
     case 'pages': return sanitizePagesSettings(value) as SettingsMap[K]
+    case 'ai': return sanitizeAiSettings(value) as SettingsMap[K]
     case 'admin_password_hash': return sanitizeAdminPasswordHash(value) as SettingsMap[K]
     default: return defaultSettings[key]
   }
@@ -175,6 +228,7 @@ function cloneDefaults(): SettingsMap {
     appearance: { ...defaultSettings.appearance },
     ads: { clientId: defaultSettings.ads.clientId, slots: [...defaultSettings.ads.slots] },
     pages: { ...defaultSettings.pages },
+    ai: { ...defaultSettings.ai },
     admin_password_hash: defaultSettings.admin_password_hash,
     _settingsLoadFailed: false,
   }
@@ -191,6 +245,7 @@ async function loadSettingsFromDb(): Promise<SettingsMap> {
         case 'appearance': settings.appearance = normalizeSetting('appearance', row.value); break
         case 'ads': settings.ads = normalizeSetting('ads', row.value); break
         case 'pages': settings.pages = normalizeSetting('pages', row.value); break
+        case 'ai': settings.ai = normalizeSetting('ai', row.value); break
         case 'admin_password_hash': settings.admin_password_hash = normalizeSetting('admin_password_hash', row.value); break
       }
     }

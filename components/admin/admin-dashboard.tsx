@@ -10,6 +10,7 @@ import { SettingsLinks } from '@/components/admin/settings-links'
 import { SettingsAppearance } from '@/components/admin/settings-appearance'
 import { SettingsAds } from '@/components/admin/settings-ads'
 import { SettingsPages } from '@/components/admin/settings-pages'
+import { SettingsAi } from '@/components/admin/settings-ai'
 import { SettingsAccount } from '@/components/admin/settings-account'
 import { AdminOutboundStats } from '@/components/admin/admin-outbound-stats'
 import { AdminCommentsModeration } from '@/components/admin/admin-comments-moderation'
@@ -198,6 +199,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
             <TabsTrigger value="appearance">Appearance</TabsTrigger>
             <TabsTrigger value="ads">Ads</TabsTrigger>
             <TabsTrigger value="pages">Pages</TabsTrigger>
+            <TabsTrigger value="ai">AI</TabsTrigger>
             <TabsTrigger value="account">Account</TabsTrigger>
             <TabsTrigger value="comments">Comments</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -238,6 +240,10 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
           <TabsContent value="pages">
             <SettingsPages initialValue={settings?.pages} />
+          </TabsContent>
+
+          <TabsContent value="ai">
+            <SettingsAi initialValue={settings?.ai} />
           </TabsContent>
 
           <TabsContent value="account">
