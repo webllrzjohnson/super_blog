@@ -5,8 +5,11 @@ import { Suspense } from 'react'
 import { BlogList } from '@/components/blog-list'
 import { GoogleAd } from '@/components/google-ad'
 import { Sidebar } from '@/components/sidebar'
-import { getPostsFromDb } from '@/lib/db-posts'
+import { getPostSummariesFromDb } from '@/lib/db-posts'
 import { getPublishedPosts } from '@/lib/posts'
+
+/** Must be a literal for Next.js segment config (see POSTS_CACHE_REVALIDATE_SECONDS). */
+export const revalidate = 120
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
 
@@ -20,7 +23,7 @@ export const metadata: Metadata = {
 
 
 export default async function BlogPage() {
-  const allPosts = await getPostsFromDb()
+  const allPosts = await getPostSummariesFromDb()
   const settings = await getSettings()
   const posts = getPublishedPosts(allPosts)
   const recentPosts = posts.slice(0, 5)

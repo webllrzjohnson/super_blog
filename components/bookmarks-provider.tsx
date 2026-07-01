@@ -90,27 +90,39 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
     if (!vid) return
 
     let cancelled = false
-    ;(async () => {
-      try {
-        const res = await fetch('/api/bookmarks/sync', {
-          headers: { [VISITOR_DEVICE_HEADER]: vid },
-        })
-        if (!res.ok || cancelled) return
-        const data = (await res.json()) as { enabled?: boolean; slugs?: string[] }
-        if (!data.enabled) {
+    const runSync = () => {
+      void (async () => {
+        try {
+          const res = await fetch('/api/bookmarks/sync', {
+            headers: { [VISITOR_DEVICE_HEADER]: vid },
+          })
+          if (!res.ok || cancelled) return
+          const data = (await res.json()) as { enabled?: boolean; slugs?: string[] }
+          if (!data.enabled) {
+            if (!cancelled) setSyncEnabled(false)
+            return
+          }
+          if (cancelled) return
+          setSyncEnabled(true)
+          setSlugs((prev) => mergeBookmarkSlugs(prev, data.slugs ?? []))
+        } catch {
           if (!cancelled) setSyncEnabled(false)
-          return
         }
-        if (cancelled) return
-        setSyncEnabled(true)
-        setSlugs((prev) => mergeBookmarkSlugs(prev, data.slugs ?? []))
-      } catch {
-        if (!cancelled) setSyncEnabled(false)
-      }
-    })()
+      })()
+    }
 
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      const idleId = window.requestIdleCallback(runSync, { timeout: 3000 })
+      return () => {
+        cancelled = true
+        window.cancelIdleCallback(idleId)
+      }
+    }
+
+    const timeoutId = setTimeout(runSync, 1500)
     return () => {
       cancelled = true
+      clearTimeout(timeoutId)
     }
   }, [])
 

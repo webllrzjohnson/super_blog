@@ -1,4 +1,4 @@
-import type { Post } from '@/lib/types'
+import type { Post, PostListItem } from '@/lib/types'
 
 export const samplePosts: Post[] = []
 
@@ -14,7 +14,10 @@ export const defaultAuthor = {
   bio: undefined as string | undefined,
 }
 
-export function isPostPubliclyVisible(post: Post, now: Date = new Date()): boolean {
+export function isPostPubliclyVisible(
+  post: Post | PostListItem,
+  now: Date = new Date()
+): boolean {
   if (post.status === 'published') return true
   if (post.status === 'draft') return false
   if (post.status === 'scheduled') {
@@ -24,7 +27,10 @@ export function isPostPubliclyVisible(post: Post, now: Date = new Date()): boole
   return false
 }
 
-export function getPublishedPosts(posts: Post[], now: Date = new Date()): Post[] {
+export function getPublishedPosts(
+  posts: Array<Post | PostListItem>,
+  now: Date = new Date()
+): PostListItem[] {
   return posts
     .filter((p) => isPostPubliclyVisible(p, now))
     .sort(
@@ -33,7 +39,10 @@ export function getPublishedPosts(posts: Post[], now: Date = new Date()): Post[]
     )
 }
 
-export function scoreRelatedPost(current: Post, candidate: Post): number {
+export function scoreRelatedPost(
+  current: Post | PostListItem,
+  candidate: Post | PostListItem
+): number {
   if (candidate.slug === current.slug) return 0
 
   let score = 0
@@ -53,7 +62,12 @@ export function scoreRelatedPost(current: Post, candidate: Post): number {
   return score
 }
 
-export function getRelatedPosts(post: Post, posts: Post[], limit = 3, now: Date = new Date()): Post[] {
+export function getRelatedPosts(
+  post: Post | PostListItem,
+  posts: Array<Post | PostListItem>,
+  limit = 3,
+  now: Date = new Date()
+): PostListItem[] {
   return posts
     .filter((p) => p.slug !== post.slug && isPostPubliclyVisible(p, now))
     .map((p) => ({ post: p, score: scoreRelatedPost(post, p) }))
@@ -63,7 +77,11 @@ export function getRelatedPosts(post: Post, posts: Post[], limit = 3, now: Date 
     .map(({ post: p }) => p)
 }
 
-export function getAdjacentPosts(post: Post, posts: Post[], now: Date = new Date()): { prev: Post | null; next: Post | null } {
+export function getAdjacentPosts(
+  post: Post | PostListItem,
+  posts: Array<Post | PostListItem>,
+  now: Date = new Date()
+): { prev: PostListItem | null; next: PostListItem | null } {
   const published = getPublishedPosts(posts, now)
     .slice()
     .sort(
@@ -77,7 +95,7 @@ export function getAdjacentPosts(post: Post, posts: Post[], now: Date = new Date
   }
 }
 
-export function getAllTags(posts: Post[], now: Date = new Date()): string[] {
+export function getAllTags(posts: Array<Post | PostListItem>, now: Date = new Date()): string[] {
   const tags = posts
     .filter((p) => isPostPubliclyVisible(p, now))
     .flatMap((p) => p.tags ?? [])
@@ -85,17 +103,20 @@ export function getAllTags(posts: Post[], now: Date = new Date()): string[] {
   return [...new Set(tags)]
 }
 
-export function getPostsByTag(posts: Post[], tag: string): Post[] {
+export function getPostsByTag(
+  posts: Array<Post | PostListItem>,
+  tag: string
+): PostListItem[] {
   return posts.filter((p) => p.tags?.includes(tag) && p.status === 'published')
 }
 
-export function searchPosts(posts: Post[], query: string): Post[] {
+export function searchPosts(posts: Array<Post | PostListItem>, query: string): Array<Post | PostListItem> {
   const q = query.toLowerCase()
   return posts.filter(
     (p) =>
       p.title.toLowerCase().includes(q) ||
       p.excerpt.toLowerCase().includes(q) ||
-      p.content.toLowerCase().includes(q) ||
+      ('content' in p && typeof p.content === 'string' && p.content.toLowerCase().includes(q)) ||
       (p.tags ?? []).some((tag) => tag.toLowerCase().includes(q))
   )
 }

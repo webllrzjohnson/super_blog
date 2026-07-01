@@ -1,11 +1,14 @@
 import { MetadataRoute } from 'next'
-import { getPostsFromDb } from '@/lib/db-posts'
+import { getPostSummariesFromDb } from '@/lib/db-posts'
 import { getPublishedPosts } from '@/lib/posts'
+
+/** Must be a literal for Next.js segment config (see POSTS_CACHE_REVALIDATE_SECONDS). */
+export const revalidate = 120
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const allPosts = await getPostsFromDb()
+  const allPosts = await getPostSummariesFromDb()
   const posts = getPublishedPosts(allPosts)
 
   const staticPages: MetadataRoute.Sitemap = [

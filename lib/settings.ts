@@ -1,5 +1,10 @@
+import { unstable_cache } from 'next/cache'
 import { cache } from 'react'
 import sql from '@/lib/db'
+import {
+  CACHE_TAG_SETTINGS,
+  SETTINGS_CACHE_REVALIDATE_SECONDS,
+} from '@/lib/cache-tags'
 
 export interface LinksSettings {
   github?: string
@@ -196,8 +201,13 @@ async function loadSettingsFromDb(): Promise<SettingsMap> {
   }
 }
 
+const loadSettingsCached = unstable_cache(loadSettingsFromDb, ['site-settings'], {
+  tags: [CACHE_TAG_SETTINGS],
+  revalidate: SETTINGS_CACHE_REVALIDATE_SECONDS,
+})
+
 export const getSettings = cache(async (): Promise<SettingsMap> => {
-  return loadSettingsFromDb()
+  return loadSettingsCached()
 })
 
 export const getSetting = cache(async <K extends SettingsKey>(key: K): Promise<SettingsMap[K]> => {

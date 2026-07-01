@@ -23,7 +23,7 @@ export function PostBookmarkButton({ slug, variant = 'default' }: PostBookmarkBu
   if (!mounted) {
     return (
       <span
-        className="inline-flex items-center justify-center whitespace-nowrap rounded-md h-8 px-3 shrink-0 opacity-50 border bg-background shadow-xs text-sm font-medium"
+        className="inline-flex items-center justify-center whitespace-nowrap rounded-md h-8 min-w-[6.5rem] px-3 shrink-0 opacity-50 border bg-background shadow-xs text-sm font-medium"
         aria-hidden
       >
         Bookmark

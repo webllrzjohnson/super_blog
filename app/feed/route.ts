@@ -1,10 +1,10 @@
-import { getPostsFromDb } from '@/lib/db-posts'
+import { getPostSummariesFromDb } from '@/lib/db-posts'
 import { getPublishedPosts } from '@/lib/posts'
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
 
 export async function GET() {
-  const posts = getPublishedPosts(await getPostsFromDb())
+  const posts = getPublishedPosts(await getPostSummariesFromDb())
 
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">

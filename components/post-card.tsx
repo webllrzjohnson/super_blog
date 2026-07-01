@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import type { Post } from '@/lib/types'
+import type { PostListItem } from '@/lib/types'
 
 interface PostCardProps {
-  post: Post
+  post: PostListItem
   featured?: boolean
 }
 

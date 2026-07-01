@@ -26,14 +26,14 @@ const sourceSerif = Source_Serif_4({
   subsets: ['latin'],
   variable: '--font-serif',
   display: 'swap',
-  preload: false,
+  preload: true,
 })
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
-  preload: false,
+  preload: true,
 })
 
 const merriweather = Merriweather({
@@ -112,8 +112,6 @@ const fontPairClasses = {
   'nunito-libre-baskerville': `${nunito.variable} ${libreBaskerville.variable}`,
   'plex-newsreader': `${ibmPlexSans.variable} ${newsreader.variable}`,
 } as const
-
-export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings()
@@ -246,7 +244,7 @@ export default async function RootLayout({
           </ConsentProvider>
           <Toaster />
         </ThemeProvider>
-        <Analytics />
+        {process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true' ? <Analytics /> : null}
       </body>
     </html>
   )

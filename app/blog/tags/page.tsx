@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { getPostsFromDb } from '@/lib/db-posts'
+import { getPostSummariesFromDb } from '@/lib/db-posts'
 import { getPublishedPosts, getAllTags, getPostsByTag } from '@/lib/posts'
+
+/** Must be a literal for Next.js segment config (see POSTS_CACHE_REVALIDATE_SECONDS). */
+export const revalidate = 120
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
 
@@ -14,7 +17,7 @@ export const metadata: Metadata = {
 }
 
 export default async function TagsPage() {
-  const allPosts = await getPostsFromDb()
+  const allPosts = await getPostSummariesFromDb()
   const tags = getAllTags(allPosts)
 
   return (

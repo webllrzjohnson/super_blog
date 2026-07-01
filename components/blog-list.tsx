@@ -6,12 +6,12 @@ import Link from 'next/link'
 import { PostCard } from '@/components/post-card'
 import { Input } from '@/components/ui/input'
 import { getPublishedPosts, searchPosts, getPostsByTag } from '@/lib/posts'
-import type { Post } from '@/lib/types'
+import type { PostListItem } from '@/lib/types'
 
 const POSTS_PER_PAGE = 15
 
 interface BlogListProps {
-  initialPosts: Post[]
+  initialPosts: PostListItem[]
   betweenPostsAd?: ReactNode
 }
 

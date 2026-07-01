@@ -18,6 +18,9 @@ export interface Post {
   status: 'draft' | 'scheduled' | 'published'
 }
 
+/** List/card views — omits heavy markdown body. */
+export type PostListItem = Omit<Post, 'content'>
+
 export interface Author {
   name: string
   avatar?: string

@@ -44,10 +44,10 @@ export function AdSlot({ position, adSlot, clientId }: AdSlotProps) {
   }, [hasConsented])
 
   const adStyles = {
-    top: 'h-24 mb-8',
-    mid: 'h-24 my-8',
-    sidebar: 'h-64 mt-8',
-    footer: 'h-24 mt-8',
+    top: 'min-h-24 mb-8',
+    mid: 'min-h-24 my-8',
+    sidebar: 'min-h-64 mt-8',
+    footer: 'min-h-24 mt-8',
   }
 
   // Show placeholder while loading consent status

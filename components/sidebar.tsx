@@ -1,12 +1,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { NewsletterForm } from '@/components/newsletter-form'
-import type { Post } from '@/lib/types'
-
-
+import type { PostListItem } from '@/lib/types'
 
 interface SidebarProps {
-  recentPosts?: Post[]
+  recentPosts?: PostListItem[]
   tags?: string[]
   avatarUrl?: string
   shortBio?: string

@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import { headers } from 'next/headers'
-import { getPostBySlugFromDb, getPostsFromDb } from '@/lib/db-posts'
+import { getPostBySlugFromDb, getPostSummariesFromDb } from '@/lib/db-posts'
 import {
   getRelatedPosts,
   getPublishedPosts,
@@ -19,7 +19,8 @@ import { ReadingProgressBar } from '@/components/reading-progress-bar'
 import { PostBookmarkButton } from '@/components/post-bookmark-button'
 import { PostReactions } from '@/components/post-reactions'
 import { PostComments } from '@/components/post-comments'
-import { MarkdownAffiliateAnchor } from '@/components/markdown-affiliate-anchor'
+import { ArticleOutboundClickTracker } from '@/components/article-outbound-click-tracker'
+import { getMarkdownAnchorProps } from '@/lib/markdown-link-props'
 import { Sidebar } from '@/components/sidebar'
 import { isAdminSession } from '@/lib/auth-session'
 
@@ -79,7 +80,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export async function generateStaticParams() {
-  const posts = await getPostsFromDb()
+  const posts = await getPostSummariesFromDb()
   const publishedPosts = getPublishedPosts(posts)
   return publishedPosts.map((post) => ({
     slug: post.slug,
@@ -95,13 +96,14 @@ export default async function BlogPostPage({ params }: Props) {
   const isAdmin = await hasAdminAccess()
   if (!isPostPubliclyVisible(post) && !isAdmin) notFound()
 
-    const allPosts = await getPostsFromDb()
+    const allPosts = await getPostSummariesFromDb()
     const settings = await getSettings()
     const publishedPosts = getPublishedPosts(allPosts)
     const relatedPosts = getRelatedPosts(post, publishedPosts)
     const { prev: older, next: newer } = getAdjacentPosts(post, allPosts)
     const recentPosts = publishedPosts.slice(0, 5)
     const allTags = [...new Set(publishedPosts.flatMap((p) => p.tags))]
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || ''
 
   const contentBlocks = post.content
     .split('\n\n')
@@ -139,13 +141,13 @@ export default async function BlogPostPage({ params }: Props) {
 
             <header className="mb-10">
               {post.featuredImage && (
-                <div className="relative w-full mb-6 rounded-lg overflow-hidden bg-muted">
+                <div className="relative w-full mb-6 rounded-lg overflow-hidden bg-muted aspect-[3/2]">
                 <Image
                   src={post.featuredImage}
                   alt={post.featuredImageAlt?.trim() || post.title}
                   width={1536}
                   height={1024}
-                  className="object-contain w-full h-auto"
+                  className="object-cover w-full h-full"
                   sizes="(max-width: 768px) 100vw, 672px"
                   priority
                 />
@@ -180,6 +182,7 @@ export default async function BlogPostPage({ params }: Props) {
               </div>
             </header>
 
+            <ArticleOutboundClickTracker postSlug={post.slug}>
             <div className="prose prose-lg prose-neutral dark:prose-invert max-w-none">
               {contentBlocks.map((block, index) => {
                 const showMidAd = index === 3
@@ -202,15 +205,10 @@ export default async function BlogPostPage({ params }: Props) {
                             {children}
                           </p>
                         ),
-                        a: ({ href, children, ...props }) => (
-                          <MarkdownAffiliateAnchor
-                            href={href ?? ''}
-                            postSlug={post.slug}
-                            {...props}
-                          >
-                            {children}
-                          </MarkdownAffiliateAnchor>
-                        ),
+                        a: ({ href, children }) => {
+                          const props = getMarkdownAnchorProps(href, siteUrl)
+                          return <a {...props}>{children}</a>
+                        },
                       }}
                     >
                       {block}
@@ -219,6 +217,7 @@ export default async function BlogPostPage({ params }: Props) {
                 )
               })}
             </div>
+            </ArticleOutboundClickTracker>
 
             <GoogleAd position="end-of-article" />
 

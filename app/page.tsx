@@ -3,11 +3,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { PostCard } from '@/components/post-card'
 import { NewsletterForm } from '@/components/newsletter-form'
-import { getPostsFromDb } from '@/lib/db-posts'
+import { getPostSummariesFromDb } from '@/lib/db-posts'
 import { getPublishedPosts } from '@/lib/posts'
 import { getSettings } from '@/lib/settings'
 
-export const dynamic = 'force-dynamic'
+/** Must be a literal for Next.js segment config (see POSTS_CACHE_REVALIDATE_SECONDS). */
+export const revalidate = 120
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
 
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const [allPosts, settings] = await Promise.all([
-    getPostsFromDb(),
+    getPostSummariesFromDb(),
     getSettings(),
   ])
   const posts = getPublishedPosts(allPosts)
@@ -96,6 +97,7 @@ export default async function HomePage() {
                     alt={featured.featuredImageAlt || featured.title}
                     width={128}
                     height={128}
+                    priority
                     className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>

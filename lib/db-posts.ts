@@ -1,30 +1,63 @@
 import { unstable_cache } from 'next/cache'
 import sql from '@/lib/db'
-import type { Post } from '@/lib/types'
+import type { Post, PostListItem } from '@/lib/types'
 import {
   CACHE_TAG_POSTS,
   POSTS_CACHE_REVALIDATE_SECONDS,
 } from '@/lib/cache-tags'
 
-function mapRowToPost(row: any): Post {
+const POST_SUMMARY_SELECT = `
+  id, title, slug, excerpt, category, tags,
+  featured_image, featured_image_alt,
+  author_name, author_avatar, author_bio,
+  published_at, updated_at, read_time, status
+`
+
+function mapRowToPost(row: Record<string, unknown>): Post {
   return {
-    id: row.id,
-    title: row.title,
-    slug: row.slug,
-    excerpt: row.excerpt,
-    content: row.content,
+    id: row.id as string,
+    title: row.title as string,
+    slug: row.slug as string,
+    excerpt: row.excerpt as string,
+    content: row.content as string,
     category: row.category as Post['category'],
-    tags: row.tags || [],
-    featuredImage: row.featured_image ?? undefined,
-    featuredImageAlt: row.featured_image_alt?.trim() ? row.featured_image_alt.trim() : undefined,
+    tags: (row.tags as string[]) || [],
+    featuredImage: (row.featured_image as string | null) ?? undefined,
+    featuredImageAlt: (row.featured_image_alt as string | null)?.trim()
+      ? (row.featured_image_alt as string).trim()
+      : undefined,
     author: {
-      name: row.author_name,
-      avatar: row.author_avatar ?? undefined,
-      bio: row.author_bio ?? undefined,
+      name: row.author_name as string,
+      avatar: (row.author_avatar as string | null) ?? undefined,
+      bio: (row.author_bio as string | null) ?? undefined,
     },
-    publishedAt: row.published_at,
-    updatedAt: row.updated_at ?? undefined,
-    readTime: row.read_time,
+    publishedAt: row.published_at as string,
+    updatedAt: (row.updated_at as string | null) ?? undefined,
+    readTime: row.read_time as number,
+    status: row.status as Post['status'],
+  }
+}
+
+function mapRowToPostSummary(row: Record<string, unknown>): PostListItem {
+  return {
+    id: row.id as string,
+    title: row.title as string,
+    slug: row.slug as string,
+    excerpt: row.excerpt as string,
+    category: row.category as Post['category'],
+    tags: (row.tags as string[]) || [],
+    featuredImage: (row.featured_image as string | null) ?? undefined,
+    featuredImageAlt: (row.featured_image_alt as string | null)?.trim()
+      ? (row.featured_image_alt as string).trim()
+      : undefined,
+    author: {
+      name: row.author_name as string,
+      avatar: (row.author_avatar as string | null) ?? undefined,
+      bio: (row.author_bio as string | null) ?? undefined,
+    },
+    publishedAt: row.published_at as string,
+    updatedAt: (row.updated_at as string | null) ?? undefined,
+    readTime: row.read_time as number,
     status: row.status as Post['status'],
   }
 }
@@ -33,10 +66,35 @@ async function fetchPosts(): Promise<Post[]> {
   try {
     const rows = await sql`SELECT * FROM posts ORDER BY published_at DESC`
     if (!rows || rows.length === 0) return []
-    return rows.map(mapRowToPost)
+    return rows.map((row) => mapRowToPost(row as Record<string, unknown>))
   } catch (err) {
     console.error('fetchPosts error:', err)
     return []
+  }
+}
+
+async function fetchPostSummaries(): Promise<PostListItem[]> {
+  try {
+    const rows = await sql.unsafe(`
+      SELECT ${POST_SUMMARY_SELECT}
+      FROM posts
+      ORDER BY published_at DESC
+    `)
+    if (!rows || rows.length === 0) return []
+    return rows.map((row) => mapRowToPostSummary(row as Record<string, unknown>))
+  } catch (err) {
+    console.error('fetchPostSummaries error:', err)
+    return []
+  }
+}
+
+async function fetchPostBySlug(slug: string): Promise<Post | null> {
+  try {
+    const rows = await sql`SELECT * FROM posts WHERE slug = ${slug} LIMIT 1`
+    return rows[0] ? mapRowToPost(rows[0] as Record<string, unknown>) : null
+  } catch (err) {
+    console.error('fetchPostBySlug error:', err)
+    return null
   }
 }
 
@@ -45,13 +103,29 @@ const getPostsCached = unstable_cache(fetchPosts, ['posts-all'], {
   revalidate: POSTS_CACHE_REVALIDATE_SECONDS,
 })
 
+const getPostSummariesCached = unstable_cache(fetchPostSummaries, ['posts-summaries'], {
+  tags: [CACHE_TAG_POSTS],
+  revalidate: POSTS_CACHE_REVALIDATE_SECONDS,
+})
+
 export async function getPostsFromDb(): Promise<Post[]> {
   return getPostsCached()
 }
 
+export async function getPostSummariesFromDb(): Promise<PostListItem[]> {
+  return getPostSummariesCached()
+}
+
 export async function getPostBySlugFromDb(slug: string): Promise<Post | null> {
-  const posts = await getPostsFromDb()
-  return posts.find((p) => p.slug === slug) ?? null
+  const normalized = slug.trim().toLowerCase()
+  return unstable_cache(
+    () => fetchPostBySlug(normalized),
+    [`post-slug-${normalized}`],
+    {
+      tags: [CACHE_TAG_POSTS],
+      revalidate: POSTS_CACHE_REVALIDATE_SECONDS,
+    }
+  )()
 }
 
 export async function savePostToDb(post: Post): Promise<Post | null> {
@@ -65,7 +139,7 @@ export async function savePostToDb(post: Post): Promise<Post | null> {
       updated_at: post.updatedAt ?? null, read_time: post.readTime, status: post.status,
     }
     const result = await sql`INSERT INTO posts ${sql(row)} ON CONFLICT (id) DO UPDATE SET ${sql(row)} RETURNING *`
-    return result[0] ? mapRowToPost(result[0]) : null
+    return result[0] ? mapRowToPost(result[0] as Record<string, unknown>) : null
   } catch (err) {
     console.error('savePostToDb error:', err)
     return null
