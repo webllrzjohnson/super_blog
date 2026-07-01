@@ -1,11 +1,11 @@
 import { getPostsFromDb, savePostToDb } from '@/lib/db-posts'
 import {
-  buildFeaturedImagePrompt,
   buildGroqUserMessage,
   buildShortSystemPrompt,
   buildSystemPrompt,
   buildUserMessage,
 } from '@/lib/generate-post-prompts'
+import { buildPostImageAlt, buildPostImagePrompt } from '@/lib/generate-post-image-prompt'
 import {
   normalizeTags,
   parseAiPostResponse,
@@ -43,9 +43,7 @@ async function resolveFeaturedImage(
   topic: string,
   featuredImage?: File | null
 ): Promise<{ url?: string; alt: string }> {
-  const alt = topic
-    ? `Comic illustration for a blog post about ${topic}`
-    : 'Comic illustration of a residential apartment building interior'
+  const alt = buildPostImageAlt(topic)
 
   if (featuredImage && featuredImage.size > 0) {
     const uploaded = await saveUploadedImageFile(featuredImage)
@@ -66,7 +64,7 @@ async function resolveFeaturedImage(
       },
       body: JSON.stringify({
         model: 'gpt-image-1',
-        prompt: buildFeaturedImagePrompt(topic),
+        prompt: buildPostImagePrompt(topic),
         size: '1536x1024',
       }),
     })

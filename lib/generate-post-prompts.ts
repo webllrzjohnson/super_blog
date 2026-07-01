@@ -160,15 +160,3 @@ Context: ${context || ''}
 Write the blog post now following the exact format in your instructions.`
 }
 
-export function buildFeaturedImagePrompt(topic: string): string {
-  const subject = topic || 'apartment building maintenance'
-  return `Comic-book illustration for a blog post about: ${subject}.
-
-Illustration quality based on Studio Ghibli and Makoto Shinkai inspired environmental art, ultra detailed, crisp linework, high dynamic range, atmospheric storytelling, perfect perspective, 4k, 8k, sharp focus, professional illustration, highly detailed shadows, realistic clutter distribution, award-winning background design.
-
-Focus on the environment based on the subject or topic of the story: stairwells, hallways, garbage rooms, compactor rooms, balcony, parking areas, playground, parks, walkways, patios, backyards, frontyards, lobby, elevators, parking lot, garbage bin, balcony, boiler rooms, rooftops, loading docks, maintenance equipment, tools, supplies, and building infrastructure relevant to the topic.
-
-No speech bubbles. No logos. No watermarks.
-
-Wide 16:9 blog featured image.`
-}
