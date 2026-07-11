@@ -81,6 +81,13 @@ GOOGLE ADS CONTENT REQUIREMENTS:
 - Write for real people searching for real answers, not for search engines
 - No misleading claims, no exaggeration
 
+QUALITY BAR BEFORE YOU ANSWER:
+- Do not name the employer or any public housing organization. Describe it generally.
+- Do not mention AI, prompts, models, or that content was generated.
+- Include at least two markdown section headings.
+- Include at least one tenant/resident/staff/vendor detail so the post feels observed, not generic.
+- Use specific actions, constraints, and uncertainty from the field. Avoid generic advice.
+
 FORMAT:
 - Short paragraphs, 2-4 sentences max
 - Subheadings to break up sections
@@ -110,6 +117,8 @@ RULES:
 - Short paragraphs, 2-4 sentences. Contractions always. No expert tone.
 - Endings vary — unresolved is fine. Never a neat lesson learned unless it actually happened.
 - NEVER use: em dashes, "ensure", "utilize", "in conclusion", "it is important to note"
+- Never name the employer or any public housing organization. Do not mention AI.
+- Include at least two markdown section headings and one tenant/staff/vendor detail.
 
 RESPONSE FORMAT — no preamble, no markdown fences:
 ---JSON---
@@ -136,7 +145,10 @@ Generate a blog post with:
 - 2-3 sentence excerpt
 - Single category (choose from: Life, Work, Hobbies, Experience)
 - 3-5 relevant tags as a comma-separated string
-- Full blog post content in markdown format (minimum 800 words)`
+- Full blog post content in markdown format (minimum 800 words)
+- At least two markdown section headings
+- First-person, field-level details with tenants, staff, contractors, or vendors where relevant
+- No employer/public housing organization names, no AI references, no em dashes`
 
 export const DEFAULT_GROQ_USER_MESSAGE_TEMPLATE = `Topic: {{topic}}
 Context: {{context}}

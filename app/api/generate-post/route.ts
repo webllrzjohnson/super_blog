@@ -51,5 +51,7 @@ export async function POST(request: Request) {
       : `Draft saved with ${result.model === 'claude' ? 'Claude' : 'Groq'}. Review it in the admin dashboard.`,
     slug: result.post.slug,
     status: result.post.status,
+    wordCount: result.wordCount,
+    warnings: result.warnings,
   })
 }

@@ -12,6 +12,7 @@ import {
   resolvePostStatus,
   sanitizeSlug,
 } from '@/lib/parse-ai-post-response'
+import { evaluateGeneratedPostQuality } from '@/lib/generated-post-quality'
 import { calculateReadTime, defaultAuthor, getPublishedPosts } from '@/lib/posts'
 import { revalidatePostsCache } from '@/lib/revalidate-cache'
 import { saveUploadedImageBuffer, saveUploadedImageFile } from '@/lib/save-uploaded-image'
@@ -35,7 +36,14 @@ export type GeneratePostParams = {
 }
 
 export type GeneratePostResult =
-  | { ok: true; post: Post; model: 'claude' | 'groq'; published: boolean }
+  | {
+      ok: true
+      post: Post
+      model: 'claude' | 'groq'
+      published: boolean
+      warnings: string[]
+      wordCount: number
+    }
   | { ok: false; message: string }
 
 async function fetchRecentPublishedPosts(): Promise<Array<{ title: string; excerpt: string }>> {
@@ -161,7 +169,12 @@ async function generateRawPostText(
     schedule: string
     recentPosts: Array<{ title: string; excerpt: string }>
   }
-): Promise<{ raw: string; model: 'claude' | 'groq' }> {
+): Promise<{
+  raw: string
+  model: 'claude' | 'groq'
+  warnings: string[]
+  wordCount: number
+}> {
   const hasClaude = Boolean(process.env.ANTHROPIC_API_KEY)
   const hasGroq = Boolean(process.env.GROQ_API_KEY)
 
@@ -210,8 +223,19 @@ async function generateRawPostText(
         continue
       }
 
-      parseAiPostResponse(raw)
-      return { raw, model: provider }
+      const parsed = parseAiPostResponse(raw)
+      const quality = evaluateGeneratedPostQuality(parsed.meta, parsed.content)
+      if (quality.errors.length > 0) {
+        lastError = `AI output failed quality checks: ${quality.errors.join(' ')}`
+        continue
+      }
+
+      return {
+        raw,
+        model: provider,
+        warnings: quality.warnings,
+        wordCount: quality.wordCount,
+      }
     } catch (error) {
       lastError = error instanceof Error ? error.message : 'AI generation failed'
       console.error(`generatePost: ${provider} failed`, error)
@@ -290,6 +314,8 @@ export async function generateAndSavePost(
       post: saved,
       model: generated.model,
       published: status === 'published',
+      warnings: generated.warnings,
+      wordCount: generated.wordCount,
     }
   } catch (error) {
     return {

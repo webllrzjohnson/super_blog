@@ -43,10 +43,25 @@ export function GeneratePostModal({ onClose }: GeneratePostModalProps) {
         throw new Error(data.error || 'Failed to trigger generation')
       }
 
-      const data = await res.json()
+      const data = (await res.json()) as {
+        message?: string
+        slug?: string
+        wordCount?: number
+        warnings?: string[]
+      }
+      const details = [
+        data.slug ? `Slug: ${data.slug}` : null,
+        data.wordCount ? `${data.wordCount} words` : null,
+        data.warnings?.length ? `${data.warnings.length} quality warning(s)` : null,
+      ].filter(Boolean)
       toast.success(data.message || 'Post generation complete', {
-        description: data.slug ? `Slug: ${data.slug}` : undefined,
+        description: details.length ? details.join(' · ') : undefined,
       })
+      if (data.warnings?.length) {
+        toast.warning('Generated draft needs review', {
+          description: data.warnings.slice(0, 2).join(' '),
+        })
+      }
       onClose()
     } catch (err) {
       toast.error('Failed to generate post', {
