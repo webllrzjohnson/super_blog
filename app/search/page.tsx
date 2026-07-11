@@ -87,13 +87,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <div>
           {results.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              No posts found for <strong className="text-foreground">"{query}"</strong>.
+              No posts found for <strong className="text-foreground">&quot;{query}&quot;</strong>.
             </p>
           ) : (
             <>
               <p className="text-xs text-muted-foreground mb-6">
                 {results.length} result{results.length === 1 ? '' : 's'} for{' '}
-                <strong className="text-foreground">"{query}"</strong>
+                <strong className="text-foreground">&quot;{query}&quot;</strong>
               </p>
               <div className="space-y-8">
                 {results.map((post) => (

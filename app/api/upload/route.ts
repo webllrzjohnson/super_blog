@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     const { headers } = await import('next/headers')
     const { isAdminSession } = await import('@/lib/auth-session')
     const headersList = await headers()
-    const isAdmin = isAdminSession(headersList.get('cookie'))
+    const isAdmin = await isAdminSession(headersList.get('cookie'))
     if (!isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

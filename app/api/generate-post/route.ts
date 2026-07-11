@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   }
 
   const headersList = await headers()
-  if (!isAdminSession(headersList.get('cookie'))) {
+  if (!(await isAdminSession(headersList.get('cookie')))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

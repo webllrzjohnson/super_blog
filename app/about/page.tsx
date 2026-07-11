@@ -84,15 +84,15 @@ export default async function AboutPage() {
                   I spent years as a full-stack developer building web apps and mobile apps, debugging production issues at odd hours, and living that keyboard life. Then I made what most people would call a wild career pivot: I became a Senior Building Superintendent at one of the largest subsidized housing companies in North America. Different world, same problem-solving mindset. Just swap the IDE for a set of tools and the standup meetings for a tenant buzzing your office about a flooded unit on a Monday morning.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
-                  Engineering never really left me though. I still write code, just not full-time anymore. These days I build with AI as my co-pilot, automating workflows, creating tools, and exploring what's possible when you combine years of dev experience with modern AI capabilities. It keeps the brain sharp and honestly, it's some of the most fun I've had coding in years.</p>
+                  Engineering never really left me though. I still write code, just not full-time anymore. These days I build with AI as my co-pilot, automating workflows, creating tools, and exploring what&apos;s possible when you combine years of dev experience with modern AI capabilities. It keeps the brain sharp and honestly, it&apos;s some of the most fun I&apos;ve had coding in years.</p>
                 <p className="text-muted-foreground leading-relaxed">
-                  Outside of work, life is good and full. My wife and I love exploring the city, trying new restaurants, hunting down hidden gems, and cooking our way through cuisines we've never attempted before. Weekends often involve something bubbling on the stove or a fresh loaf of bread cooling on the counter. Baking in particular is my kind of therapy: precise, patient, and deeply satisfying when it works.
+                  Outside of work, life is good and full. My wife and I love exploring the city, trying new restaurants, hunting down hidden gems, and cooking our way through cuisines we&apos;ve never attempted before. Weekends often involve something bubbling on the stove or a fresh loaf of bread cooling on the counter. Baking in particular is my kind of therapy: precise, patient, and deeply satisfying when it works.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
-                  We also love to travel. There's something about being somewhere completely new, navigating a foreign menu, getting genuinely lost, figuring things out on the fly, that feels a lot like learning to code. Uncomfortable at first, exhilarating once you find your footing.
+                  We also love to travel. There&apos;s something about being somewhere completely new, navigating a foreign menu, getting genuinely lost, figuring things out on the fly, that feels a lot like learning to code. Uncomfortable at first, exhilarating once you find your footing.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
-                  This blog is where I bring it all together: the career lessons, the building stories, the AI experiments, the food finds, the travel moments. I don't have everything figured out, but I'm paying attention and I write about what I notice. Maybe some of it will be useful to you too.
+                  This blog is where I bring it all together: the career lessons, the building stories, the AI experiments, the food finds, the travel moments. I don&apos;t have everything figured out, but I&apos;m paying attention and I write about what I notice. Maybe some of it will be useful to you too.
                 </p>
               </div>
             </div>
