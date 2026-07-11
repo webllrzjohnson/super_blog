@@ -131,35 +131,29 @@ export default async function BlogPostPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="max-w-6xl mx-auto px-6 py-12 md:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12">
+      <div className="mx-auto max-w-6xl px-6 py-12 md:py-20">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_300px]">
 
           {/* Main content */}
-          <article>
+          <article className="surface-card overflow-hidden p-5 md:p-8">
             <AffiliateDisclosure />
             <GoogleAd position="top-of-content" />
 
             <header className="mb-10">
               {post.featuredImage && (
-                <div className="relative w-full mb-6 rounded-lg overflow-hidden bg-muted aspect-[3/2]">
-                <Image
-                  src={post.featuredImage}
-                  alt={post.featuredImageAlt?.trim() || post.title}
-                  width={1536}
-                  height={1024}
-                  className="object-cover w-full h-full"
-                  sizes="(max-width: 768px) 100vw, 672px"
-                  priority
-                />
-              </div>
+                <div className="relative mb-8 aspect-[3/2] w-full overflow-hidden rounded-2xl bg-muted">
+                  <Image
+                    src={post.featuredImage}
+                    alt={post.featuredImageAlt?.trim() || post.title}
+                    width={1536}
+                    height={1024}
+                    className="h-full w-full object-cover"
+                    sizes="(max-width: 768px) 100vw, 672px"
+                    priority
+                  />
+                </div>
               )}
-              <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-                <h1 className="text-2xl font-medium text-foreground leading-tight flex-1 min-w-[12rem]">
-                  {post.title}
-                </h1>
-                <PostBookmarkButton slug={post.slug} />
-              </div>
-              <div className="text-sm text-muted-foreground mb-4">
+              <div className="mb-4 flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground">
                 <time dateTime={post.publishedAt}>
                   {new Date(post.publishedAt).toLocaleDateString('en-US', {
                     month: 'short',
@@ -168,13 +162,26 @@ export default async function BlogPostPage({ params }: Props) {
                   })}
                   {post.updatedAt && ' (updated)'}
                 </time>
+                <span aria-hidden>·</span>
+                <span>{post.readTime} min read</span>
+                <span aria-hidden>·</span>
+                <span>{post.category}</span>
               </div>
-              <div className="flex flex-wrap gap-x-2 gap-y-1">
+              <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+                <h1 className="min-w-[12rem] flex-1 text-4xl font-semibold leading-[1.02] tracking-[-0.04em] text-foreground md:text-5xl">
+                  {post.title}
+                </h1>
+                <PostBookmarkButton slug={post.slug} />
+              </div>
+              <p className="mb-5 max-w-2xl text-lg leading-8 text-muted-foreground">
+                {post.excerpt}
+              </p>
+              <div className="flex flex-wrap gap-2">
                 {post.tags.map((tag) => (
                   <Link
                     key={tag}
                     href={`/blog?tag=${encodeURIComponent(tag.toLowerCase())}`}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="rounded-full bg-secondary/70 px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
                     #{tag}
                   </Link>
@@ -195,7 +202,7 @@ export default async function BlogPostPage({ params }: Props) {
                           const text = String(children)
                           const id = text.toLowerCase().replace(/\s+/g, '-')
                           return (
-                            <h2 id={id} className="text-lg font-medium text-foreground mt-8 mb-4" {...props}>
+                            <h2 id={id} className="text-2xl font-semibold tracking-[-0.02em] text-foreground mt-10 mb-4" {...props}>
                               {children}
                             </h2>
                           )

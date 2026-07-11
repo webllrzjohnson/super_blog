@@ -163,6 +163,19 @@
     @apply bg-background text-foreground;
     font-size: var(--font-size-base);
     line-height: var(--leading-relaxed);
+    background:
+      radial-gradient(circle at top left, color-mix(in oklab, var(--primary) 12%, transparent), transparent 32rem),
+      linear-gradient(180deg, color-mix(in oklab, var(--secondary) 42%, var(--background)) 0%, var(--background) 28rem);
+  }
+}
+
+@layer components {
+  .surface-card {
+    @apply rounded-2xl border border-border/60 bg-card/80 shadow-[0_18px_60px_rgba(0,0,0,0.045)] backdrop-blur-sm;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.18em] text-primary;
   }
 }
 

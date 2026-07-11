@@ -30,18 +30,26 @@ export default async function BlogPage() {
   const allTags = [...new Set(posts.flatMap((p) => p.tags))]
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-12 md:py-16">
-      <header className="mb-10">
-        <h1 className="text-2xl font-medium text-foreground mb-2">Blog</h1>
-        <p className="text-muted-foreground">
-          Here&apos;s my most recent posts or{' '}
-          <Link href="/blog/random" className="underline decoration-2 underline-offset-2 hover:text-foreground transition-colors">
-            read a random one
-          </Link>!
-        </p>
+    <div className="mx-auto max-w-6xl px-6 py-12 md:py-20">
+      <header className="surface-card mb-10 p-6 md:p-8">
+        <p className="eyebrow mb-3">All posts</p>
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <h1 className="text-4xl font-semibold tracking-[-0.04em] text-foreground md:text-5xl">Blog</h1>
+            <p className="mt-3 max-w-2xl text-muted-foreground">
+              Field notes on building operations, AI experiments, running, food, and everyday life.
+            </p>
+          </div>
+          <Link
+            href="/blog/random"
+            className="rounded-full border border-border/70 bg-card/70 px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary/70"
+          >
+            Read a random one →
+          </Link>
+        </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12">
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_300px]">
         <div>
           <Suspense fallback={<p className="text-muted-foreground py-12 text-sm">Loading posts…</p>}>
             <BlogList

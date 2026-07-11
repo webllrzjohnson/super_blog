@@ -89,7 +89,7 @@ export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
   return (
     <div className="space-y-10">
       {/* Minimal search */}
-      <div className="space-y-3">
+      <div className="surface-card space-y-3 p-4">
         <Input
           type="search"
           placeholder="Search posts..."
@@ -98,7 +98,7 @@ export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
             setSearchQuery(e.target.value)
             setCurrentPage(1)
           }}
-          className="max-w-xs text-sm"
+          className="max-w-md rounded-full bg-background/80 text-sm"
         />
         {(urlTag || searchQuery.trim()) && (
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
@@ -120,9 +120,9 @@ export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
       {/* Posts - cassidoo style: just the list */}
       {paginatedPosts.length > 0 ? (
         <>
-          <div className="space-y-10">
+          <div className="grid gap-4 md:grid-cols-2">
             {paginatedPosts.map((post, index) => (
-              <div key={post.id} className="space-y-10">
+              <div key={post.id}>
                 <PostCard post={post} />
                 {betweenPostsAd && index === 0 && paginatedPosts.length > 1 ? betweenPostsAd : null}
               </div>

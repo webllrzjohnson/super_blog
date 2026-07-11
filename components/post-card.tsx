@@ -11,29 +11,24 @@ export function PostCard({ post, featured = false }: PostCardProps) {
   const visibleTags = post.tags.slice(0, 2)
 
   return (
-    <article className={`group flex gap-4 items-start ${featured ? 'mb-8' : ''}`}>
-      {/* Thumbnail */}
-      {post.featuredImage && (
-        <Link href={`/blog/${post.slug}`} className="flex-shrink-0 block">
-          <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted border border-border/40">
+    <article className={`group surface-card overflow-hidden transition-transform duration-300 hover:-translate-y-1 ${featured ? 'mb-8' : ''}`}>
+      <Link href={`/blog/${post.slug}`} className="grid h-full gap-0 sm:grid-cols-[112px_1fr]">
+        {post.featuredImage ? (
+          <div className="relative min-h-36 overflow-hidden bg-muted sm:min-h-full">
             <Image
               src={post.featuredImage}
               alt={post.featuredImageAlt || post.title}
-              width={80}
-              height={80}
-              className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+              width={224}
+              height={224}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           </div>
-        </Link>
-      )}
+        ) : (
+          <div className="hidden bg-gradient-to-br from-primary/15 via-secondary/60 to-background sm:block" />
+        )}
 
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        <Link href={`/blog/${post.slug}`} className="block">
-          <h2 className={`${featured ? 'text-xl' : 'text-base'} font-medium text-foreground group-hover:text-muted-foreground transition-colors leading-snug mb-1`}>
-            {post.title}
-          </h2>
-          <div className="text-sm text-muted-foreground mb-2">
+        <div className="flex min-w-0 flex-col p-5">
+          <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground">
             <time dateTime={post.publishedAt}>
               {new Date(post.publishedAt).toLocaleDateString('en-US', {
                 month: 'short',
@@ -42,32 +37,37 @@ export function PostCard({ post, featured = false }: PostCardProps) {
               })}
               {post.updatedAt && ' (updated)'}
             </time>
-            <span className="mx-2 opacity-60" aria-hidden>·</span>
+            <span className="opacity-60" aria-hidden>·</span>
             <span>{post.readTime} min read</span>
           </div>
+
+          <h2 className={`${featured ? 'text-2xl' : 'text-lg'} mb-2 font-semibold leading-snug tracking-[-0.02em] text-foreground transition-colors group-hover:text-primary`}>
+            {post.title}
+          </h2>
+
           {post.excerpt && (
-            <p className="text-muted-foreground leading-relaxed text-sm mb-2 line-clamp-2">
+            <p className="mb-4 line-clamp-3 text-sm leading-6 text-muted-foreground">
               {post.excerpt}
             </p>
           )}
-        </Link>
-        <div className="flex flex-wrap gap-1.5">
-          {visibleTags.map((tag) => (
-            <Link
-              key={tag}
-              href={`/blog?tag=${encodeURIComponent(tag.toLowerCase())}`}
-              className="text-xs px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
-            >
-              #{tag}
-            </Link>
-          ))}
-          {post.tags.length > 2 && (
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground opacity-60">
-              +{post.tags.length - 2} more
-            </span>
-          )}
+
+          <div className="mt-auto flex flex-wrap gap-1.5">
+            {visibleTags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full bg-secondary/70 px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors group-hover:text-foreground"
+              >
+                #{tag}
+              </span>
+            ))}
+            {post.tags.length > 2 && (
+              <span className="rounded-full bg-secondary/50 px-2.5 py-1 text-xs text-muted-foreground/70">
+                +{post.tags.length - 2} more
+              </span>
+            )}
+          </div>
         </div>
-      </div>
+      </Link>
     </article>
   )
 }
