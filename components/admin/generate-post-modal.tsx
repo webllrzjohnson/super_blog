@@ -13,6 +13,9 @@ import type { Post } from '@/lib/types'
 interface GeneratePostModalProps {
   onClose: () => void
   onGeneratedPost?: (post: Post) => void
+  initialTopic?: string
+  initialContext?: string
+  initialSchedule?: string
 }
 
 type GenerateResponse = {
@@ -79,10 +82,16 @@ function QualityReviewPanel({ post, warnings, wordCount }: {
   )
 }
 
-export function GeneratePostModal({ onClose, onGeneratedPost }: GeneratePostModalProps) {
-  const [topic, setTopic] = useState('')
-  const [context, setContext] = useState('')
-  const [schedule, setSchedule] = useState('Immediate')
+export function GeneratePostModal({
+  onClose,
+  onGeneratedPost,
+  initialTopic = '',
+  initialContext = '',
+  initialSchedule = 'Immediate',
+}: GeneratePostModalProps) {
+  const [topic, setTopic] = useState(initialTopic)
+  const [context, setContext] = useState(initialContext)
+  const [schedule, setSchedule] = useState(initialSchedule)
   const [promptPreset, setPromptPreset] = useState(DEFAULT_AI_PROMPT_PRESET_ID)
   const [featuredImage, setFeaturedImage] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)

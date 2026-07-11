@@ -15,9 +15,11 @@ import { SettingsAccount } from '@/components/admin/settings-account'
 import { AdminOutboundStats } from '@/components/admin/admin-outbound-stats'
 import { AdminCommentsModeration } from '@/components/admin/admin-comments-moderation'
 import { AdminOverview } from '@/components/admin/admin-overview'
+import { AdminContentIdeas } from '@/components/admin/admin-content-ideas'
 import { getPosts, savePost, deletePost, generateId } from '@/lib/store'
 import { defaultAuthor, calculateReadTime } from '@/lib/posts'
 import type { Post } from '@/lib/types'
+import type { ContentIdea } from '@/lib/content-ideas'
 import type { SettingsMap } from '@/lib/settings'
 import { LogOut, Plus, Home } from 'lucide-react'
 import { toast } from 'sonner'
@@ -36,6 +38,12 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState('overview')
   const [loading, setLoading] = useState(true)
   const [pendingComments, setPendingComments] = useState<number | null>(null)
+  const [generateSeed, setGenerateSeed] = useState<{
+    topic: string
+    context: string
+    schedule: string
+  } | null>(null)
+  const [generatingFromIdea, setGeneratingFromIdea] = useState<ContentIdea | null>(null)
 
   // Add to state
   const [showGenerateModal, setShowGenerateModal] = useState(false)
@@ -51,6 +59,45 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       next[existingIndex] = savedPost
       return next
     })
+  }
+
+  const openGenerateModal = () => {
+    setGenerateSeed(null)
+    setGeneratingFromIdea(null)
+    setShowGenerateModal(true)
+  }
+
+  const handleGenerateFromIdea = (
+    seed: { topic: string; context: string; schedule: string },
+    idea: ContentIdea
+  ) => {
+    setGenerateSeed(seed)
+    setGeneratingFromIdea(idea)
+    setShowGenerateModal(true)
+  }
+
+  const handleGeneratedPost = async (savedPost: Post) => {
+    upsertLocalPost(savedPost)
+    if (!generatingFromIdea) return
+
+    try {
+      await fetch(`/api/content-ideas/${generatingFromIdea.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          title: generatingFromIdea.title,
+          notes: generatingFromIdea.notes,
+          category: generatingFromIdea.category,
+          priority: generatingFromIdea.priority,
+          status: 'generated',
+          targetPublishAt: generatingFromIdea.targetPublishAt ?? null,
+          generatedPostId: savedPost.id,
+        }),
+      })
+    } catch {
+      // Non-blocking; the draft has already been saved.
+    }
   }
 
   useEffect(() => {
@@ -185,7 +232,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
           <div className="flex items-center gap-4">
             {activeTab === 'posts' && !editingPost && (
               <>
-                <Button variant="outline" size="sm" onClick={() => setShowGenerateModal(true)}>
+                <Button variant="outline" size="sm" onClick={openGenerateModal}>
                   <Sparkles className="h-4 w-4 mr-2" />
                   Generate with AI
                 </Button>
@@ -207,6 +254,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="gap-6">
           <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="ideas">Ideas</TabsTrigger>
             <TabsTrigger value="posts">Posts</TabsTrigger>
             <TabsTrigger value="links">Links</TabsTrigger>
             <TabsTrigger value="appearance">Appearance</TabsTrigger>
@@ -223,10 +271,14 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
               posts={posts}
               pendingComments={pendingComments}
               onCreatePost={handleCreateNew}
-              onGeneratePost={() => setShowGenerateModal(true)}
+              onGeneratePost={openGenerateModal}
               onEditPost={handleEdit}
               onOpenTab={setActiveTab}
             />
+          </TabsContent>
+
+          <TabsContent value="ideas">
+            <AdminContentIdeas onGenerateDraft={handleGenerateFromIdea} />
           </TabsContent>
 
           <TabsContent value="posts">
@@ -287,7 +339,10 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       {showGenerateModal && (
         <GeneratePostModal
           onClose={() => setShowGenerateModal(false)}
-          onGeneratedPost={upsertLocalPost}
+          onGeneratedPost={handleGeneratedPost}
+          initialTopic={generateSeed?.topic}
+          initialContext={generateSeed?.context}
+          initialSchedule={generateSeed?.schedule}
         />
       )}
     </div>

@@ -87,3 +87,30 @@ create table if not exists post_comments (
 
 create index if not exists post_comments_post_status_created_idx
   on post_comments (post_id, status, created_at desc);
+
+create table if not exists content_ideas (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  notes text not null default '',
+  category text not null default 'Work'
+    check (category in ('Life', 'Work', 'Hobbies', 'Experience')),
+  priority text not null default 'medium'
+    check (priority in ('low', 'medium', 'high')),
+  status text not null default 'idea'
+    check (status in ('idea', 'planned', 'generated', 'published', 'archived')),
+  target_publish_at timestamptz,
+  generated_post_id text references posts (id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  archived_at timestamptz,
+  constraint content_ideas_title_len check (
+    char_length(trim(title)) >= 1 and char_length(title) <= 180
+  ),
+  constraint content_ideas_notes_len check (char_length(notes) <= 5000)
+);
+
+create index if not exists content_ideas_status_priority_updated_idx
+  on content_ideas (status, priority, updated_at desc);
+create index if not exists content_ideas_target_publish_idx
+  on content_ideas (target_publish_at)
+  where target_publish_at is not null;
