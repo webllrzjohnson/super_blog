@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { hashReactionVoter } from '@/lib/reactions'
 import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'
 import { getVisitorBookmarkSlugs, setVisitorBookmarkSlugs } from '@/lib/db/visitor-bookmarks'
-import { hasSupabaseConfig } from '@/lib/supabase/server'
 import { BOOKMARK_SYNC_MAX_SLUGS } from '@/lib/bookmarks-sync'
 import { visitorUuidFromRequest, VISITOR_DEVICE_HEADER } from '@/lib/visitor-device-id'
 
@@ -12,10 +11,6 @@ const putBodySchema = z.object({
 })
 
 export async function GET(request: Request) {
-  if (!hasSupabaseConfig()) {
-    return NextResponse.json({ enabled: false, slugs: [] as string[] })
-  }
-
   const clientId = getClientIdentifier(request)
   const limit = rateLimit({
     key: `bookmarks:sync:get:${clientId}`,
@@ -48,10 +43,6 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  if (!hasSupabaseConfig()) {
-    return NextResponse.json({ error: 'Bookmark sync unavailable.' }, { status: 503 })
-  }
-
   const clientId = getClientIdentifier(request)
   const limit = rateLimit({
     key: `bookmarks:sync:put:${clientId}`,

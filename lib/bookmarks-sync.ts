@@ -22,7 +22,7 @@ export function mergeBookmarkSlugs(local: string[], server: string[]): string[] 
 
 export const BOOKMARK_SYNC_MAX_SLUGS = 400
 
-/** Browser may call bookmark sync APIs when the project URL is configured (server still needs service role). */
+/** Browser may call bookmark sync APIs when server-side database sync is enabled. */
 export function isBookmarkSyncClientConfigured(): boolean {
-  return typeof window !== 'undefined' && !!process.env.NEXT_PUBLIC_SUPABASE_URL
+  return typeof window !== 'undefined'
 }

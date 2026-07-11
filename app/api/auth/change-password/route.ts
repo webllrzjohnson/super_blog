@@ -3,8 +3,7 @@ import { headers } from 'next/headers'
 import { Resend } from 'resend'
 import { compare, hash } from 'bcryptjs'
 import { z } from 'zod'
-import { createServerClient } from '@/lib/supabase/server'
-import { getSetting } from '@/lib/settings'
+import { getSetting, upsertSetting } from '@/lib/settings'
 import { isAdminSession } from '@/lib/auth-session'
 import { revalidateSettingsCache } from '@/lib/revalidate-cache'
 
@@ -59,19 +58,9 @@ export async function POST(request: Request) {
   }
 
   const newPasswordHash = await hash(parsed.data.newPassword, 10)
-  const supabase = createServerClient()
-  const { error } = await supabase
-    .from('site_settings')
-    .upsert(
-      {
-        key: 'admin_password_hash',
-        value: newPasswordHash,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'key' }
-    )
-
-  if (error) {
+  try {
+    await upsertSetting('admin_password_hash', newPasswordHash)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update password' },
       { status: 500 }

@@ -12,8 +12,8 @@ const bodySchema = z.object({
 })
 
 /**
- * Affiliate / outbound instrumentation. No cookies; events may be stored when Supabase
- * is configured; optional Sentry breadcrumb for affiliate clicks.
+ * Affiliate / outbound instrumentation. No cookies; events may be stored when Postgres
+ * is configured.
  */
 export async function POST(request: Request) {
   const clientId = getClientIdentifier(request)

@@ -1,4 +1,4 @@
-// Blog post types (aligned with Supabase posts table)
+// Blog post types aligned with the posts table.
 
 export interface Post {
   id: string

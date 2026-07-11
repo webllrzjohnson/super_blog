@@ -1,4 +1,5 @@
-import { createServerClient, hasSupabaseConfig } from '@/lib/supabase/server'
+import sql from '@/lib/db'
+import { hasDatabaseConfig } from '@/lib/db-config'
 
 export type CommentRow = {
   id: string
@@ -18,27 +19,21 @@ export type PublicComment = {
 }
 
 export async function listApprovedCommentsForPost(postId: string): Promise<PublicComment[]> {
-  if (!hasSupabaseConfig()) return []
+  if (!hasDatabaseConfig()) return []
 
   try {
-    const supabase = createServerClient()
-    const { data, error } = await supabase
-      .from('post_comments')
-      .select('id, author_name, body, created_at')
-      .eq('post_id', postId)
-      .eq('status', 'approved')
-      .order('created_at', { ascending: true })
+    const rows = await sql<Array<Pick<CommentRow, 'id' | 'author_name' | 'body' | 'created_at'>>>`
+      SELECT id, author_name, body, created_at
+      FROM post_comments
+      WHERE post_id = ${postId} AND status = 'approved'
+      ORDER BY created_at ASC
+    `
 
-    if (error) {
-      console.error('listApprovedCommentsForPost:', error)
-      return []
-    }
-
-    return (data ?? []).map((r) => ({
-      id: r.id as string,
-      authorName: r.author_name as string,
-      body: r.body as string,
-      createdAt: r.created_at as string,
+    return rows.map((row) => ({
+      id: row.id,
+      authorName: row.author_name,
+      body: row.body,
+      createdAt: row.created_at,
     }))
   } catch (err) {
     console.error('listApprovedCommentsForPost error:', err)
@@ -52,27 +47,15 @@ export async function insertPendingComment(input: {
   body: string
   visitorHash: string | null
 }): Promise<{ id: string } | null> {
-  if (!hasSupabaseConfig()) return null
+  if (!hasDatabaseConfig()) return null
 
   try {
-    const supabase = createServerClient()
-    const { data, error } = await supabase
-      .from('post_comments')
-      .insert({
-        post_id: input.postId,
-        author_name: input.authorName.trim(),
-        body: input.body.trim(),
-        visitor_hash: input.visitorHash,
-        status: 'pending',
-      })
-      .select('id')
-      .single()
-
-    if (error) {
-      console.error('insertPendingComment:', error)
-      return null
-    }
-    return data ? { id: data.id as string } : null
+    const rows = await sql<Array<{ id: string }>>`
+      INSERT INTO post_comments (post_id, author_name, body, visitor_hash, status)
+      VALUES (${input.postId}, ${input.authorName.trim()}, ${input.body.trim()}, ${input.visitorHash}, 'pending')
+      RETURNING id
+    `
+    return rows[0] ?? null
   } catch (err) {
     console.error('insertPendingComment error:', err)
     return null
@@ -82,23 +65,16 @@ export async function insertPendingComment(input: {
 export async function listCommentsForModeration(
   status: 'pending' | 'approved' | 'rejected'
 ): Promise<CommentRow[]> {
-  if (!hasSupabaseConfig()) return []
+  if (!hasDatabaseConfig()) return []
 
   try {
-    const supabase = createServerClient()
-    const { data, error } = await supabase
-      .from('post_comments')
-      .select('id, post_id, author_name, body, status, created_at, visitor_hash')
-      .eq('status', status)
-      .order('created_at', { ascending: false })
-      .limit(200)
-
-    if (error) {
-      console.error('listCommentsForModeration:', error)
-      return []
-    }
-
-    return (data ?? []) as CommentRow[]
+    return await sql<CommentRow[]>`
+      SELECT id, post_id, author_name, body, status, created_at, visitor_hash
+      FROM post_comments
+      WHERE status = ${status}
+      ORDER BY created_at DESC
+      LIMIT 200
+    `
   } catch (err) {
     console.error('listCommentsForModeration error:', err)
     return []
@@ -109,16 +85,14 @@ export async function setCommentStatus(
   id: string,
   status: 'approved' | 'rejected'
 ): Promise<boolean> {
-  if (!hasSupabaseConfig()) return false
+  if (!hasDatabaseConfig()) return false
 
   try {
-    const supabase = createServerClient()
-    const { error } = await supabase.from('post_comments').update({ status }).eq('id', id)
-
-    if (error) {
-      console.error('setCommentStatus:', error)
-      return false
-    }
+    await sql`
+      UPDATE post_comments
+      SET status = ${status}
+      WHERE id = ${id}
+    `
     return true
   } catch (err) {
     console.error('setCommentStatus error:', err)

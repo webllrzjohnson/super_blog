@@ -1,45 +1,79 @@
-# Blog
+# Super Blog
 
-A personal blog built with Next.js, Supabase, and Resend.
+A personal blog built with Next.js, direct Postgres, AI-assisted content generation, and Resend.
+
+## Stack
+
+- Next.js App Router
+- React
+- Tailwind CSS
+- Direct Postgres via `postgres`
+- Resend for contact/newsletter email
+- Claude/Groq/OpenAI for content and image generation
+- Coolify for deployment
 
 ## Setup
 
-1. **Copy environment variables**
-   ```bash
-   cp .env.example .env.local
-   ```
+1. Install dependencies:
 
-2. **Configure required vars**
-   - `ADMIN_PASSWORD` — Password for `/admin` (required)
-   - `ADMIN_SESSION_SECRET` — Random 32+ char string for signed session cookies (required in production)
-   - `NEXT_PUBLIC_SITE_URL` — Your domain (e.g. `https://yourblog.com`)
-
-3. **Supabase (for persisted posts)**
-   - Create a project at [supabase.com](https://supabase.com)
-   - Run the migration: `supabase/migrations/00001_create_posts.sql`
-   - Add `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
-   - After first admin login, call `POST /api/seed` (with session cookie) to seed sample posts
-
-4. **Resend (for newsletter & contact form)**
-   - Sign up at [resend.com](https://resend.com)
-   - Add `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `CONTACT_EMAIL`
-
-5. **Social links (optional)**  
-   - Configure GitHub, LinkedIn, Twitter, and contact email in Admin → Settings → Links. These appear on the About page and footer.
-
-6. **Run**
    ```bash
    npm install
+   ```
+
+2. Configure environment variables:
+
+   ```env
+   DATABASE_URL=postgres://user:password@host:5432/database
+   # or DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
+
+   ADMIN_SESSION_SECRET=change-me-to-a-long-random-secret
+   ADMIN_PASSWORD=change-me-for-first-login
+
+   NEXT_PUBLIC_SITE_URL=https://your-domain.example
+
+   RESEND_API_KEY=
+   RESEND_FROM_EMAIL=
+   CONTACT_EMAIL=
+
+   ANTHROPIC_API_KEY=
+   GROQ_API_KEY=
+   OPENAI_API_KEY=
+   ```
+
+3. Apply database schema:
+
+   ```bash
+   psql "$DATABASE_URL" -f db/migrations/0001_initial.sql
+   ```
+
+4. Run locally:
+
+   ```bash
    npm run dev
    ```
 
-## Without Supabase
+## Verification
 
-The site works without Supabase: it uses hardcoded sample posts. The admin dashboard will show "Failed to save" when creating/editing until Supabase is configured.
+```bash
+npm test
+npm run lint
+npm run build
+```
 
-## Scripts
+## Coolify deployment
 
-- `npm run dev` — Start dev server
-- `npm run build` — Build for production
-- `npm run start` — Start production server
-- `npm run lint` — Run ESLint
+This project is intended to deploy from GitHub through Coolify.
+
+Required production settings:
+
+- `DATABASE_URL` or equivalent `DB_*` variables
+- `ADMIN_SESSION_SECRET`
+- email/AI variables for the enabled features
+
+Run `db/migrations/0001_initial.sql` against the production Postgres database before using posts, settings, comments, reactions, bookmarks sync, or outbound click stats.
+
+## Notes
+
+- If no database env vars are configured, public pages fall back to empty/default data where possible.
+- Admin write actions require database configuration.
+- Uploaded files are stored in the container path used by the app upload route; ensure Coolify volume persistence if uploads must survive redeploys.

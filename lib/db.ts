@@ -1,8 +1,9 @@
 'use server'
 import postgres from 'postgres'
+import { getDatabaseUrl, shouldUseDatabaseSsl } from '@/lib/db-config'
 
-const databaseUrl = process.env.DATABASE_URL?.trim()
-const ssl = process.env.DB_SSL === 'true'
+const databaseUrl = getDatabaseUrl()
+const ssl = shouldUseDatabaseSsl()
 
 const sql = databaseUrl
   ? postgres(databaseUrl, { ssl })

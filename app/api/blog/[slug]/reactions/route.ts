@@ -5,7 +5,6 @@ import { getReactionSummaryForPost, setPostReaction } from '@/lib/db/reactions'
 import { isPostPubliclyVisible } from '@/lib/posts'
 import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'
 import { hashReactionVoter, reactionKindSchema } from '@/lib/reactions'
-import { hasSupabaseConfig } from '@/lib/supabase/server'
 import {
   VISITOR_DEVICE_HEADER,
   visitorUuidFromRequest,
@@ -50,13 +49,6 @@ export async function GET(
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  if (!hasSupabaseConfig()) {
-    return NextResponse.json({
-      counts: { helpful: 0, thanks: 0, insight: 0 },
-      mine: null,
-    })
-  }
-
   const visitorId = visitorUuidFromRequest(request)
   const voterHash = visitorId ? hashReactionVoter(visitorId) : null
   const summary = await getReactionSummaryForPost(post.id, voterHash)
@@ -82,13 +74,6 @@ export async function POST(
         status: 429,
         headers: { 'Retry-After': String(limit.retryAfterSeconds) },
       }
-    )
-  }
-
-  if (!hasSupabaseConfig()) {
-    return NextResponse.json(
-      { error: 'Reactions require database configuration.' },
-      { status: 503 }
     )
   }
 

@@ -1,4 +1,5 @@
-import { createServerClient, hasSupabaseConfig } from '@/lib/supabase/server'
+import sql from '@/lib/db'
+import { hasDatabaseConfig } from '@/lib/db-config'
 import type { ReactionKind } from '@/lib/reactions'
 import { emptyReactionCounts } from '@/lib/reactions'
 
@@ -7,37 +8,31 @@ export type ReactionSummary = {
   mine: ReactionKind | null
 }
 
+type ReactionRow = {
+  kind: ReactionKind
+  voter_hash: string
+}
+
 export async function getReactionSummaryForPost(
   postId: string,
   voterHash: string | null
 ): Promise<ReactionSummary> {
-  if (!hasSupabaseConfig()) {
+  if (!hasDatabaseConfig()) {
     return { counts: emptyReactionCounts(), mine: null }
   }
 
   try {
-    const supabase = createServerClient()
-    const { data, error } = await supabase
-      .from('post_reactions')
-      .select('kind, voter_hash')
-      .eq('post_id', postId)
-
-    if (error) {
-      console.error('getReactionSummaryForPost:', error)
-      return { counts: emptyReactionCounts(), mine: null }
-    }
-
+    const rows = await sql<ReactionRow[]>`
+      SELECT kind, voter_hash
+      FROM post_reactions
+      WHERE post_id = ${postId}
+    `
     const counts = emptyReactionCounts()
     let mine: ReactionKind | null = null
 
-    for (const row of data ?? []) {
-      const k = row.kind as ReactionKind
-      if (k in counts) {
-        counts[k] += 1
-      }
-      if (voterHash && row.voter_hash === voterHash) {
-        mine = k
-      }
+    for (const row of rows) {
+      if (row.kind in counts) counts[row.kind] += 1
+      if (voterHash && row.voter_hash === voterHash) mine = row.kind
     }
 
     return { counts, mine }
@@ -52,39 +47,23 @@ export async function setPostReaction(
   voterHash: string,
   kind: ReactionKind | null
 ): Promise<boolean> {
-  if (!hasSupabaseConfig()) {
-    return false
-  }
+  if (!hasDatabaseConfig()) return false
 
   try {
-    const supabase = createServerClient()
     if (kind === null) {
-      const { error } = await supabase
-        .from('post_reactions')
-        .delete()
-        .eq('post_id', postId)
-        .eq('voter_hash', voterHash)
-
-      if (error) {
-        console.error('setPostReaction delete:', error)
-        return false
-      }
+      await sql`
+        DELETE FROM post_reactions
+        WHERE post_id = ${postId} AND voter_hash = ${voterHash}
+      `
       return true
     }
 
-    const { error } = await supabase.from('post_reactions').upsert(
-      {
-        post_id: postId,
-        voter_hash: voterHash,
-        kind,
-      },
-      { onConflict: 'post_id,voter_hash' }
-    )
-
-    if (error) {
-      console.error('setPostReaction upsert:', error)
-      return false
-    }
+    await sql`
+      INSERT INTO post_reactions (post_id, voter_hash, kind)
+      VALUES (${postId}, ${voterHash}, ${kind})
+      ON CONFLICT (post_id, voter_hash) DO UPDATE
+      SET kind = EXCLUDED.kind
+    `
     return true
   } catch (err) {
     console.error('setPostReaction error:', err)

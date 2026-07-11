@@ -1,4 +1,5 @@
-import { createServerClient, hasSupabaseConfig } from '@/lib/supabase/server'
+import sql from '@/lib/db'
+import { hasDatabaseConfig } from '@/lib/db-config'
 import { BOOKMARK_SYNC_MAX_SLUGS } from '@/lib/bookmarks-sync'
 
 function normalizeSlugs(raw: unknown): string[] {
@@ -17,21 +18,16 @@ function normalizeSlugs(raw: unknown): string[] {
 }
 
 export async function getVisitorBookmarkSlugs(visitorHash: string): Promise<string[] | null> {
-  if (!hasSupabaseConfig()) return null
+  if (!hasDatabaseConfig()) return null
 
   try {
-    const supabase = createServerClient()
-    const { data, error } = await supabase
-      .from('visitor_bookmarks')
-      .select('slugs')
-      .eq('visitor_hash', visitorHash)
-      .maybeSingle()
-
-    if (error) {
-      console.error('getVisitorBookmarkSlugs:', error)
-      return null
-    }
-    return normalizeSlugs(data?.slugs)
+    const rows = await sql<Array<{ slugs: unknown }>>`
+      SELECT slugs
+      FROM visitor_bookmarks
+      WHERE visitor_hash = ${visitorHash}
+      LIMIT 1
+    `
+    return normalizeSlugs(rows[0]?.slugs)
   } catch (err) {
     console.error('getVisitorBookmarkSlugs error:', err)
     return null
@@ -42,24 +38,16 @@ export async function setVisitorBookmarkSlugs(
   visitorHash: string,
   slugs: string[]
 ): Promise<boolean> {
-  if (!hasSupabaseConfig()) return false
+  if (!hasDatabaseConfig()) return false
 
   const normalized = normalizeSlugs(slugs)
   try {
-    const supabase = createServerClient()
-    const { error } = await supabase.from('visitor_bookmarks').upsert(
-      {
-        visitor_hash: visitorHash,
-        slugs: normalized,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'visitor_hash' }
-    )
-
-    if (error) {
-      console.error('setVisitorBookmarkSlugs:', error)
-      return false
-    }
+    await sql`
+      INSERT INTO visitor_bookmarks (visitor_hash, slugs, updated_at)
+      VALUES (${visitorHash}, ${sql.json(normalized)}, NOW())
+      ON CONFLICT (visitor_hash) DO UPDATE
+      SET slugs = EXCLUDED.slugs, updated_at = EXCLUDED.updated_at
+    `
     return true
   } catch (err) {
     console.error('setVisitorBookmarkSlugs error:', err)

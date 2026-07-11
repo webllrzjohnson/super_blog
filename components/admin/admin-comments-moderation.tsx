@@ -77,7 +77,7 @@ export function AdminCommentsModeration() {
   if (!configured) {
     return (
       <p className="text-sm text-amber-700 dark:text-amber-500">
-        Comments need Supabase with migration 00006_post_comments.sql and service role env vars.
+        Comments need a configured Postgres database with the comments migration applied.
       </p>
     )
   }

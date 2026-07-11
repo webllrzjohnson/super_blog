@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache'
 import sql from '@/lib/db'
+import { hasDatabaseConfig } from '@/lib/db-config'
 import type { Post, PostListItem } from '@/lib/types'
 import {
   CACHE_TAG_POSTS,
@@ -63,6 +64,8 @@ function mapRowToPostSummary(row: Record<string, unknown>): PostListItem {
 }
 
 async function fetchPosts(): Promise<Post[]> {
+  if (!hasDatabaseConfig()) return []
+
   try {
     const rows = await sql`SELECT * FROM posts ORDER BY published_at DESC`
     if (!rows || rows.length === 0) return []
@@ -74,6 +77,8 @@ async function fetchPosts(): Promise<Post[]> {
 }
 
 async function fetchPostSummaries(): Promise<PostListItem[]> {
+  if (!hasDatabaseConfig()) return []
+
   try {
     const rows = await sql.unsafe(`
       SELECT ${POST_SUMMARY_SELECT}
@@ -89,6 +94,8 @@ async function fetchPostSummaries(): Promise<PostListItem[]> {
 }
 
 async function fetchPostBySlug(slug: string): Promise<Post | null> {
+  if (!hasDatabaseConfig()) return null
+
   try {
     const rows = await sql`SELECT * FROM posts WHERE slug = ${slug} LIMIT 1`
     return rows[0] ? mapRowToPost(rows[0] as Record<string, unknown>) : null
@@ -129,6 +136,8 @@ export async function getPostBySlugFromDb(slug: string): Promise<Post | null> {
 }
 
 export async function savePostToDb(post: Post): Promise<Post | null> {
+  if (!hasDatabaseConfig()) return null
+
   try {
     const row = {
       id: post.id, title: post.title, slug: post.slug, excerpt: post.excerpt,
@@ -147,6 +156,8 @@ export async function savePostToDb(post: Post): Promise<Post | null> {
 }
 
 export async function deletePostFromDb(id: string): Promise<boolean> {
+  if (!hasDatabaseConfig()) return false
+
   try {
     await sql`DELETE FROM posts WHERE id = ${id}`
     return true

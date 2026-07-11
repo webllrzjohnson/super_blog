@@ -6,7 +6,6 @@ import {
   listCommentsForModeration,
   setCommentStatus,
 } from '@/lib/db/comments'
-import { hasSupabaseConfig } from '@/lib/supabase/server'
 
 async function checkAdmin(): Promise<boolean> {
   const headersList = await headers()
@@ -21,10 +20,6 @@ const patchSchema = z.object({
 export async function GET(request: Request) {
   if (!(await checkAdmin())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  if (!hasSupabaseConfig()) {
-    return NextResponse.json({ configured: false, pending: [] })
   }
 
   const url = new URL(request.url)
@@ -45,10 +40,6 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   if (!(await checkAdmin())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  if (!hasSupabaseConfig()) {
-    return NextResponse.json({ error: 'Database not configured.' }, { status: 503 })
   }
 
   let json: unknown

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
 import sql from '@/lib/db'
+import { hasDatabaseConfig } from '@/lib/db-config'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,6 +31,8 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
 
 async function searchPosts(q: string): Promise<SearchResult[]> {
   if (!q || q.trim().length < 2) return []
+  if (!hasDatabaseConfig()) return []
+
   try {
     const rows = await sql<SearchResult[]>`
       SELECT

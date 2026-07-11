@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       configured: false,
       message:
-        'Outbound click storage is unavailable. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY, and apply migration 00004_outbound_click_events.sql.',
+        'Outbound click storage is unavailable. Configure the Postgres database and apply migrations.',
       summary: null,
     })
   }

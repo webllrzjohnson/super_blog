@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server'
 import sql from '@/lib/db'
+import { hasDatabaseConfig } from '@/lib/db-config'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const q = searchParams.get('q')?.trim()
 
   if (!q || q.length < 2) {
+    return NextResponse.json({ results: [] })
+  }
+
+  if (!hasDatabaseConfig()) {
     return NextResponse.json({ results: [] })
   }
 

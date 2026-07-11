@@ -46,8 +46,8 @@ This document defines what “comments” would mean for this blog if you implem
 
 ## Dependencies
 
-- Supabase (or equivalent) for persistence; same deployment assumptions as posts and reactions.
-- Migration + RLS: public read approved only; inserts via service role from API routes (mirror reactions pattern).
+- Direct Postgres for persistence; same Coolify deployment assumptions as posts and reactions.
+- Migration + indexes; public inserts and reads go through API routes, not direct browser database access.
 
 ## Decision checklist before building
 

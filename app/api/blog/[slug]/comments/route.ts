@@ -5,7 +5,6 @@ import { insertPendingComment, listApprovedCommentsForPost } from '@/lib/db/comm
 import { isPostPubliclyVisible } from '@/lib/posts'
 import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'
 import { hashReactionVoter } from '@/lib/reactions'
-import { hasSupabaseConfig } from '@/lib/supabase/server'
 import { VISITOR_DEVICE_HEADER, visitorUuidFromRequest } from '@/lib/visitor-device-id'
 
 const postBodySchema = z.object({
@@ -45,10 +44,6 @@ export async function GET(
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  if (!hasSupabaseConfig()) {
-    return NextResponse.json({ comments: [] })
-  }
-
   const comments = await listApprovedCommentsForPost(post.id)
   return NextResponse.json({ comments })
 }
@@ -57,13 +52,6 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
-  if (!hasSupabaseConfig()) {
-    return NextResponse.json(
-      { error: 'Comments require database configuration.' },
-      { status: 503 }
-    )
-  }
-
   const clientId = getClientIdentifier(request)
   const limit = rateLimit({
     key: `comments:write:${clientId}`,

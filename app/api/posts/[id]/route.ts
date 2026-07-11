@@ -36,7 +36,7 @@ export async function DELETE(
 
   if (!ok) {
     return NextResponse.json(
-      { error: 'Failed to delete post. Ensure Supabase is configured.' },
+      { error: 'Failed to delete post. Ensure the database is configured.' },
       { status: 500 }
     )
   }

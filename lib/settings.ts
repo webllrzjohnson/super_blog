@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache'
 import { cache } from 'react'
 import { defaultAiSettings } from '@/lib/ai-defaults'
 import sql from '@/lib/db'
+import { hasDatabaseConfig } from '@/lib/db-config'
 import {
   CACHE_TAG_SETTINGS,
   SETTINGS_CACHE_REVALIDATE_SECONDS,
@@ -235,6 +236,8 @@ function cloneDefaults(): SettingsMap {
 }
 
 async function loadSettingsFromDb(): Promise<SettingsMap> {
+  if (!hasDatabaseConfig()) return cloneDefaults()
+
   try {
     const rows = await sql<SiteSettingsRow[]>`SELECT key, value FROM site_settings`
     const settings = cloneDefaults()
@@ -271,6 +274,10 @@ export const getSetting = cache(async <K extends SettingsKey>(key: K): Promise<S
 })
 
 export async function upsertSetting(key: SettingsKey, value: unknown): Promise<void> {
+  if (!hasDatabaseConfig()) {
+    throw new Error('Database is not configured')
+  }
+
   await sql`
     INSERT INTO site_settings (key, value, updated_at)
     VALUES (${key}, ${sql.json(value as any)}, NOW())

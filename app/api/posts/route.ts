@@ -119,7 +119,7 @@ export async function POST(request: Request) {
       extra: { postId: post.id, slug: post.slug },
     })
     return NextResponse.json(
-      { error: 'Failed to save post. Ensure Supabase is configured.' },
+      { error: 'Failed to save post. Ensure the database is configured.' },
       { status: 500 }
     )
   }
