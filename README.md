@@ -28,6 +28,7 @@ A personal blog built with Next.js, direct Postgres, AI-assisted content generat
 
    ADMIN_SESSION_SECRET=change-me-to-a-long-random-secret
    ADMIN_PASSWORD=change-me-for-first-login
+   CONTENT_IDEA_CAPTURE_SECRET=change-me-to-a-long-random-secret
 
    NEXT_PUBLIC_SITE_URL=https://your-domain.example
 
@@ -71,6 +72,26 @@ Required production settings:
 - email/AI variables for the enabled features
 
 Run `db/migrations/0001_initial.sql` against the production Postgres database before using posts, settings, comments, reactions, bookmarks sync, or outbound click stats.
+
+## Telegram / Hermes idea capture
+
+Set `CONTENT_IDEA_CAPTURE_SECRET` in the production environment and in the Hermes/local shell that will forward Telegram ideas. Then capture an idea with:
+
+```bash
+SUPER_BLOG_URL=https://www.maplehub.cloud \
+CONTENT_IDEA_CAPTURE_SECRET=*** \
+node scripts/capture-telegram-idea.mjs "Blog idea: elevator outage communication lesson priority: high notes: what happened and what I learned"
+```
+
+Supported message shape:
+
+```text
+Blog idea: Basement flooding morning routine
+Category: Work
+Priority: high
+Target: 2026-08-01
+Notes: Rain, old townhomes, paperwork, technician follow-up.
+```
 
 ## Notes
 
