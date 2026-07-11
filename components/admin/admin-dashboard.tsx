@@ -260,7 +260,10 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
         </Tabs>
       </main>
       {showGenerateModal && (
-        <GeneratePostModal onClose={() => setShowGenerateModal(false)} />
+        <GeneratePostModal
+          onClose={() => setShowGenerateModal(false)}
+          onGeneratedPost={upsertLocalPost}
+        />
       )}
     </div>
   )

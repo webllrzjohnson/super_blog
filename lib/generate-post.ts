@@ -7,6 +7,10 @@ import {
 } from '@/lib/generate-post-prompts'
 import { buildPostImageAlt, buildPostImagePrompt } from '@/lib/generate-post-image-prompt'
 import {
+  applyAiPromptPresetToContext,
+  type AiPromptPresetId,
+} from '@/lib/ai-prompt-presets'
+import {
   normalizeTags,
   parseAiPostResponse,
   resolvePostStatus,
@@ -33,6 +37,7 @@ export type GeneratePostParams = {
   context?: string
   schedule?: string
   featuredImage?: File | null
+  promptPreset?: AiPromptPresetId
 }
 
 export type GeneratePostResult =
@@ -41,6 +46,16 @@ export type GeneratePostResult =
       post: Post
       model: 'claude' | 'groq'
       published: boolean
+      warnings: string[]
+      wordCount: number
+    }
+  | { ok: false; message: string }
+
+export type GeneratePostPreviewResult =
+  | {
+      ok: true
+      post: Post
+      model: 'claude' | 'groq'
       warnings: string[]
       wordCount: number
     }
@@ -249,22 +264,28 @@ async function generateRawPostText(
   )
 }
 
-export async function generateAndSavePost(
-  params: GeneratePostParams
-): Promise<GeneratePostResult> {
+async function buildGeneratedPostDraft(
+  params: GeneratePostParams,
+  options: { includeFeaturedImage: boolean }
+): Promise<GeneratePostPreviewResult> {
   const topic = params.topic.trim()
   if (!topic) {
     return { ok: false, message: 'Topic is required' }
   }
 
-  const context = params.context?.trim() || ''
+  const context = applyAiPromptPresetToContext(
+    params.promptPreset,
+    params.context?.trim() || ''
+  )
   const schedule = params.schedule?.trim() || 'Immediate'
 
   try {
     const ai = await getSetting('ai')
     const recentPosts = await fetchRecentPublishedPosts()
     const [image, generated] = await Promise.all([
-      resolveFeaturedImage(topic, ai, params.featuredImage),
+      options.includeFeaturedImage
+        ? resolveFeaturedImage(topic, ai, params.featuredImage)
+        : Promise.resolve({ url: undefined, alt: buildPostImageAlt(topic) }),
       generateRawPostText(ai, { topic, context, schedule, recentPosts }),
     ])
 
@@ -282,6 +303,7 @@ export async function generateAndSavePost(
     const { status, publishedAt } = resolvePostStatus(schedule)
     const today = new Date().toISOString().split('T')[0]
     const content = parsed.content.trim()
+    const hasImage = Boolean(image.url)
 
     const post: Post = {
       id: crypto.randomUUID(),
@@ -292,7 +314,7 @@ export async function generateAndSavePost(
       category: parsed.meta.category,
       tags: normalizeTags(parsed.meta.tags),
       featuredImage: image.url,
-      featuredImageAlt: image.url ? image.alt : undefined,
+      featuredImageAlt: hasImage ? image.alt : undefined,
       author: defaultAuthor,
       publishedAt,
       updatedAt: today,
@@ -300,20 +322,10 @@ export async function generateAndSavePost(
       status,
     }
 
-    const saved = await savePostToDb(post)
-    if (!saved) {
-      return { ok: false, message: 'Failed to save post. Ensure the database is configured.' }
-    }
-
-    if (status === 'published') {
-      revalidatePostsCache()
-    }
-
     return {
       ok: true,
-      post: saved,
+      post,
       model: generated.model,
-      published: status === 'published',
       warnings: generated.warnings,
       wordCount: generated.wordCount,
     }
@@ -322,5 +334,36 @@ export async function generateAndSavePost(
       ok: false,
       message: error instanceof Error ? error.message : 'Post generation failed',
     }
+  }
+}
+
+export async function previewGeneratedPost(
+  params: GeneratePostParams
+): Promise<GeneratePostPreviewResult> {
+  return buildGeneratedPostDraft(params, { includeFeaturedImage: false })
+}
+
+export async function generateAndSavePost(
+  params: GeneratePostParams
+): Promise<GeneratePostResult> {
+  const draft = await buildGeneratedPostDraft(params, { includeFeaturedImage: true })
+  if (!draft.ok) return draft
+
+  const saved = await savePostToDb(draft.post)
+  if (!saved) {
+    return { ok: false, message: 'Failed to save post. Ensure the database is configured.' }
+  }
+
+  if (saved.status === 'published') {
+    revalidatePostsCache()
+  }
+
+  return {
+    ok: true,
+    post: saved,
+    model: draft.model,
+    published: saved.status === 'published',
+    warnings: draft.warnings,
+    wordCount: draft.wordCount,
   }
 }
