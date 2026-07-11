@@ -5,13 +5,17 @@ import {
   DEFAULT_USER_MESSAGE_TEMPLATE,
 } from '@/lib/generate-post-prompts'
 import { DEFAULT_IMAGE_PROMPT_TEMPLATE } from '@/lib/generate-post-image-prompt'
+import { DEFAULT_AI_PROVIDER_ORDER } from '@/lib/ai-providers'
 
 export const DEFAULT_CLAUDE_MODEL = 'claude-sonnet-4-6'
+export const DEFAULT_OPENAI_TEXT_MODEL = 'gpt-4.1'
 export const DEFAULT_GROQ_MODEL = 'llama-3.3-70b-versatile'
 export const DEFAULT_IMAGE_MODEL = 'gpt-image-1'
 
 export const defaultAiSettings = {
+  providerOrder: DEFAULT_AI_PROVIDER_ORDER,
   claudeModel: DEFAULT_CLAUDE_MODEL,
+  openaiModel: DEFAULT_OPENAI_TEXT_MODEL,
   groqModel: DEFAULT_GROQ_MODEL,
   imageModel: DEFAULT_IMAGE_MODEL,
   claudeSystemPrompt: DEFAULT_CLAUDE_SYSTEM_PROMPT,

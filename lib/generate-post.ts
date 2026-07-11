@@ -10,6 +10,7 @@ import {
   applyAiPromptPresetToContext,
   type AiPromptPresetId,
 } from '@/lib/ai-prompt-presets'
+import { AI_PROVIDER_LABELS, type AiTextProvider } from '@/lib/ai-providers'
 import {
   normalizeTags,
   parseAiPostResponse,
@@ -32,6 +33,14 @@ function resolveClaudeModel(ai: AiSettings): string {
   )
 }
 
+function resolveOpenAiModel(ai: AiSettings): string {
+  return (
+    ai.openaiModel.trim() ||
+    process.env.OPENAI_TEXT_MODEL?.trim() ||
+    'gpt-4.1'
+  )
+}
+
 export type GeneratePostParams = {
   topic: string
   context?: string
@@ -44,10 +53,11 @@ export type GeneratePostResult =
   | {
       ok: true
       post: Post
-      model: 'claude' | 'groq'
+      model: AiTextProvider
       published: boolean
       warnings: string[]
       wordCount: number
+      providerAttempts: string[]
     }
   | { ok: false; message: string }
 
@@ -55,9 +65,10 @@ export type GeneratePostPreviewResult =
   | {
       ok: true
       post: Post
-      model: 'claude' | 'groq'
+      model: AiTextProvider
       warnings: string[]
       wordCount: number
+      providerAttempts: string[]
     }
   | { ok: false; message: string }
 
@@ -144,6 +155,38 @@ async function callClaude(
   return data.content?.[0]?.text ?? ''
 }
 
+async function callOpenAi(
+  model: string,
+  system: string,
+  user: string
+): Promise<string> {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ''}`,
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 12000,
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: user },
+      ],
+    }),
+  })
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => '')
+    throw new Error(`OpenAI ${response.status}: ${text.slice(0, 200)}`)
+  }
+
+  const data = (await response.json()) as {
+    choices?: Array<{ message?: { content?: string } }>
+  }
+  return data.choices?.[0]?.message?.content ?? ''
+}
+
 async function callGroq(
   model: string,
   system: string,
@@ -186,20 +229,26 @@ async function generateRawPostText(
   }
 ): Promise<{
   raw: string
-  model: 'claude' | 'groq'
+  model: AiTextProvider
   warnings: string[]
   wordCount: number
+  providerAttempts: string[]
 }> {
-  const hasClaude = Boolean(process.env.ANTHROPIC_API_KEY)
-  const hasGroq = Boolean(process.env.GROQ_API_KEY)
+  const availableProviders = new Set<AiTextProvider>()
+  if (process.env.ANTHROPIC_API_KEY) availableProviders.add('claude')
+  if (process.env.OPENAI_API_KEY) availableProviders.add('openai')
+  if (process.env.GROQ_API_KEY) availableProviders.add('groq')
 
-  if (!hasClaude && !hasGroq) {
+  const providers = ai.providerOrder.filter((provider) => availableProviders.has(provider))
+
+  if (providers.length === 0) {
     throw new Error(
-      'No AI key configured. Set ANTHROPIC_API_KEY (primary) and/or GROQ_API_KEY (fallback).'
+      'No AI key configured. Set ANTHROPIC_API_KEY, OPENAI_API_KEY, and/or GROQ_API_KEY.'
     )
   }
 
   const claudeModel = resolveClaudeModel(ai)
+  const openaiModel = resolveOpenAiModel(ai)
   const groqModel = ai.groqModel.trim() || 'llama-3.3-70b-versatile'
   const systemPrompt = buildSystemPrompt(ai.claudeSystemPrompt)
   const userMessage = buildUserMessage(
@@ -211,55 +260,59 @@ async function generateRawPostText(
     },
     ai.userMessageTemplate
   )
-
-  const providers: Array<'claude' | 'groq'> = []
-  if (hasClaude) providers.push('claude')
-  if (hasGroq) providers.push('groq')
+  const groqSystemPrompt = buildShortSystemPrompt(ai.groqSystemPrompt)
+  const groqUserMessage = buildGroqUserMessage(
+    params.topic,
+    params.context,
+    ai.groqUserMessageTemplate
+  )
 
   let lastError = 'AI generation failed'
+  const providerAttempts: string[] = []
 
   for (const provider of providers) {
+    const label = AI_PROVIDER_LABELS[provider]
     try {
       const raw =
         provider === 'claude'
           ? await callClaude(claudeModel, systemPrompt, userMessage)
-          : await callGroq(
-              groqModel,
-              buildShortSystemPrompt(ai.groqSystemPrompt),
-              buildGroqUserMessage(
-                params.topic,
-                params.context,
-                ai.groqUserMessageTemplate
-              )
-            )
+          : provider === 'openai'
+            ? await callOpenAi(openaiModel, systemPrompt, userMessage)
+            : await callGroq(groqModel, groqSystemPrompt, groqUserMessage)
 
       if (!raw.trim()) {
-        lastError = 'AI returned an empty response'
+        lastError = `${label} returned an empty response`
+        providerAttempts.push(`${label}: empty response`)
         continue
       }
 
       const parsed = parseAiPostResponse(raw)
       const quality = evaluateGeneratedPostQuality(parsed.meta, parsed.content)
       if (quality.errors.length > 0) {
-        lastError = `AI output failed quality checks: ${quality.errors.join(' ')}`
+        lastError = `${label} output failed quality checks: ${quality.errors.join(' ')}`
+        providerAttempts.push(`${label}: failed quality checks`)
         continue
       }
 
+      providerAttempts.push(`${label}: passed`)
       return {
         raw,
         model: provider,
         warnings: quality.warnings,
         wordCount: quality.wordCount,
+        providerAttempts,
       }
     } catch (error) {
       lastError = error instanceof Error ? error.message : 'AI generation failed'
+      providerAttempts.push(`${label}: ${lastError.slice(0, 120)}`)
       console.error(`generatePost: ${provider} failed`, error)
     }
   }
 
+  const attemptedLabels = providers.map((provider) => AI_PROVIDER_LABELS[provider]).join(', ')
   throw new Error(
     providers.length > 1
-      ? `AI generation failed (Claude and Groq). ${lastError}`
+      ? `AI generation failed (${attemptedLabels}). ${lastError}`
       : lastError
   )
 }
@@ -328,6 +381,7 @@ async function buildGeneratedPostDraft(
       model: generated.model,
       warnings: generated.warnings,
       wordCount: generated.wordCount,
+      providerAttempts: generated.providerAttempts,
     }
   } catch (error) {
     return {
@@ -365,5 +419,6 @@ export async function generateAndSavePost(
     published: saved.status === 'published',
     warnings: draft.warnings,
     wordCount: draft.wordCount,
+    providerAttempts: draft.providerAttempts,
   }
 }

@@ -1,6 +1,10 @@
 import { unstable_cache } from 'next/cache'
 import { cache } from 'react'
 import { defaultAiSettings } from '@/lib/ai-defaults'
+import {
+  normalizeAiProviderOrder,
+  type AiTextProvider,
+} from '@/lib/ai-providers'
 import sql from '@/lib/db'
 import { hasDatabaseConfig } from '@/lib/db-config'
 import {
@@ -50,7 +54,9 @@ export interface PagesSettings {
 }
 
 export interface AiSettings {
+  providerOrder: AiTextProvider[]
   claudeModel: string
+  openaiModel: string
   groqModel: string
   imageModel: string
   claudeSystemPrompt: string
@@ -174,7 +180,9 @@ function readRequiredString(record: Record<string, unknown>, key: string, fallba
 function sanitizeAiSettings(value: unknown): AiSettings {
   if (!isRecord(value)) return { ...defaultSettings.ai }
   return {
+    providerOrder: normalizeAiProviderOrder(value.providerOrder),
     claudeModel: readRequiredString(value, 'claudeModel', defaultSettings.ai.claudeModel),
+    openaiModel: readRequiredString(value, 'openaiModel', defaultSettings.ai.openaiModel),
     groqModel: readRequiredString(value, 'groqModel', defaultSettings.ai.groqModel),
     imageModel: readRequiredString(value, 'imageModel', defaultSettings.ai.imageModel),
     claudeSystemPrompt: readRequiredString(
@@ -229,7 +237,10 @@ function cloneDefaults(): SettingsMap {
     appearance: { ...defaultSettings.appearance },
     ads: { clientId: defaultSettings.ads.clientId, slots: [...defaultSettings.ads.slots] },
     pages: { ...defaultSettings.pages },
-    ai: { ...defaultSettings.ai },
+    ai: {
+      ...defaultSettings.ai,
+      providerOrder: [...defaultSettings.ai.providerOrder],
+    },
     admin_password_hash: defaultSettings.admin_password_hash,
     _settingsLoadFailed: false,
   }

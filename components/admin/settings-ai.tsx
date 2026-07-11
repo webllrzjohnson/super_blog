@@ -9,6 +9,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import {
+  AI_PROVIDER_LABELS,
+  AI_TEXT_PROVIDERS,
+  DEFAULT_AI_PROVIDER_ORDER,
+  type AiTextProvider,
+} from '@/lib/ai-providers'
 
 interface SettingsAiProps {
   initialValue?: AiSettings
@@ -16,7 +22,9 @@ interface SettingsAiProps {
 
 export function SettingsAi({ initialValue }: SettingsAiProps) {
   const [formData, setFormData] = useState<AiSettings>({
+    providerOrder: initialValue?.providerOrder ?? [...DEFAULT_AI_PROVIDER_ORDER],
     claudeModel: initialValue?.claudeModel ?? defaultAiSettings.claudeModel,
+    openaiModel: initialValue?.openaiModel ?? defaultAiSettings.openaiModel,
     groqModel: initialValue?.groqModel ?? defaultAiSettings.groqModel,
     imageModel: initialValue?.imageModel ?? defaultAiSettings.imageModel,
     claudeSystemPrompt:
@@ -34,6 +42,20 @@ export function SettingsAi({ initialValue }: SettingsAiProps) {
 
   const updateField = <K extends keyof AiSettings>(key: K, value: AiSettings[K]) => {
     setFormData((current) => ({ ...current, [key]: value }))
+  }
+
+  const updateProviderOrder = (index: number, provider: AiTextProvider) => {
+    setFormData((current) => {
+      const next = [...current.providerOrder]
+      next[index] = provider
+      const deduped = next.filter(
+        (item, itemIndex) => next.indexOf(item) === itemIndex
+      )
+      for (const candidate of DEFAULT_AI_PROVIDER_ORDER) {
+        if (!deduped.includes(candidate)) deduped.push(candidate)
+      }
+      return { ...current, providerOrder: deduped.slice(0, 3) }
+    })
   }
 
   const handleReset = () => {
@@ -83,9 +105,43 @@ export function SettingsAi({ initialValue }: SettingsAiProps) {
             generation.
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2">
+        <CardContent className="space-y-6">
+          <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+            <div>
+              <Label>Text provider priority</Label>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Generation tries providers in this order. Failed API calls, empty output, or failed
+                quality checks automatically fall back to the next provider.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {formData.providerOrder.map((provider, index) => (
+                <div key={`${provider}-${index}`} className="space-y-2">
+                  <Label htmlFor={`providerOrder-${index}`}>
+                    {index === 0 ? 'Primary' : `Fallback ${index}`}
+                  </Label>
+                  <select
+                    id={`providerOrder-${index}`}
+                    value={provider}
+                    onChange={(event) =>
+                      updateProviderOrder(index, event.target.value as AiTextProvider)
+                    }
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
+                    {AI_TEXT_PROVIDERS.map((candidate) => (
+                      <option key={candidate} value={candidate}>
+                        {AI_PROVIDER_LABELS[candidate]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="claudeModel">Claude model (primary)</Label>
+            <Label htmlFor="claudeModel">Claude text model</Label>
             <Input
               id="claudeModel"
               value={formData.claudeModel}
@@ -94,7 +150,16 @@ export function SettingsAi({ initialValue }: SettingsAiProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="groqModel">Groq model (fallback)</Label>
+            <Label htmlFor="openaiModel">OpenAI text model</Label>
+            <Input
+              id="openaiModel"
+              value={formData.openaiModel}
+              onChange={(event) => updateField('openaiModel', event.target.value)}
+              placeholder="gpt-4.1"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="groqModel">Groq text model</Label>
             <Input
               id="groqModel"
               value={formData.groqModel}
@@ -102,7 +167,7 @@ export function SettingsAi({ initialValue }: SettingsAiProps) {
               placeholder="llama-3.3-70b-versatile"
             />
           </div>
-          <div className="space-y-2 sm:col-span-2">
+          <div className="space-y-2">
             <Label htmlFor="imageModel">OpenAI image model</Label>
             <Input
               id="imageModel"
@@ -111,6 +176,7 @@ export function SettingsAi({ initialValue }: SettingsAiProps) {
               placeholder="gpt-image-1"
             />
           </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -118,7 +184,7 @@ export function SettingsAi({ initialValue }: SettingsAiProps) {
         <CardHeader>
           <CardTitle>Post generation prompts</CardTitle>
           <CardDescription>
-            Claude uses the full system prompt. Groq uses the shorter fallback. Keep the
+            Claude and OpenAI use the full system prompt. Groq uses the shorter fallback. Keep the
             ---JSON--- / ---CONTENT--- / ---END--- response format in system prompts or
             generation will fail.
           </CardDescription>

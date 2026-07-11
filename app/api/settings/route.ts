@@ -59,7 +59,9 @@ const pagesSchema = z.object({
 })
 
 const aiSchema = z.object({
+  providerOrder: z.array(z.enum(['claude', 'openai', 'groq'])).min(1),
   claudeModel: z.string().trim().min(1),
+  openaiModel: z.string().trim().min(1),
   groqModel: z.string().trim().min(1),
   imageModel: z.string().trim().min(1),
   claudeSystemPrompt: z.string().trim().min(1),

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { AlertTriangle, CheckCircle2, Save, Sparkles, X } from 'lucide-react'
 import { AI_PROMPT_PRESETS, DEFAULT_AI_PROMPT_PRESET_ID } from '@/lib/ai-prompt-presets'
+import { AI_PROVIDER_LABELS, type AiTextProvider } from '@/lib/ai-providers'
 import { evaluateGeneratedPostQuality } from '@/lib/generated-post-quality'
 import { savePost } from '@/lib/store'
 import type { Post } from '@/lib/types'
@@ -18,9 +19,10 @@ type GenerateResponse = {
   message?: string
   slug?: string
   post?: Post
-  model?: 'claude' | 'groq'
+  model?: AiTextProvider
   wordCount?: number
   warnings?: string[]
+  providerAttempts?: string[]
 }
 
 function QualityReviewPanel({ post, warnings, wordCount }: {
@@ -125,6 +127,7 @@ export function GeneratePostModal({ onClose, onGeneratedPost }: GeneratePostModa
       const details = [
         data.post?.slug ?? data.slug ? `Slug: ${data.post?.slug ?? data.slug}` : null,
         data.wordCount ? `${data.wordCount} words` : null,
+        data.providerAttempts?.length ? data.providerAttempts.join(' → ') : null,
         data.warnings?.length ? `${data.warnings.length} quality warning(s)` : null,
       ].filter(Boolean)
 
@@ -298,7 +301,7 @@ export function GeneratePostModal({ onClose, onGeneratedPost }: GeneratePostModa
                 />
                 <article className="rounded-lg border border-border bg-background p-5 shadow-sm">
                   <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                    <span>{preview.model === 'claude' ? 'Claude' : 'Groq'}</span>
+                    <span>{preview.model ? AI_PROVIDER_LABELS[preview.model] : 'AI'}</span>
                     <span aria-hidden>·</span>
                     <span>{preview.post.category}</span>
                     <span aria-hidden>·</span>
@@ -316,6 +319,16 @@ export function GeneratePostModal({ onClose, onGeneratedPost }: GeneratePostModa
                     {preview.post.content.length > 3200 ? '\n\n…' : ''}
                   </div>
                 </article>
+                {preview.providerAttempts?.length ? (
+                  <div className="rounded-lg border border-border bg-muted/30 p-4">
+                    <p className="text-sm font-medium text-foreground">Provider attempts</p>
+                    <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                      {preview.providerAttempts.map((attempt) => (
+                        <li key={attempt}>• {attempt}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
                 <div className="flex flex-wrap gap-2">
                   <Button onClick={savePreview} disabled={savingPreview || loading}>
                     <Save className="mr-2 h-4 w-4" />

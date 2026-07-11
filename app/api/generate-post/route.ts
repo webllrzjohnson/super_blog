@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import { isAdminSession } from '@/lib/auth-session'
 import { generateAndSavePost, previewGeneratedPost } from '@/lib/generate-post'
 import { getAiPromptPreset } from '@/lib/ai-prompt-presets'
+import { AI_PROVIDER_LABELS } from '@/lib/ai-providers'
 import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
@@ -51,11 +52,12 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       mode: 'preview',
-      message: `Preview generated with ${result.model === 'claude' ? 'Claude' : 'Groq'}. Review it before saving.`,
+      message: `Preview generated with ${AI_PROVIDER_LABELS[result.model]}. Review it before saving.`,
       post: result.post,
       model: result.model,
       wordCount: result.wordCount,
       warnings: result.warnings,
+      providerAttempts: result.providerAttempts,
     })
   }
 
@@ -74,11 +76,12 @@ export async function POST(request: Request) {
   return NextResponse.json({
     success: true,
     message: result.published
-      ? `Post published with ${result.model === 'claude' ? 'Claude' : 'Groq'}.`
-      : `Draft saved with ${result.model === 'claude' ? 'Claude' : 'Groq'}. Review it in the admin dashboard.`,
+      ? `Post published with ${AI_PROVIDER_LABELS[result.model]}.`
+      : `Draft saved with ${AI_PROVIDER_LABELS[result.model]}. Review it in the admin dashboard.`,
     slug: result.post.slug,
     status: result.post.status,
     wordCount: result.wordCount,
     warnings: result.warnings,
+    providerAttempts: result.providerAttempts,
   })
 }
