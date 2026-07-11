@@ -14,6 +14,7 @@ import { SettingsAi } from '@/components/admin/settings-ai'
 import { SettingsAccount } from '@/components/admin/settings-account'
 import { AdminOutboundStats } from '@/components/admin/admin-outbound-stats'
 import { AdminCommentsModeration } from '@/components/admin/admin-comments-moderation'
+import { AdminOverview } from '@/components/admin/admin-overview'
 import { getPosts, savePost, deletePost, generateId } from '@/lib/store'
 import { defaultAuthor, calculateReadTime } from '@/lib/posts'
 import type { Post } from '@/lib/types'
@@ -32,8 +33,9 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [settings, setSettings] = useState<SettingsMap | null>(null)
   const [editingPost, setEditingPost] = useState<Post | null>(null)
   const [isCreating, setIsCreating] = useState(false)
-  const [activeTab, setActiveTab] = useState('posts')
+  const [activeTab, setActiveTab] = useState('overview')
   const [loading, setLoading] = useState(true)
+  const [pendingComments, setPendingComments] = useState<number | null>(null)
 
   // Add to state
   const [showGenerateModal, setShowGenerateModal] = useState(false)
@@ -64,6 +66,14 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
           return response.json()
         })
         .then(setSettings),
+      fetch('/api/comments/moderate?status=pending', { credentials: 'include' })
+        .then(async (response) => {
+          if (!response.ok) return null
+          return response.json()
+        })
+        .then((data) => {
+          setPendingComments(Array.isArray(data?.comments) ? data.comments.length : null)
+        }),
     ])
       .catch((err) => {
         toast.error('Failed to load dashboard', {
@@ -87,11 +97,13 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       readTime: 1,
       status: 'draft',
     }
+    setActiveTab('posts')
     setEditingPost(newPost)
     setIsCreating(true)
   }
 
   const handleEdit = (post: Post) => {
+    setActiveTab('posts')
     setEditingPost(post)
     setIsCreating(false)
   }
@@ -194,6 +206,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       <main className="max-w-5xl mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="gap-6">
           <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="posts">Posts</TabsTrigger>
             <TabsTrigger value="links">Links</TabsTrigger>
             <TabsTrigger value="appearance">Appearance</TabsTrigger>
@@ -204,6 +217,17 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
             <TabsTrigger value="comments">Comments</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="overview">
+            <AdminOverview
+              posts={posts}
+              pendingComments={pendingComments}
+              onCreatePost={handleCreateNew}
+              onGeneratePost={() => setShowGenerateModal(true)}
+              onEditPost={handleEdit}
+              onOpenTab={setActiveTab}
+            />
+          </TabsContent>
 
           <TabsContent value="posts">
             {editingPost ? (
