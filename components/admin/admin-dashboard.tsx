@@ -236,6 +236,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
                 isNew={isCreating}
                 onSave={handleSave}
                 onAutoSave={handleAutoSave}
+                allPosts={posts}
                 onCancel={handleCancel}
               />
             ) : (

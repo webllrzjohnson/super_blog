@@ -20,7 +20,8 @@ import {
 } from '@/lib/markdown-content-helpers'
 import { MarkdownContentToolbar } from '@/components/admin/markdown-content-toolbar'
 import { calculateReadTime } from '@/lib/posts'
-import { ArrowLeft, Eye, ImagePlus, Upload, Sparkles } from 'lucide-react'
+import { ArrowLeft, Eye, ImagePlus, Upload, Sparkles, Link2, Wand2 } from 'lucide-react'
+import { buildInternalLinkSuggestions, type DraftAssistantAction, type DraftAssistantSuggestion } from '@/lib/editor-assistant'
 import { toast } from 'sonner'
 
 interface PostEditorProps {
@@ -28,6 +29,7 @@ interface PostEditorProps {
   isNew: boolean
   onSave: (post: Post) => void
   onAutoSave?: (post: Post) => Promise<void> | void
+  allPosts?: Post[]
   onCancel: () => void
 }
 
@@ -107,13 +109,21 @@ export function PostEditor({
   isNew,
   onSave,
   onAutoSave,
+  allPosts = [],
   onCancel,
-}: PostEditorProps) {  
+}: PostEditorProps) {
   const [formData, setFormData] = useState<Post>(post)
   const [generatingImage, setGeneratingImage] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   const [tagsInput, setTagsInput] = useState(post.tags.join(', '))
   const [uploading, setUploading] = useState(false)
+  const [assistantLoading, setAssistantLoading] = useState<DraftAssistantAction | null>(null)
+  const [assistantSuggestion, setAssistantSuggestion] = useState<{
+    action: DraftAssistantAction
+    suggestion: DraftAssistantSuggestion
+    providerLabel?: string
+    providerAttempts?: string[]
+  } | null>(null)
   const [isAutoSaving, setIsAutoSaving] = useState(false)
   const [lastAutoSavedAt, setLastAutoSavedAt] = useState<Date | null>(null)
   const [scheduleInput, setScheduleInput] = useState(
@@ -148,6 +158,7 @@ export function PostEditor({
     setTagsInput(post.tags.join(', '))
     setShowPreview(false)
     setScheduleInput(toDateTimeLocalValue(post.publishedAt))
+    setAssistantSuggestion(null)
     setLastAutoSavedAt(null)
     initialSnapshotRef.current = JSON.stringify(post)
   }, [post])
@@ -342,6 +353,70 @@ export function PostEditor({
     }
   }
 
+  const runAssistant = async (action: DraftAssistantAction) => {
+    setAssistantLoading(action)
+    setAssistantSuggestion(null)
+    try {
+      const res = await fetch('/api/improve-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ action, post: formData }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(data.error || 'Assistant request failed')
+      }
+      setAssistantSuggestion({
+        action,
+        suggestion: data.suggestion ?? { notes: [] },
+        providerLabel: data.providerLabel,
+        providerAttempts: data.providerAttempts,
+      })
+      toast.success(`Assistant suggestion ready${data.providerLabel ? ` via ${data.providerLabel}` : ''}`)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Assistant request failed')
+    } finally {
+      setAssistantLoading(null)
+    }
+  }
+
+  const applyAssistantSuggestion = () => {
+    if (!assistantSuggestion) return
+    const { action, suggestion } = assistantSuggestion
+    setFormData((prev) => {
+      const next = { ...prev }
+      if ((action === 'title' || action === 'tone') && suggestion.title) {
+        next.title = suggestion.title
+        next.slug = generateSlug(suggestion.title)
+      }
+      if ((action === 'excerpt' || action === 'tone') && suggestion.excerpt) {
+        next.excerpt = suggestion.excerpt
+      }
+      if ((action === 'tags' || action === 'tone') && suggestion.tags?.length) {
+        next.tags = suggestion.tags
+        setTagsInput(suggestion.tags.join(', '))
+      }
+      if (action === 'intro' && suggestion.contentPatch) {
+        const parts = prev.content.trim().split(/\n\s*\n/)
+        parts[0] = suggestion.contentPatch
+        next.content = parts.join('\n\n')
+      }
+      return next
+    })
+    toast.success('Assistant suggestion applied')
+  }
+
+  const insertInternalLink = (markdown: string) => {
+    const ta = contentTextareaRef.current
+    const selection = ta
+      ? { start: ta.selectionStart, end: ta.selectionEnd }
+      : { start: formData.content.length, end: formData.content.length }
+    const value = ta?.value ?? formData.content
+    applyMarkdownEdit(insertSnippet(value, selection, ` ${markdown}`))
+    toast.success('Internal link inserted')
+  }
+
   const handleScheduleInputChange = (value: string) => {
     setScheduleInput(value)
     const isoValue = fromDateTimeLocalValue(value)
@@ -447,6 +522,14 @@ export function PostEditor({
   const bodyWords = countWords(formData.content)
   const bodyReadMinutes = calculateReadTime(formData.content)
   const excerptLen = formData.excerpt.length
+  const internalLinkSuggestions = buildInternalLinkSuggestions(formData, allPosts, 4)
+  const assistantActions: Array<{ action: DraftAssistantAction; label: string }> = [
+    { action: 'title', label: 'Improve title' },
+    { action: 'excerpt', label: 'Improve excerpt' },
+    { action: 'tags', label: 'Suggest tags' },
+    { action: 'intro', label: 'Rewrite intro' },
+    { action: 'tone', label: 'Check tone' },
+  ]
 
   return (
     <div className="space-y-6">
@@ -594,6 +677,97 @@ export function PostEditor({
             <p className="text-xs text-muted-foreground">
               Set a future date and use the Schedule button to queue this post.
             </p>
+          </div>
+
+          <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-4">
+            <div>
+              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <Wand2 className="h-4 w-4" />
+                Draft improvement assistant
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Uses your configured provider order to suggest safer title, excerpt, tags, intro, or tone improvements.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {assistantActions.map(({ action, label }) => (
+                <Button
+                  key={action}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={assistantLoading !== null || !formData.title.trim()}
+                  onClick={() => runAssistant(action)}
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  {assistantLoading === action ? 'Thinking...' : label}
+                </Button>
+              ))}
+            </div>
+            {assistantSuggestion && (
+              <div className="rounded-md border border-border bg-background p-3 text-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="font-medium text-foreground">
+                    Suggestion{assistantSuggestion.providerLabel ? ` from ${assistantSuggestion.providerLabel}` : ''}
+                  </p>
+                  <Button type="button" size="sm" onClick={applyAssistantSuggestion}>
+                    Apply suggestion
+                  </Button>
+                </div>
+                <div className="mt-3 space-y-2 text-muted-foreground">
+                  {assistantSuggestion.suggestion.title && <p><strong>Title:</strong> {assistantSuggestion.suggestion.title}</p>}
+                  {assistantSuggestion.suggestion.excerpt && <p><strong>Excerpt:</strong> {assistantSuggestion.suggestion.excerpt}</p>}
+                  {assistantSuggestion.suggestion.tags?.length ? (
+                    <p><strong>Tags:</strong> {assistantSuggestion.suggestion.tags.join(', ')}</p>
+                  ) : null}
+                  {assistantSuggestion.suggestion.contentPatch && (
+                    <p><strong>Intro:</strong> {assistantSuggestion.suggestion.contentPatch}</p>
+                  )}
+                  {assistantSuggestion.suggestion.notes.length > 0 && (
+                    <ul className="list-disc pl-5">
+                      {assistantSuggestion.suggestion.notes.map((note) => (
+                        <li key={note}>{note}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {assistantSuggestion.providerAttempts?.length ? (
+                    <p className="text-xs">Attempts: {assistantSuggestion.providerAttempts.join(' → ')}</p>
+                  ) : null}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Link2 className="h-4 w-4" />
+              Internal link suggestions
+            </div>
+            {internalLinkSuggestions.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No strong related posts found yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {internalLinkSuggestions.map((suggestion) => (
+                  <div
+                    key={suggestion.href}
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-background p-3"
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{suggestion.title}</p>
+                      <p className="text-xs text-muted-foreground">{suggestion.reason}</p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => insertInternalLink(suggestion.markdown)}
+                    >
+                      Insert link
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
