@@ -101,6 +101,19 @@ describe('editor assistant helpers', () => {
     expect(prompt).toContain('keep the author sounding like a real superintendent')
   })
 
+  it('builds a promotion prompt with a canonical post URL', () => {
+    const prompt = buildDraftAssistantPrompt('promotion', post({
+      title: 'Sump Pump Down on a Friday Afternoon',
+      slug: 'sump-pump-down-on-a-friday-afternoon',
+      excerpt: 'What a Friday pump alarm taught me about timing and calm.',
+      tags: ['building operations', 'sump pump'],
+    }))
+
+    expect(prompt).toContain('Task: Generate preview-only promotion copy for this post')
+    expect(prompt).toContain('Return promotionCopy with telegram, social, newsletter, and hashtags')
+    expect(prompt).toContain('Post URL: https://www.maplehub.cloud/blog/sump-pump-down-on-a-friday-afternoon')
+  })
+
   it('parses assistant JSON and normalizes tags', () => {
     const parsed = parseDraftAssistantResponse(`Here is the result:\n{"title":"Better title","excerpt":"Better excerpt","tags":["Building Safety"," ","scooters"],"contentPatch":"Rewritten body","notes":["Keep it personal"]}`)
 
@@ -110,6 +123,20 @@ describe('editor assistant helpers', () => {
       tags: ['building safety', 'scooters'],
       contentPatch: 'Rewritten body',
       notes: ['Keep it personal'],
+    })
+  })
+
+  it('parses promotion copy fields and normalizes hashtags', () => {
+    const parsed = parseDraftAssistantResponse(`{"promotionCopy":{"telegram":"New post is live","social":"A short share post","newsletter":"A longer newsletter teaser","hashtags":["#BuildingOperations","toronto life"," "]},"notes":["Review before posting"]}`)
+
+    expect(parsed).toEqual({
+      promotionCopy: {
+        telegram: 'New post is live',
+        social: 'A short share post',
+        newsletter: 'A longer newsletter teaser',
+        hashtags: ['#BuildingOperations', '#torontolife'],
+      },
+      notes: ['Review before posting'],
     })
   })
 })

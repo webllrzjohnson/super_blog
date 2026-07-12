@@ -9,6 +9,7 @@ export type DraftAssistantAction =
   | 'tone'
   | 'grammar'
   | 'humanize'
+  | 'promotion'
 
 export type InternalLinkSuggestion = {
   title: string
@@ -18,11 +19,19 @@ export type InternalLinkSuggestion = {
   score: number
 }
 
+export type PromotionCopy = {
+  telegram?: string
+  social?: string
+  newsletter?: string
+  hashtags?: string[]
+}
+
 export type DraftAssistantSuggestion = {
   title?: string
   excerpt?: string
   tags?: string[]
   contentPatch?: string
+  promotionCopy?: PromotionCopy
   notes: string[]
 }
 
@@ -75,6 +84,7 @@ export function buildDraftAssistantPrompt(action: DraftAssistantAction, post: Po
     tone: 'Review the draft for generic AI tone and suggest fixes',
     grammar: 'Fix grammar and spelling without changing the author voice',
     humanize: 'Humanize the draft and remove AI-sounding phrasing',
+    promotion: 'Generate preview-only promotion copy for this post',
   }
 
   const extraGuidance: Partial<Record<DraftAssistantAction, string[]>> = {
@@ -87,7 +97,15 @@ export function buildDraftAssistantPrompt(action: DraftAssistantAction, post: Po
       'Vary sentence rhythm, keep concrete details, and keep the author sounding like a real superintendent, not a corporate article.',
       'Return the humanized full body in contentPatch. Keep markdown structure when possible.',
     ],
+    promotion: [
+      'Return promotionCopy with telegram, social, newsletter, and hashtags.',
+      'Do not auto-post anywhere. Write copy the admin can review and copy manually.',
+      'Keep the tone personal, concrete, and non-corporate. Do not mention the employer name.',
+      'Telegram should include the post URL. Social should be short. Newsletter should be a 2-3 sentence teaser.',
+    ],
   }
+
+  const postUrl = `https://www.maplehub.cloud/blog/${post.slug}`
 
   return [
     'You are an editorial assistant for a personal blog written by a Toronto building superintendent who also writes about code, AI, running, food, and life.',
@@ -101,6 +119,7 @@ export function buildDraftAssistantPrompt(action: DraftAssistantAction, post: Po
     `Excerpt: ${post.excerpt}`,
     `Category: ${post.category}`,
     `Tags: ${post.tags.join(', ')}`,
+    `Post URL: ${postUrl}`,
     `Content preview: ${post.content.slice(0, 2400)}`,
   ].join('\n')
 }
@@ -133,6 +152,29 @@ function normalizeNotes(value: unknown): string[] {
     .filter(Boolean)
 }
 
+function normalizeHashtags(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined
+  const hashtags = value
+    .filter((tag): tag is string => typeof tag === 'string')
+    .map((tag) => tag.trim())
+    .filter(Boolean)
+    .map((tag) => `#${tag.replace(/^#/, '').replace(/\s+/g, '')}`)
+  return hashtags.length ? [...new Set(hashtags)] : undefined
+}
+
+function normalizePromotionCopy(value: unknown): PromotionCopy | undefined {
+  if (!value || typeof value !== 'object') return undefined
+  const record = value as Record<string, unknown>
+  const promotionCopy: PromotionCopy = {
+    telegram: stringOrUndefined(record.telegram),
+    social: stringOrUndefined(record.social),
+    newsletter: stringOrUndefined(record.newsletter),
+    hashtags: normalizeHashtags(record.hashtags),
+  }
+
+  return Object.values(promotionCopy).some(Boolean) ? promotionCopy : undefined
+}
+
 export function parseDraftAssistantResponse(raw: string): DraftAssistantSuggestion {
   let parsed: unknown = {}
   try {
@@ -148,6 +190,7 @@ export function parseDraftAssistantResponse(raw: string): DraftAssistantSuggesti
     excerpt: stringOrUndefined(record.excerpt),
     tags: normalizeTags(record.tags),
     contentPatch: stringOrUndefined(record.contentPatch),
+    promotionCopy: normalizePromotionCopy(record.promotionCopy),
     notes: normalizeNotes(record.notes),
   }
 }

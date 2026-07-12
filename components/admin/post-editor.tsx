@@ -439,6 +439,15 @@ export function PostEditor({
     toast.success('Internal link inserted')
   }
 
+  const copyPromotionText = async (label: string, value: string) => {
+    try {
+      await navigator.clipboard.writeText(value)
+      toast.success(`${label} copied`)
+    } catch {
+      toast.error(`Could not copy ${label.toLowerCase()}`)
+    }
+  }
+
   const handleScheduleInputChange = (value: string) => {
     setScheduleInput(value)
     const isoValue = fromDateTimeLocalValue(value)
@@ -552,6 +561,7 @@ export function PostEditor({
     { action: 'intro', label: 'Rewrite intro' },
     { action: 'grammar', label: 'Fix grammar' },
     { action: 'humanize', label: 'Humanize draft' },
+    { action: 'promotion', label: 'Promotion copy' },
     { action: 'tone', label: 'Check tone' },
   ]
 
@@ -710,7 +720,7 @@ export function PostEditor({
                 Draft improvement assistant
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                Uses your configured provider order to suggest title, excerpt, tags, intro, grammar, tone, and humanized draft improvements.
+                Uses your configured provider order to suggest title, excerpt, tags, intro, grammar, tone, humanized draft, and promotion copy improvements.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -734,9 +744,11 @@ export function PostEditor({
                   <p className="font-medium text-foreground">
                     Suggestion{assistantSuggestion.providerLabel ? ` from ${assistantSuggestion.providerLabel}` : ''}
                   </p>
-                  <Button type="button" size="sm" onClick={applyAssistantSuggestion}>
-                    Apply suggestion
-                  </Button>
+                  {assistantSuggestion.action !== 'promotion' && (
+                    <Button type="button" size="sm" onClick={applyAssistantSuggestion}>
+                      Apply suggestion
+                    </Button>
+                  )}
                 </div>
                 <div className="mt-3 space-y-2 text-muted-foreground">
                   {assistantSuggestion.suggestion.title && <p><strong>Title:</strong> {assistantSuggestion.suggestion.title}</p>}
@@ -754,6 +766,34 @@ export function PostEditor({
                       <p className="mt-1 max-h-48 overflow-auto whitespace-pre-wrap rounded border border-border bg-muted/30 p-2 text-xs">
                         {assistantSuggestion.suggestion.contentPatch}
                       </p>
+                    </div>
+                  )}
+                  {assistantSuggestion.suggestion.promotionCopy && (
+                    <div className="space-y-3">
+                      {([
+                        ['Telegram', assistantSuggestion.suggestion.promotionCopy.telegram],
+                        ['Social', assistantSuggestion.suggestion.promotionCopy.social],
+                        ['Newsletter', assistantSuggestion.suggestion.promotionCopy.newsletter],
+                        [
+                          'Hashtags',
+                          assistantSuggestion.suggestion.promotionCopy.hashtags?.join(' '),
+                        ],
+                      ] as const).map(([label, value]) => value ? (
+                        <div key={label} className="rounded border border-border bg-muted/30 p-3">
+                          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                            <strong className="text-foreground">{label}</strong>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => copyPromotionText(label, value)}
+                            >
+                              Copy
+                            </Button>
+                          </div>
+                          <p className="whitespace-pre-wrap text-xs">{value}</p>
+                        </div>
+                      ) : null)}
                     </div>
                   )}
                   {assistantSuggestion.suggestion.notes.length > 0 && (
