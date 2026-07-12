@@ -21,6 +21,7 @@ import { PostReactions } from '@/components/post-reactions'
 import { PostComments } from '@/components/post-comments'
 import { ArticleOutboundClickTracker } from '@/components/article-outbound-click-tracker'
 import { getMarkdownAnchorProps } from '@/lib/markdown-link-props'
+import { getSafeImageAltText } from '@/lib/image-alt'
 import { Sidebar } from '@/components/sidebar'
 import { isAdminSession } from '@/lib/auth-session'
 
@@ -144,7 +145,7 @@ export default async function BlogPostPage({ params }: Props) {
                 <div className="relative mb-8 aspect-[3/2] w-full overflow-hidden rounded-2xl bg-muted">
                   <Image
                     src={post.featuredImage}
-                    alt={post.featuredImageAlt?.trim() || post.title}
+                    alt={getSafeImageAltText(post.featuredImageAlt, post.title)}
                     width={1536}
                     height={1024}
                     className="h-full w-full object-cover"

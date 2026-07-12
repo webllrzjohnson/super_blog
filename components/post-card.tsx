@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { PostListItem } from '@/lib/types'
+import { getSafeImageAltText } from '@/lib/image-alt'
 
 interface PostCardProps {
   post: PostListItem
@@ -17,7 +18,7 @@ export function PostCard({ post, featured = false }: PostCardProps) {
           <div className="relative min-h-36 overflow-hidden bg-muted sm:min-h-full">
             <Image
               src={post.featuredImage}
-              alt={post.featuredImageAlt || post.title}
+              alt={getSafeImageAltText(post.featuredImageAlt, post.title)}
               width={224}
               height={224}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"

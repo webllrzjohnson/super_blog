@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import ReactMarkdown from 'react-markdown'
 import { getSetting } from '@/lib/settings'
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
@@ -14,11 +13,7 @@ export const metadata: Metadata = {
 }
 
 export default async function PrivacyPage() {
-  const [pages, links] = await Promise.all([
-    getSetting('pages'),
-    getSetting('links'),
-  ])
-  const customPrivacy = pages.privacy?.trim()
+  const links = await getSetting('links')
   const contactEmail =
     links.contactEmail || process.env.CONTACT_EMAIL || 'privacy@example.com'
 
@@ -33,11 +28,6 @@ export default async function PrivacyPage() {
         </p>
       </header>
 
-      {customPrivacy ? (
-        <div className="prose prose-neutral dark:prose-invert max-w-none">
-          <ReactMarkdown>{customPrivacy}</ReactMarkdown>
-        </div>
-      ) : (
       <div className="prose prose-neutral dark:prose-invert max-w-none space-y-10">
         
         {/* Introduction */}
@@ -549,7 +539,6 @@ export default async function PrivacyPage() {
         </section>
 
       </div>
-      )}
     </div>
   )
 }

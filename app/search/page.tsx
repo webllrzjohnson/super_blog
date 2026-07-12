@@ -3,6 +3,7 @@ import Image from 'next/image'
 import type { Metadata } from 'next'
 import sql from '@/lib/db'
 import { hasDatabaseConfig } from '@/lib/db-config'
+import { getSafeImageAltText } from '@/lib/image-alt'
 
 export const dynamic = 'force-dynamic'
 
@@ -106,7 +107,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                         <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted border border-border/40">
                           <Image
                             src={post.featured_image}
-                            alt={post.featured_image_alt || post.title}
+                            alt={getSafeImageAltText(post.featured_image_alt, post.title)}
                             width={80}
                             height={80}
                             className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"

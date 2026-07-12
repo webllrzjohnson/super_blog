@@ -6,6 +6,7 @@ import { NewsletterForm } from '@/components/newsletter-form'
 import { getPostSummariesFromDb } from '@/lib/db-posts'
 import { getPublishedPosts } from '@/lib/posts'
 import { getSettings } from '@/lib/settings'
+import { getSafeImageAltText } from '@/lib/image-alt'
 
 /** Must be a literal for Next.js segment config (see POSTS_CACHE_REVALIDATE_SECONDS). */
 export const revalidate = 120
@@ -128,7 +129,7 @@ export default async function HomePage() {
                 <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-muted md:aspect-auto">
                   <Image
                     src={featured.featuredImage}
-                    alt={featured.featuredImageAlt || featured.title}
+                    alt={getSafeImageAltText(featured.featuredImageAlt, featured.title)}
                     width={520}
                     height={390}
                     priority
