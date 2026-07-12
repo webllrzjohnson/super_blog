@@ -22,6 +22,7 @@ import { MarkdownContentToolbar } from '@/components/admin/markdown-content-tool
 import { calculateReadTime } from '@/lib/posts'
 import { ArrowLeft, Eye, ImagePlus, Upload, Sparkles, Link2, Wand2 } from 'lucide-react'
 import { buildInternalLinkSuggestions, type DraftAssistantAction, type DraftAssistantSuggestion } from '@/lib/editor-assistant'
+import { buildFeaturedImageAltText } from '@/lib/featured-image-alt'
 import { toast } from 'sonner'
 
 interface PostEditorProps {
@@ -249,6 +250,14 @@ export function PostEditor({
     setFormData((prev) => ({ ...prev, tags }))
   }
 
+  const generateFeaturedAltText = () => {
+    setFormData((prev) => ({
+      ...prev,
+      featuredImageAlt: buildFeaturedImageAltText(prev),
+    }))
+    toast.success('Featured image alt text generated')
+  }
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -267,7 +276,13 @@ export function PostEditor({
         throw new Error(data.error || 'Upload failed')
       }
       const { url } = await res.json()
-      setFormData((prev) => ({ ...prev, featuredImage: url }))
+      setFormData((prev) => ({
+        ...prev,
+        featuredImage: url,
+        featuredImageAlt: prev.featuredImageAlt?.trim()
+          ? prev.featuredImageAlt
+          : buildFeaturedImageAltText(prev),
+      }))
       toast.success('Image uploaded')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to upload image')
@@ -295,8 +310,12 @@ export function PostEditor({
         const data = await res.json().catch(() => ({}))
         throw new Error(data.error || 'Image generation failed')
       }
-      const { url } = await res.json()
-      setFormData((prev) => ({ ...prev, featuredImage: url }))
+      const { url, alt } = await res.json()
+      setFormData((prev) => ({
+        ...prev,
+        featuredImage: url,
+        featuredImageAlt: alt?.trim() || buildFeaturedImageAltText(prev),
+      }))
       toast.success('Image generated and set as featured image')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to generate image')
@@ -815,7 +834,19 @@ export function PostEditor({
             {formData.featuredImage && (
               <>
                 <div className="space-y-2 mt-3">
-                  <Label htmlFor="featuredImageAlt">Featured image alt text</Label>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <Label htmlFor="featuredImageAlt">Featured image alt text</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={generateFeaturedAltText}
+                      disabled={!formData.title.trim() && !formData.excerpt.trim()}
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Generate alt text
+                    </Button>
+                  </div>
                   <Input
                     id="featuredImageAlt"
                     name="featuredImageAlt"
@@ -826,7 +857,7 @@ export function PostEditor({
                     aria-invalid={featuredAltInvalid || undefined}
                   />
                   <p id="featured-alt-hint" className="text-xs text-muted-foreground">
-                    Required before publish when a hero image is set (see checklist).
+                    Required before publish when a hero image is set (see checklist). Uploads and generated images auto-fill this when empty.
                   </p>
                 </div>
                 <img

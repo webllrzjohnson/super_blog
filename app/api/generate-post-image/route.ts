@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { isAdminSession } from '@/lib/auth-session'
-import { buildPostImagePrompt } from '@/lib/generate-post-image-prompt'
+import { buildPostImageAlt, buildPostImagePrompt } from '@/lib/generate-post-image-prompt'
 import { getSetting } from '@/lib/settings'
 
 async function checkAdmin(): Promise<boolean> {
@@ -27,6 +27,7 @@ export async function POST(request: Request) {
 
   const ai = await getSetting('ai')
   const prompt = buildPostImagePrompt(topic, ai.imagePromptTemplate)
+  const alt = buildPostImageAlt(topic)
 
   try {
     const imageRes = await fetch('https://api.openai.com/v1/images/generations', {
@@ -70,7 +71,7 @@ export async function POST(request: Request) {
     }
 
     const uploadData = await uploadRes.json()
-    return NextResponse.json({ url: uploadData.url })
+    return NextResponse.json({ url: uploadData.url, alt })
 
   } catch (error) {
     return NextResponse.json(

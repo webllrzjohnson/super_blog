@@ -1,3 +1,5 @@
+import { buildFeaturedImageAltTextFromTopic } from '@/lib/featured-image-alt'
+
 export const TORONTO_IMAGE_SETTINGS = [
   'a residential side street with older apartment buildings',
   'a downtown Toronto neighborhood skyline in the background, no specific landmarks',
@@ -38,7 +40,5 @@ export function buildPostImagePrompt(topic: string, templateOverride?: string): 
 }
 
 export function buildPostImageAlt(topic: string): string {
-  return topic
-    ? `Anime-style illustration for a blog post about ${topic}`
-    : 'Anime-style illustration of a Toronto apartment building'
+  return buildFeaturedImageAltTextFromTopic(topic)
 }
