@@ -94,7 +94,7 @@ export function AdminContentQuality({ posts, onEditPost }: AdminContentQualityPr
         </p>
         <h2 className="mt-2 text-2xl font-semibold text-foreground">Content quality dashboard</h2>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Find posts that need SEO basics, accessibility fixes, internal links, stronger excerpts, or freshness review before promotion.
+          Find posts that need SEO basics, accessibility fixes, internal links, stronger excerpts, freshness review, or AdSense-readiness polish before promotion.
         </p>
       </div>
 
@@ -194,6 +194,10 @@ export function AdminContentQuality({ posts, onEditPost }: AdminContentQualityPr
             <div className="flex gap-3">
               <ExternalLink className="mt-0.5 h-4 w-4 shrink-0" />
               <p>Freshness: published posts older than 180 days get a review suggestion.</p>
+            </div>
+            <div className="flex gap-3">
+              <FileWarning className="mt-0.5 h-4 w-4 shrink-0" />
+              <p>AdSense readiness: duplicate in-body H1s, placeholder image alt text, formulaic AI language, and short published posts.</p>
             </div>
           </CardContent>
         </Card>

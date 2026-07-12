@@ -21,7 +21,15 @@ export interface ContentQualityStats {
 
 const MIN_EXCERPT_LENGTH = 70
 const MIN_BODY_WORDS = 250
+const ADSENSE_DEPTH_WORDS = 700
 const STALE_PUBLISHED_DAYS = 180
+
+const AI_PLACEHOLDER_PATTERNS = [
+  /\bas an ai\b/i,
+  /\bai-generated\b/i,
+  /\bi cannot provide personal experience\b/i,
+  /\bin conclusion,?\b/i,
+]
 
 function countWords(content: string): number {
   return content.match(/[A-Za-z0-9]+(?:['’][A-Za-z0-9]+)?/g)?.length ?? 0
@@ -33,6 +41,23 @@ function hasInternalLink(content: string): boolean {
 
 function hasEmptyMarkdownImageAlt(content: string): boolean {
   return /!\[\s*\]\([^)]+\)/.test(content)
+}
+
+function hasPlaceholderMarkdownImageAlt(content: string): boolean {
+  const imageAltPattern = /!\[([^\]]*)\]\([^)]+\)/g
+  let match: RegExpExecArray | null
+  while ((match = imageAltPattern.exec(content)) !== null) {
+    if (isPlaceholderImageAltText(match[1])) return true
+  }
+  return false
+}
+
+function hasDuplicateMarkdownH1(content: string): boolean {
+  return /^#\s+\S+/m.test(content)
+}
+
+function hasAiPlaceholderLanguage(content: string): boolean {
+  return AI_PLACEHOLDER_PATTERNS.some((pattern) => pattern.test(content))
 }
 
 function daysBetween(a: Date, b: Date): number {
@@ -66,10 +91,25 @@ export function auditContentQuality(post: Post, now = new Date()): ContentQualit
     warnings.push('One or more inline markdown images have empty alt text.')
   }
 
+  if (hasPlaceholderMarkdownImageAlt(content)) {
+    warnings.push('One or more inline markdown images use placeholder alt text.')
+  }
+
+  if (hasDuplicateMarkdownH1(content)) {
+    warnings.push('Body contains an in-post H1; remove it so the page has one clear title.')
+  }
+
+  if (hasAiPlaceholderLanguage(content)) {
+    warnings.push('Body contains AI-placeholder or formulaic language; revise before promotion.')
+  }
+
   if (post.tags.length === 0) warnings.push('No tags are set.')
   if (!hasInternalLink(content)) suggestions.push('Add at least one internal link to a related post.')
   if (countWords(content) < MIN_BODY_WORDS && post.readTime <= 1) {
     suggestions.push('Post is thin; expand it with more detail before promoting it.')
+  }
+  if (post.status === 'published' && countWords(content) < ADSENSE_DEPTH_WORDS) {
+    suggestions.push('Published post is short for AdSense review; add concrete detail when practical.')
   }
 
   const lastTouched = new Date(post.updatedAt || post.publishedAt)

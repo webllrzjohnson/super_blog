@@ -1,4 +1,5 @@
 import type { Post } from '@/lib/types'
+import { isPlaceholderImageAltText } from '@/lib/image-alt'
 
 export type EditorReadinessStatus = 'complete' | 'missing'
 
@@ -44,7 +45,9 @@ export function evaluateEditorReadiness(
   const excerpt = post.excerpt.trim()
   const content = post.content.trim()
   const hasFeaturedImage = Boolean(post.featuredImage?.trim())
-  const hasFeaturedAlt = !hasFeaturedImage || Boolean(post.featuredImageAlt?.trim())
+  const hasFeaturedAlt =
+    !hasFeaturedImage ||
+    (Boolean(post.featuredImageAlt?.trim()) && !isPlaceholderImageAltText(post.featuredImageAlt))
 
   const items: EditorReadinessItem[] = [
     item('title', 'Title written', Boolean(title), 'Add a clear working title.'),

@@ -16,7 +16,7 @@ function post(overrides: Partial<Post> = {}): Post {
       'A practical field note about explaining timelines clearly during an outage.',
     content:
       overrides.content ??
-      '## What happened\nI handled the situation with staff and residents.\n\n## What I learned\nClear updates prevented confusion.\n\nRead [a related post](/blog/related-post).',
+      `${'A detailed field note about communication, timing, follow-up, and practical building operations. '.repeat(90)}\n\nRead [a related post](/blog/related-post).`,
     category: overrides.category ?? 'Work',
     tags: overrides.tags ?? ['building operations', 'communication'],
     author: overrides.author ?? { name: 'Lester J.' },
@@ -66,6 +66,21 @@ describe('content quality audit', () => {
     expect(result.blockers).toContain('Featured image is missing alt text.')
   })
 
+  it('flags AdSense-readiness content risks without blocking drafts', () => {
+    const result = auditContentQuality(post({
+      content:
+        '# Duplicate title\n\nAs an AI-generated article, I cannot provide personal experience.\n\n![Describe this image](/uploads/photo.jpg)',
+      readTime: 1,
+      status: 'published',
+    }))
+
+    expect(result.blockers).toEqual([])
+    expect(result.warnings).toContain('One or more inline markdown images use placeholder alt text.')
+    expect(result.warnings).toContain('Body contains an in-post H1; remove it so the page has one clear title.')
+    expect(result.warnings).toContain('Body contains AI-placeholder or formulaic language; revise before promotion.')
+    expect(result.suggestions).toContain('Published post is short for AdSense review; add concrete detail when practical.')
+  })
+
   it('flags stale published posts that have not been updated recently', () => {
     const result = auditContentQuality(
       post({ publishedAt: '2025-01-01T12:00:00.000Z', updatedAt: undefined }),
@@ -96,7 +111,7 @@ describe('content quality audit', () => {
       healthy: 1,
       needsWork: 1,
       blockers: 1,
-      averageScore: 65,
+      averageScore: 63,
     })
     expect(getPostsNeedingAttention(audits, 1).map((item) => item.post.id)).toEqual(['bad'])
   })

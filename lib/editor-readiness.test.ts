@@ -76,4 +76,17 @@ describe('evaluateEditorReadiness', () => {
       'Internal link added',
     ])
   })
+
+  it('treats placeholder featured image alt text as missing', () => {
+    const result = evaluateEditorReadiness(
+      post({ featuredImageAlt: 'Describe this image' }),
+      {
+        grammarChecked: true,
+        humanized: true,
+        promotionCopyGenerated: true,
+      }
+    )
+
+    expect(result.missingLabels).toContain('Featured image alt text added')
+  })
 })
