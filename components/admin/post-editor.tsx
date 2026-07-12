@@ -12,6 +12,7 @@ import {
   evaluatePublishChecklist,
   RECOMMENDED_EXCERPT_LENGTH,
 } from '@/lib/editorial-checklist'
+import { evaluateEditorReadiness, type EditorWorkflowState } from '@/lib/editor-readiness'
 import {
   insertAroundSelection,
   insertImageMarkdown,
@@ -105,6 +106,52 @@ function PublishChecklistPanel({ formData }: { formData: Post }) {
   )
 }
 
+function EditorReadinessPanel({
+  formData,
+  workflow,
+}: {
+  formData: Post
+  workflow: EditorWorkflowState
+}) {
+  const readiness = evaluateEditorReadiness(formData, workflow)
+
+  return (
+    <div
+      className="rounded-lg border border-border bg-muted/30 p-4 space-y-3"
+      role="region"
+      aria-label="Publishing readiness"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm font-medium text-foreground">Publishing readiness</p>
+        <p className="text-xs font-medium text-muted-foreground">
+          {readiness.completedCount}/{readiness.totalCount} complete
+        </p>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Live workflow guide for this editor session. It helps you see what still needs a final pass before publishing.
+      </p>
+      <ul className="grid gap-2 text-sm sm:grid-cols-2">
+        {readiness.items.map((item) => (
+          <li
+            key={item.id}
+            className={item.status === 'complete'
+              ? 'flex gap-2 text-green-700 dark:text-green-600'
+              : 'flex gap-2 text-amber-700 dark:text-amber-500'}
+          >
+            <span aria-hidden>{item.status === 'complete' ? '✓' : '!'}</span>
+            <span>
+              <span className="font-medium">{item.label}</span>
+              {item.status === 'missing' ? (
+                <span className="block text-xs text-muted-foreground">{item.detail}</span>
+              ) : null}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 export function PostEditor({
   post,
   isNew,
@@ -125,6 +172,7 @@ export function PostEditor({
     providerLabel?: string
     providerAttempts?: string[]
   } | null>(null)
+  const [editorWorkflow, setEditorWorkflow] = useState<EditorWorkflowState>({})
   const [isAutoSaving, setIsAutoSaving] = useState(false)
   const [lastAutoSavedAt, setLastAutoSavedAt] = useState<Date | null>(null)
   const [scheduleInput, setScheduleInput] = useState(
@@ -160,6 +208,7 @@ export function PostEditor({
     setShowPreview(false)
     setScheduleInput(toDateTimeLocalValue(post.publishedAt))
     setAssistantSuggestion(null)
+    setEditorWorkflow({})
     setLastAutoSavedAt(null)
     initialSnapshotRef.current = JSON.stringify(post)
   }, [post])
@@ -392,6 +441,9 @@ export function PostEditor({
         providerLabel: data.providerLabel,
         providerAttempts: data.providerAttempts,
       })
+      if (action === 'promotion' && data.suggestion?.promotionCopy) {
+        setEditorWorkflow((prev) => ({ ...prev, promotionCopyGenerated: true }))
+      }
       toast.success(`Assistant suggestion ready${data.providerLabel ? ` via ${data.providerLabel}` : ''}`)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Assistant request failed')
@@ -426,6 +478,12 @@ export function PostEditor({
       }
       return next
     })
+    if (action === 'grammar') {
+      setEditorWorkflow((prev) => ({ ...prev, grammarChecked: true }))
+    }
+    if (action === 'humanize') {
+      setEditorWorkflow((prev) => ({ ...prev, humanized: true }))
+    }
     toast.success('Assistant suggestion applied')
   }
 
@@ -979,6 +1037,8 @@ Separate paragraphs with blank lines"
               aria-describedby="content-markdown-hint"
             />
           </div>
+
+          <EditorReadinessPanel formData={formData} workflow={editorWorkflow} />
 
           <PublishChecklistPanel formData={formData} />
         </div>
