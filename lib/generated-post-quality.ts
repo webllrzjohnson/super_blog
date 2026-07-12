@@ -15,9 +15,31 @@ const GENERIC_PHRASES = [
   'it is important to note',
   'it is worth mentioning',
   'in conclusion',
+  'final thoughts',
+  'practical takeaway',
+  'the takeaway',
+  'everything you need to know',
+  'here\'s what',
+  'here is what',
+  'step-by-step guide',
+  'more than you think',
+  'actually matters',
+  'makes all the difference',
+  'not just',
+  'more than just',
+  'it\'s about',
   'ensure',
   'utilize',
   'leverage',
+  'delve',
+  'crucial',
+  'pivotal',
+  'underscores',
+  'highlights',
+  'showcases',
+  'enhances',
+  'fosters',
+  'landscape',
   'seamlessly',
 ]
 
@@ -41,6 +63,10 @@ function countMarkdownHeadings(content: string): number {
   return content.split('\n').filter((line) => /^#{2,3}\s+\S/.test(line.trim())).length
 }
 
+function hasOpeningMarkdownH1(content: string): boolean {
+  return /^\s*#\s+\S/.test(content)
+}
+
 export function evaluateGeneratedPostQuality(
   meta: GeneratedPostMeta,
   content: string
@@ -50,7 +76,8 @@ export function evaluateGeneratedPostQuality(
   const title = meta.title.trim()
   const excerpt = meta.excerpt.trim()
   const body = content.trim()
-  const lowerBody = body.toLowerCase()
+  const fullText = `${title}\n${excerpt}\n${body}`
+  const lowerFullText = fullText.toLowerCase()
   const wordCount = countWords(body)
 
   if (title.length < 18) warnings.push('Title is short. Make it more specific before publishing.')
@@ -70,11 +97,15 @@ export function evaluateGeneratedPostQuality(
     errors.push('Generated content names the employer/public housing organization. Remove that before publishing.')
   }
 
-  if (body.includes('—')) {
-    warnings.push('Generated content contains em dashes. Replace them with commas, periods, or parentheses.')
+  if (fullText.includes('—')) {
+    errors.push('Generated content contains em dashes. Replace them with commas, periods, or parentheses.')
   }
 
-  const genericHits = GENERIC_PHRASES.filter((phrase) => lowerBody.includes(phrase))
+  if (hasOpeningMarkdownH1(body)) {
+    errors.push('Generated content starts with a markdown H1. Remove it because the page title is rendered separately.')
+  }
+
+  const genericHits = GENERIC_PHRASES.filter((phrase) => lowerFullText.includes(phrase))
   if (genericHits.length > 0) {
     warnings.push(`Generated content includes generic AI-sounding phrasing: ${genericHits.slice(0, 3).join(', ')}.`)
   }

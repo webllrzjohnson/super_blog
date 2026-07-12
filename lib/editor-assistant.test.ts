@@ -76,6 +76,7 @@ describe('editor assistant helpers', () => {
 
     expect(prompt).toContain('Task: Improve the excerpt')
     expect(prompt).toContain('Title: Scooters in the hallway')
+    expect(prompt).toContain('no em dash characters')
     expect(prompt).toContain('Return only JSON')
   })
 
@@ -97,7 +98,8 @@ describe('editor assistant helpers', () => {
     }))
 
     expect(prompt).toContain('Task: Humanize the draft and remove AI-sounding phrasing')
-    expect(prompt).toContain('Avoid generic AI phrases')
+    expect(prompt).toContain('Remove em dash characters')
+    expect(prompt).toContain('Avoid AI phrases')
     expect(prompt).toContain('keep the author sounding like a real superintendent')
   })
 

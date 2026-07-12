@@ -37,14 +37,35 @@ describe('evaluateGeneratedPostQuality', () => {
     expect(result.errors.some((error) => error.includes('employer'))).toBe(true)
   })
 
-  it('warns on AI-ish style markers without blocking otherwise strong content', () => {
+  it('blocks em dashes before save', () => {
     const result = evaluateGeneratedPostQuality(
       meta,
-      `${longContent()} In conclusion, it is important to note that teams should ensure the process is seamless. —`
+      `${longContent()} The room was quiet — too quiet.`
+    )
+
+    expect(result.errors.some((error) => error.includes('em dashes'))).toBe(true)
+  })
+
+  it('blocks duplicate opening markdown H1s before save', () => {
+    const result = evaluateGeneratedPostQuality(
+      meta,
+      `# ${meta.title}\n\n${longContent()}`
+    )
+
+    expect(result.errors.some((error) => error.includes('markdown H1'))).toBe(true)
+  })
+
+  it('warns on AI-ish style markers in title, excerpt, or body', () => {
+    const result = evaluateGeneratedPostQuality(
+      {
+        ...meta,
+        title: 'Why Compactor Rooms Matter More Than You Think',
+        excerpt: 'Here is what a jam actually matters for in daily building operations.',
+      },
+      `${longContent()} In conclusion, it is important to note that teams should ensure the process is seamless.`
     )
 
     expect(result.errors).toHaveLength(0)
-    expect(result.warnings.some((warning) => warning.includes('em dashes'))).toBe(true)
     expect(result.warnings.some((warning) => warning.includes('generic'))).toBe(true)
   })
 })

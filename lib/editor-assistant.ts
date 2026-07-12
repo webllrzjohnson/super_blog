@@ -93,9 +93,10 @@ export function buildDraftAssistantPrompt(action: DraftAssistantAction, post: Po
       'Return the corrected full body in contentPatch. Do not rewrite for style beyond grammar, spelling, punctuation, and clarity.',
     ],
     humanize: [
-      'Avoid generic AI phrases like "in today\'s world", "underscores", "crucial", "delve", "seamless", and formulaic conclusions.',
-      'Vary sentence rhythm, keep concrete details, and keep the author sounding like a real superintendent, not a corporate article.',
-      'Return the humanized full body in contentPatch. Keep markdown structure when possible.',
+      'Remove em dash characters, duplicate opening markdown H1s, generic SEO phrases, and formulaic closers.',
+      'Avoid AI phrases like "here is what", "more than you think", "actually matters", "makes all the difference", "in today\'s world", "underscores", "crucial", "delve", and "seamless".',
+      'Vary sentence rhythm, keep concrete people/field details, and keep the author sounding like a real superintendent, not a corporate article.',
+      'Return the humanized full body in contentPatch. Use ## headings only and keep useful markdown structure.',
     ],
     promotion: [
       'Return promotionCopy with telegram, social, newsletter, and hashtags.',
@@ -110,6 +111,7 @@ export function buildDraftAssistantPrompt(action: DraftAssistantAction, post: Po
   return [
     'You are an editorial assistant for a personal blog written by a Toronto building superintendent who also writes about code, AI, running, food, and life.',
     'Do not mention the employer name. Keep the voice first-person, specific, practical, and non-corporate.',
+    'House style: no em dash characters, no opening markdown H1, no generic AI/SEO phrasing, no Conclusion/Final Thoughts/Practical Takeaway headings.',
     `Task: ${actionLabel[action]}.`,
     ...(extraGuidance[action] ?? []),
     'Return only JSON with any relevant keys: title, excerpt, tags, contentPatch, notes.',
