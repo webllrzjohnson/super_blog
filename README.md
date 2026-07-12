@@ -65,6 +65,33 @@ npm run build
 
 This project is intended to deploy from GitHub through Coolify.
 
+Production deploys are manual: after pushing `main`, trigger the Coolify deployment yourself and verify the live site before considering the release complete.
+
+### Deployment checklist
+
+1. Confirm local state is clean except for intentional temporary files:
+   ```bash
+   git status -sb
+   git log --oneline -3 --decorate
+   ```
+2. Run the standard checks before pushing:
+   ```bash
+   npm test
+   npm run lint
+   npm run build
+   ```
+3. Push `main` to GitHub.
+4. Manually trigger the Coolify deployment for `main`.
+5. Confirm the Coolify deployment finished successfully.
+6. Smoke check production:
+   - `https://www.maplehub.cloud/`
+   - `https://www.maplehub.cloud/blog`
+   - `https://www.maplehub.cloud/api/posts`
+   - `https://www.maplehub.cloud/sitemap.xml`
+   - `https://www.maplehub.cloud/robots.txt`
+7. If temporary admin credentials were used, rotate them after verification.
+8. Archive or remove local temporary cleanup folders before the next feature branch/commit.
+
 Required production settings:
 
 - `DATABASE_URL` or equivalent `DB_*` variables

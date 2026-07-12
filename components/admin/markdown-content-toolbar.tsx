@@ -15,7 +15,7 @@ import {
   Bold,
   Code,
   Heading2,
-  Image,
+  Image as ImageIcon,
   Italic,
   Link2,
   List,
@@ -144,7 +144,7 @@ export function MarkdownContentToolbar({
           run(insertImageMarkdown, () => textareaRef.current?.focus())
         }
       >
-        <Image className="h-4 w-4" />
+        <ImageIcon className="h-4 w-4" />
       </Button>
       <span className="mx-0.5 h-5 w-px bg-border shrink-0" aria-hidden />
       <Button

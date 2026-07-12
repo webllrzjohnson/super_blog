@@ -972,6 +972,7 @@ export function PostEditor({
                     Required before publish when a hero image is set (see checklist). Uploads and generated images auto-fill this when empty.
                   </p>
                 </div>
+                {/* eslint-disable-next-line @next/next/no-img-element -- Admin preview supports arbitrary uploaded/external image URLs. */}
                 <img
                   src={formData.featuredImage}
                   alt={formData.featuredImageAlt?.trim() || 'Featured preview'}
