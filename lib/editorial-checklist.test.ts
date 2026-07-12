@@ -48,6 +48,13 @@ describe('evaluatePublishChecklist', () => {
     expect(r.warnings.some((w) => w.toLowerCase().includes('alt'))).toBe(false)
   })
 
+  it('errors when featured image alt is placeholder text', () => {
+    const r = evaluatePublishChecklist(
+      basePost({ featuredImage: '/img.jpg', featuredImageAlt: 'Describe this image' })
+    )
+    expect(r.errors.some((e) => e.toLowerCase().includes('alt'))).toBe(true)
+  })
+
   it('warns when tags are empty', () => {
     const r = evaluatePublishChecklist(basePost({ tags: [] }))
     expect(r.warnings.some((w) => w.toLowerCase().includes('tag'))).toBe(true)

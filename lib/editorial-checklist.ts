@@ -1,4 +1,5 @@
 import type { Post } from '@/lib/types'
+import { isPlaceholderImageAltText } from '@/lib/image-alt'
 
 /** Minimum body length (characters) before publish/schedule is allowed. */
 export const MIN_PUBLISH_CONTENT_LENGTH = 80
@@ -73,7 +74,10 @@ export function evaluatePublishChecklist(post: Post): PublishChecklistResult {
     warnings.push('No tags — add tags to improve discovery and related posts.')
   }
 
-  if (post.featuredImage?.trim() && !post.featuredImageAlt?.trim()) {
+  if (
+    post.featuredImage?.trim() &&
+    (!post.featuredImageAlt?.trim() || isPlaceholderImageAltText(post.featuredImageAlt))
+  ) {
     errors.push(
       'Featured image requires alt text — add a short description for accessibility and SEO.'
     )

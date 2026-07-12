@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache'
 import sql from '@/lib/db'
 import { hasDatabaseConfig } from '@/lib/db-config'
 import type { Post, PostListItem } from '@/lib/types'
+import { isPlaceholderImageAltText } from '@/lib/image-alt'
 import {
   CACHE_TAG_POSTS,
   POSTS_CACHE_REVALIDATE_SECONDS,
@@ -14,6 +15,13 @@ const POST_SUMMARY_SELECT = `
   published_at, updated_at, read_time, status
 `
 
+function normalizeFeaturedImageAlt(altText: unknown): string | undefined {
+  if (typeof altText !== 'string') return undefined
+  const trimmedAlt = altText.trim()
+  if (!trimmedAlt || isPlaceholderImageAltText(trimmedAlt)) return undefined
+  return trimmedAlt
+}
+
 function mapRowToPost(row: Record<string, unknown>): Post {
   return {
     id: row.id as string,
@@ -24,9 +32,7 @@ function mapRowToPost(row: Record<string, unknown>): Post {
     category: row.category as Post['category'],
     tags: (row.tags as string[]) || [],
     featuredImage: (row.featured_image as string | null) ?? undefined,
-    featuredImageAlt: (row.featured_image_alt as string | null)?.trim()
-      ? (row.featured_image_alt as string).trim()
-      : undefined,
+    featuredImageAlt: normalizeFeaturedImageAlt(row.featured_image_alt),
     author: {
       name: row.author_name as string,
       avatar: (row.author_avatar as string | null) ?? undefined,
@@ -48,9 +54,7 @@ function mapRowToPostSummary(row: Record<string, unknown>): PostListItem {
     category: row.category as Post['category'],
     tags: (row.tags as string[]) || [],
     featuredImage: (row.featured_image as string | null) ?? undefined,
-    featuredImageAlt: (row.featured_image_alt as string | null)?.trim()
-      ? (row.featured_image_alt as string).trim()
-      : undefined,
+    featuredImageAlt: normalizeFeaturedImageAlt(row.featured_image_alt),
     author: {
       name: row.author_name as string,
       avatar: (row.author_avatar as string | null) ?? undefined,

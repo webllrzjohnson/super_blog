@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getSafeImageAltText } from '@/lib/image-alt'
+import { getSafeImageAltText, isPlaceholderImageAltText } from '@/lib/image-alt'
 
 describe('getSafeImageAltText', () => {
   it('uses explicit descriptive alt text', () => {
@@ -16,5 +16,13 @@ describe('getSafeImageAltText', () => {
   it('falls back to the title for unfinished placeholder alt text', () => {
     expect(getSafeImageAltText('temporary image', 'Failed Your G Test Twice?')).toBe('Failed Your G Test Twice?')
     expect(getSafeImageAltText('Describe this image', 'Failed Your G Test Twice?')).toBe('Failed Your G Test Twice?')
+  })
+
+  it('identifies only unfinished placeholder alt text', () => {
+    expect(isPlaceholderImageAltText('temporary image')).toBe(true)
+    expect(isPlaceholderImageAltText('placeholder image')).toBe(true)
+    expect(isPlaceholderImageAltText('Describe this image')).toBe(true)
+    expect(isPlaceholderImageAltText('A hallway after cleanup')).toBe(false)
+    expect(isPlaceholderImageAltText('')).toBe(false)
   })
 })

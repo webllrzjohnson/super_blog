@@ -24,6 +24,7 @@ import { calculateReadTime } from '@/lib/posts'
 import { ArrowLeft, Eye, ImagePlus, Upload, Sparkles, Link2, Wand2 } from 'lucide-react'
 import { buildInternalLinkSuggestions, type DraftAssistantAction, type DraftAssistantSuggestion } from '@/lib/editor-assistant'
 import { buildFeaturedImageAltText } from '@/lib/featured-image-alt'
+import { isPlaceholderImageAltText } from '@/lib/image-alt'
 import { toast } from 'sonner'
 
 interface PostEditorProps {
@@ -606,7 +607,8 @@ export function PostEditor({
   }
 
   const featuredAltInvalid =
-    Boolean(formData.featuredImage?.trim()) && !formData.featuredImageAlt?.trim()
+    Boolean(formData.featuredImage?.trim()) &&
+    (!formData.featuredImageAlt?.trim() || isPlaceholderImageAltText(formData.featuredImageAlt))
 
   const bodyWords = countWords(formData.content)
   const bodyReadMinutes = calculateReadTime(formData.content)

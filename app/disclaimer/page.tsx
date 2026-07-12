@@ -80,9 +80,10 @@ export default async function DisclaimerPage() {
         <section>
           <h2 className="text-xl font-semibold text-foreground mb-4">Advertising</h2>
           <p className="text-muted-foreground leading-relaxed">
-            This website displays advertisements through Google AdSense and potentially other advertising networks. 
-            These ads help support the operation of this website. I do not personally endorse the products or 
-            services advertised through these networks unless explicitly stated.
+            This website displays advertisements through Google AdSense and potentially other advertising networks.
+            These ads help support the operation of this website. Advertising partners may use cookies or similar
+            technologies to serve and measure ads, subject to your cookie choices and the details in the Privacy Policy.
+            I do not personally endorse the products or services advertised through these networks unless explicitly stated.
           </p>
         </section>
 
@@ -90,7 +91,7 @@ export default async function DisclaimerPage() {
           <h2 className="text-xl font-semibold text-foreground mb-4">Questions?</h2>
           <p className="text-muted-foreground leading-relaxed">
             If you have any questions about this disclaimer or our affiliate relationships, please{' '}
-            <a href="/contact" className="underline hover:text-foreground">contact me</a>. 
+            <a href="/contact" className="underline hover:text-foreground">contact me</a>.
             I&apos;m happy to provide more information about any specific product recommendation or partnership.
           </p>
         </section>

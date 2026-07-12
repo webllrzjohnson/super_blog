@@ -184,7 +184,9 @@ export default async function PrivacyPage() {
 
           <h3 className="text-lg font-medium text-foreground mt-6 mb-3">6.3 Advertising Cookies (Consent Required)</h3>
           <p className="text-muted-foreground leading-relaxed mb-4">
-            With your consent, we display advertisements through Google AdSense. Google and its partners use cookies to:
+            With your consent, we display advertisements through Google AdSense. Google and other third-party vendors
+            may use advertising cookies to serve personalized ads based on your visits to this Site and other websites.
+            Google and its partners use cookies to:
           </p>
           <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
             <li>Serve ads based on your prior visits to this Site or other websites</li>

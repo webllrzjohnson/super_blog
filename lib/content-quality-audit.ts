@@ -1,4 +1,5 @@
 import type { Post } from '@/lib/types'
+import { isPlaceholderImageAltText } from '@/lib/image-alt'
 
 export type ContentQualitySeverity = 'blocker' | 'warning' | 'suggestion'
 
@@ -54,7 +55,10 @@ export function auditContentQuality(post: Post, now = new Date()): ContentQualit
     warnings.push('Excerpt is short; expand it for search and social previews.')
   }
 
-  if (post.featuredImage?.trim() && !post.featuredImageAlt?.trim()) {
+  if (
+    post.featuredImage?.trim() &&
+    (!post.featuredImageAlt?.trim() || isPlaceholderImageAltText(post.featuredImageAlt))
+  ) {
     blockers.push('Featured image is missing alt text.')
   }
 

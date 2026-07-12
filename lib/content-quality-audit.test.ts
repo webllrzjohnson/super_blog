@@ -57,6 +57,15 @@ describe('content quality audit', () => {
     expect(result.score).toBeLessThan(80)
   })
 
+  it('treats placeholder featured image alt text as unfinished', () => {
+    const result = auditContentQuality(post({
+      featuredImage: '/uploads/photo.jpg',
+      featuredImageAlt: 'temporary image',
+    }))
+
+    expect(result.blockers).toContain('Featured image is missing alt text.')
+  })
+
   it('flags stale published posts that have not been updated recently', () => {
     const result = auditContentQuality(
       post({ publishedAt: '2025-01-01T12:00:00.000Z', updatedAt: undefined }),
