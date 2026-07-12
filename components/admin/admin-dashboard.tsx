@@ -16,6 +16,7 @@ import { AdminOutboundStats } from '@/components/admin/admin-outbound-stats'
 import { AdminCommentsModeration } from '@/components/admin/admin-comments-moderation'
 import { AdminOverview } from '@/components/admin/admin-overview'
 import { AdminContentIdeas } from '@/components/admin/admin-content-ideas'
+import { AdminContentQuality } from '@/components/admin/admin-content-quality'
 import { getPosts, savePost, deletePost, generateId } from '@/lib/store'
 import { defaultAuthor, calculateReadTime } from '@/lib/posts'
 import type { Post } from '@/lib/types'
@@ -255,6 +256,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
           <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="ideas">Ideas</TabsTrigger>
+            <TabsTrigger value="quality">Quality</TabsTrigger>
             <TabsTrigger value="posts">Posts</TabsTrigger>
             <TabsTrigger value="links">Links</TabsTrigger>
             <TabsTrigger value="appearance">Appearance</TabsTrigger>
@@ -279,6 +281,10 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
           <TabsContent value="ideas">
             <AdminContentIdeas onGenerateDraft={handleGenerateFromIdea} />
+          </TabsContent>
+
+          <TabsContent value="quality">
+            <AdminContentQuality posts={posts} onEditPost={handleEdit} />
           </TabsContent>
 
           <TabsContent value="posts">
