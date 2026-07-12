@@ -34,7 +34,7 @@ const postSchema = z.object({
 })
 
 const bodySchema = z.object({
-  action: z.enum(['title', 'excerpt', 'tags', 'intro', 'tone']),
+  action: z.enum(['title', 'excerpt', 'tags', 'intro', 'tone', 'grammar', 'humanize']),
   post: postSchema,
 })
 

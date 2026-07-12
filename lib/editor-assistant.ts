@@ -1,7 +1,14 @@
 import { getRelatedPosts, isPostPubliclyVisible, scoreRelatedPost } from '@/lib/posts'
 import type { Post, PostListItem } from '@/lib/types'
 
-export type DraftAssistantAction = 'title' | 'excerpt' | 'tags' | 'intro' | 'tone'
+export type DraftAssistantAction =
+  | 'title'
+  | 'excerpt'
+  | 'tags'
+  | 'intro'
+  | 'tone'
+  | 'grammar'
+  | 'humanize'
 
 export type InternalLinkSuggestion = {
   title: string
@@ -66,12 +73,27 @@ export function buildDraftAssistantPrompt(action: DraftAssistantAction, post: Po
     tags: 'Suggest stronger tags',
     intro: 'Rewrite the opening paragraph',
     tone: 'Review the draft for generic AI tone and suggest fixes',
+    grammar: 'Fix grammar and spelling without changing the author voice',
+    humanize: 'Humanize the draft and remove AI-sounding phrasing',
+  }
+
+  const extraGuidance: Partial<Record<DraftAssistantAction, string[]>> = {
+    grammar: [
+      'Preserve meaning, markdown structure, and first-person details.',
+      'Return the corrected full body in contentPatch. Do not rewrite for style beyond grammar, spelling, punctuation, and clarity.',
+    ],
+    humanize: [
+      'Avoid generic AI phrases like "in today\'s world", "underscores", "crucial", "delve", "seamless", and formulaic conclusions.',
+      'Vary sentence rhythm, keep concrete details, and keep the author sounding like a real superintendent, not a corporate article.',
+      'Return the humanized full body in contentPatch. Keep markdown structure when possible.',
+    ],
   }
 
   return [
     'You are an editorial assistant for a personal blog written by a Toronto building superintendent who also writes about code, AI, running, food, and life.',
     'Do not mention the employer name. Keep the voice first-person, specific, practical, and non-corporate.',
     `Task: ${actionLabel[action]}.`,
+    ...(extraGuidance[action] ?? []),
     'Return only JSON with any relevant keys: title, excerpt, tags, contentPatch, notes.',
     'Use tags as lowercase strings. Use notes as short editorial notes.',
     '',

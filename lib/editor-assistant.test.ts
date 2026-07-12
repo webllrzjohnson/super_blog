@@ -79,13 +79,36 @@ describe('editor assistant helpers', () => {
     expect(prompt).toContain('Return only JSON')
   })
 
+  it('builds a grammar prompt that preserves voice and meaning', () => {
+    const prompt = buildDraftAssistantPrompt('grammar', post({
+      title: 'Friday pump alarm',
+      content: 'I was checking the alarm and it dont looked right.',
+    }))
+
+    expect(prompt).toContain('Task: Fix grammar and spelling without changing the author voice')
+    expect(prompt).toContain('Preserve meaning, markdown structure, and first-person details')
+    expect(prompt).toContain('contentPatch')
+  })
+
+  it('builds a humanize prompt that strips AI-sounding patterns', () => {
+    const prompt = buildDraftAssistantPrompt('humanize', post({
+      title: 'Elevator communication lesson',
+      content: 'This situation underscores the importance of communication in today\'s world.',
+    }))
+
+    expect(prompt).toContain('Task: Humanize the draft and remove AI-sounding phrasing')
+    expect(prompt).toContain('Avoid generic AI phrases')
+    expect(prompt).toContain('keep the author sounding like a real superintendent')
+  })
+
   it('parses assistant JSON and normalizes tags', () => {
-    const parsed = parseDraftAssistantResponse(`Here is the result:\n{"title":"Better title","excerpt":"Better excerpt","tags":["Building Safety"," ","scooters"],"notes":["Keep it personal"]}`)
+    const parsed = parseDraftAssistantResponse(`Here is the result:\n{"title":"Better title","excerpt":"Better excerpt","tags":["Building Safety"," ","scooters"],"contentPatch":"Rewritten body","notes":["Keep it personal"]}`)
 
     expect(parsed).toEqual({
       title: 'Better title',
       excerpt: 'Better excerpt',
       tags: ['building safety', 'scooters'],
+      contentPatch: 'Rewritten body',
       notes: ['Keep it personal'],
     })
   })

@@ -416,6 +416,9 @@ export function PostEditor({
         next.tags = suggestion.tags
         setTagsInput(suggestion.tags.join(', '))
       }
+      if ((action === 'grammar' || action === 'humanize') && suggestion.contentPatch) {
+        next.content = suggestion.contentPatch
+      }
       if (action === 'intro' && suggestion.contentPatch) {
         const parts = prev.content.trim().split(/\n\s*\n/)
         parts[0] = suggestion.contentPatch
@@ -547,6 +550,8 @@ export function PostEditor({
     { action: 'excerpt', label: 'Improve excerpt' },
     { action: 'tags', label: 'Suggest tags' },
     { action: 'intro', label: 'Rewrite intro' },
+    { action: 'grammar', label: 'Fix grammar' },
+    { action: 'humanize', label: 'Humanize draft' },
     { action: 'tone', label: 'Check tone' },
   ]
 
@@ -705,7 +710,7 @@ export function PostEditor({
                 Draft improvement assistant
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                Uses your configured provider order to suggest safer title, excerpt, tags, intro, or tone improvements.
+                Uses your configured provider order to suggest title, excerpt, tags, intro, grammar, tone, and humanized draft improvements.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -740,7 +745,16 @@ export function PostEditor({
                     <p><strong>Tags:</strong> {assistantSuggestion.suggestion.tags.join(', ')}</p>
                   ) : null}
                   {assistantSuggestion.suggestion.contentPatch && (
-                    <p><strong>Intro:</strong> {assistantSuggestion.suggestion.contentPatch}</p>
+                    <div>
+                      <strong>
+                        {assistantSuggestion.action === 'grammar' || assistantSuggestion.action === 'humanize'
+                          ? 'Rewritten body:'
+                          : 'Intro:'}
+                      </strong>{' '}
+                      <p className="mt-1 max-h-48 overflow-auto whitespace-pre-wrap rounded border border-border bg-muted/30 p-2 text-xs">
+                        {assistantSuggestion.suggestion.contentPatch}
+                      </p>
+                    </div>
                   )}
                   {assistantSuggestion.suggestion.notes.length > 0 && (
                     <ul className="list-disc pl-5">
