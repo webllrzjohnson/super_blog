@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -18,6 +19,8 @@ import { buildInternalLinkSuggestions } from '@/lib/editor-assistant'
 import type { Post } from '@/lib/types'
 import { AlertTriangle, CheckCircle2, ExternalLink, FileWarning, Link2, SearchCheck } from 'lucide-react'
 import { toast } from 'sonner'
+
+type QualityFilter = 'attention' | 'blockers' | 'internal-links' | 'adsense' | 'healthy'
 
 interface AdminContentQualityProps {
   posts: Post[]
@@ -57,6 +60,39 @@ function issueList(label: string, issues: string[]) {
   )
 }
 
+function auditIssues(audit: ContentQualityAudit): string[] {
+  return [...audit.blockers, ...audit.warnings, ...audit.suggestions]
+}
+
+function hasInternalLinkIssue(audit: ContentQualityAudit): boolean {
+  return audit.suggestions.some((issue) => issue.toLowerCase().includes('internal link'))
+}
+
+function hasAdsenseReadinessIssue(audit: ContentQualityAudit): boolean {
+  return auditIssues(audit).some((issue) => {
+    const normalized = issue.toLowerCase()
+    return (
+      normalized.includes('adsense') ||
+      normalized.includes('in-post h1') ||
+      normalized.includes('placeholder') ||
+      normalized.includes('ai-placeholder') ||
+      normalized.includes('formulaic')
+    )
+  })
+}
+
+function filterAudits(audits: ContentQualityAudit[], filter: QualityFilter): ContentQualityAudit[] {
+  if (filter === 'healthy') {
+    return audits.filter((audit) => audit.score >= 90 && audit.blockers.length === 0)
+  }
+
+  const attention = getPostsNeedingAttention(audits, audits.length)
+  if (filter === 'attention') return attention
+  if (filter === 'blockers') return attention.filter((audit) => audit.blockers.length > 0)
+  if (filter === 'internal-links') return attention.filter(hasInternalLinkIssue)
+  return attention.filter(hasAdsenseReadinessIssue)
+}
+
 function QualityStatCard({
   label,
   value,
@@ -83,10 +119,19 @@ function QualityStatCard({
 }
 
 export function AdminContentQuality({ posts, onEditPost }: AdminContentQualityProps) {
+  const [filter, setFilter] = useState<QualityFilter>('attention')
   const audits = posts.map((post) => auditContentQuality(post))
   const stats = getContentQualityStats(audits)
-  const attention = getPostsNeedingAttention(audits, 10)
-  const healthyPosts = audits.filter((audit) => audit.score >= 90 && audit.blockers.length === 0)
+  const filteredAudits = useMemo(() => filterAudits(audits, filter), [audits, filter])
+  const visibleAudits = filteredAudits.slice(0, 10)
+  const healthyPosts = filterAudits(audits, 'healthy')
+  const filterOptions: Array<{ value: QualityFilter; label: string; count: number }> = [
+    { value: 'attention', label: 'Needs attention', count: getPostsNeedingAttention(audits, audits.length).length },
+    { value: 'blockers', label: 'Blockers', count: audits.filter((audit) => audit.blockers.length > 0).length },
+    { value: 'internal-links', label: 'Missing links', count: audits.filter(hasInternalLinkIssue).length },
+    { value: 'adsense', label: 'AdSense risks', count: audits.filter(hasAdsenseReadinessIssue).length },
+    { value: 'healthy', label: 'Healthy', count: healthyPosts.length },
+  ]
 
   const copyInternalLink = async (markdown: string) => {
     try {
@@ -139,19 +184,33 @@ export function AdminContentQuality({ posts, onEditPost }: AdminContentQualityPr
       <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
         <Card>
           <CardHeader>
-            <CardTitle>Posts needing attention</CardTitle>
+            <CardTitle>Quality work queue</CardTitle>
             <CardDescription>
-              Prioritized by blockers first, then lowest quality score.
+              Filter by the issue you want to fix first. Results are prioritized by blockers, then lowest quality score.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {attention.length === 0 ? (
+            <div className="mb-4 flex flex-wrap gap-2">
+              {filterOptions.map((option) => (
+                <Button
+                  key={option.value}
+                  type="button"
+                  variant={filter === option.value ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFilter(option.value)}
+                >
+                  {option.label} ({option.count})
+                </Button>
+              ))}
+            </div>
+
+            {visibleAudits.length === 0 ? (
               <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-900/40 dark:bg-green-950/30 dark:text-green-300">
-                All posts look healthy. Keep checking new drafts before promotion.
+                No posts match this filter. Keep checking new drafts before promotion.
               </div>
             ) : (
               <div className="space-y-4">
-                {attention.map((audit) => {
+                {visibleAudits.map((audit) => {
                   const linkSuggestions = buildInternalLinkSuggestions(audit.post, posts, 3)
                   return (
                   <div key={audit.post.id} className="rounded-lg border border-border bg-background p-4">
