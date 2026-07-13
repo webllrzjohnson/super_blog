@@ -14,8 +14,10 @@ import {
   getPostsNeedingAttention,
   type ContentQualityAudit,
 } from '@/lib/content-quality-audit'
+import { buildInternalLinkSuggestions } from '@/lib/editor-assistant'
 import type { Post } from '@/lib/types'
 import { AlertTriangle, CheckCircle2, ExternalLink, FileWarning, Link2, SearchCheck } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface AdminContentQualityProps {
   posts: Post[]
@@ -86,6 +88,15 @@ export function AdminContentQuality({ posts, onEditPost }: AdminContentQualityPr
   const attention = getPostsNeedingAttention(audits, 10)
   const healthyPosts = audits.filter((audit) => audit.score >= 90 && audit.blockers.length === 0)
 
+  const copyInternalLink = async (markdown: string) => {
+    try {
+      await navigator.clipboard.writeText(markdown)
+      toast.success('Internal link markdown copied')
+    } catch {
+      toast.error('Could not copy internal link markdown')
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-border bg-card p-6">
@@ -140,7 +151,9 @@ export function AdminContentQuality({ posts, onEditPost }: AdminContentQualityPr
               </div>
             ) : (
               <div className="space-y-4">
-                {attention.map((audit) => (
+                {attention.map((audit) => {
+                  const linkSuggestions = buildInternalLinkSuggestions(audit.post, posts, 3)
+                  return (
                   <div key={audit.post.id} className="rounded-lg border border-border bg-background p-4">
                     <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                       <div>
@@ -166,8 +179,37 @@ export function AdminContentQuality({ posts, onEditPost }: AdminContentQualityPr
                       {issueList('Warnings', audit.warnings)}
                       {issueList('Suggestions', audit.suggestions)}
                     </div>
+                    {linkSuggestions.length > 0 && audit.suggestions.some((issue) => issue.includes('internal link')) ? (
+                      <div className="mt-4 rounded-md border border-border bg-muted/30 p-3">
+                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          Suggested internal links
+                        </p>
+                        <div className="mt-2 space-y-2">
+                          {linkSuggestions.map((suggestion) => (
+                            <div
+                              key={suggestion.href}
+                              className="flex flex-wrap items-center justify-between gap-2 text-sm"
+                            >
+                              <div>
+                                <p className="font-medium text-foreground">{suggestion.title}</p>
+                                <p className="text-xs text-muted-foreground">{suggestion.reason}</p>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => copyInternalLink(suggestion.markdown)}
+                              >
+                                Copy markdown
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </CardContent>
