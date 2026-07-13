@@ -16,6 +16,7 @@ import {
   type ContentQualityAudit,
 } from '@/lib/content-quality-audit'
 import { buildInternalLinkSuggestions } from '@/lib/editor-assistant'
+import { buildFeaturedImageAltText } from '@/lib/featured-image-alt'
 import type { Post } from '@/lib/types'
 import { AlertTriangle, CheckCircle2, ExternalLink, FileWarning, Link2, SearchCheck } from 'lucide-react'
 import { toast } from 'sonner'
@@ -66,6 +67,13 @@ function auditIssues(audit: ContentQualityAudit): string[] {
 
 function hasInternalLinkIssue(audit: ContentQualityAudit): boolean {
   return audit.suggestions.some((issue) => issue.toLowerCase().includes('internal link'))
+}
+
+function hasFeaturedAltIssue(audit: ContentQualityAudit): boolean {
+  return audit.blockers.some((issue) => {
+    const normalized = issue.toLowerCase()
+    return normalized.includes('featured image') && normalized.includes('alt text')
+  })
 }
 
 function hasAdsenseReadinessIssue(audit: ContentQualityAudit): boolean {
@@ -142,6 +150,15 @@ export function AdminContentQuality({ posts, onEditPost }: AdminContentQualityPr
     }
   }
 
+  const copySuggestedAltText = async (post: Post) => {
+    try {
+      await navigator.clipboard.writeText(buildFeaturedImageAltText(post))
+      toast.success('Suggested alt text copied')
+    } catch {
+      toast.error('Could not copy suggested alt text')
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-border bg-card p-6">
@@ -212,6 +229,7 @@ export function AdminContentQuality({ posts, onEditPost }: AdminContentQualityPr
               <div className="space-y-4">
                 {visibleAudits.map((audit) => {
                   const linkSuggestions = buildInternalLinkSuggestions(audit.post, posts, 3)
+                  const suggestedAltText = buildFeaturedImageAltText(audit.post)
                   return (
                   <div key={audit.post.id} className="rounded-lg border border-border bg-background p-4">
                     <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -238,6 +256,24 @@ export function AdminContentQuality({ posts, onEditPost }: AdminContentQualityPr
                       {issueList('Warnings', audit.warnings)}
                       {issueList('Suggestions', audit.suggestions)}
                     </div>
+                    {hasFeaturedAltIssue(audit) ? (
+                      <div className="mt-4 rounded-md border border-border bg-muted/30 p-3">
+                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          Suggested featured image alt text
+                        </p>
+                        <div className="mt-2 flex flex-wrap items-center justify-between gap-3 text-sm">
+                          <p className="max-w-xl text-muted-foreground">{suggestedAltText}</p>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => copySuggestedAltText(audit.post)}
+                          >
+                            Copy alt text
+                          </Button>
+                        </div>
+                      </div>
+                    ) : null}
                     {linkSuggestions.length > 0 && audit.suggestions.some((issue) => issue.includes('internal link')) ? (
                       <div className="mt-4 rounded-md border border-border bg-muted/30 p-3">
                         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
