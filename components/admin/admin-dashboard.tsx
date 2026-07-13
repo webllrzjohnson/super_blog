@@ -17,6 +17,7 @@ import { AdminCommentsModeration } from '@/components/admin/admin-comments-moder
 import { AdminOverview } from '@/components/admin/admin-overview'
 import { AdminContentIdeas } from '@/components/admin/admin-content-ideas'
 import { AdminContentQuality } from '@/components/admin/admin-content-quality'
+import { AdminResourceFiles } from '@/components/admin/admin-resource-files'
 import { getPosts, savePost, deletePost, generateId } from '@/lib/store'
 import { defaultAuthor, calculateReadTime } from '@/lib/posts'
 import type { Post } from '@/lib/types'
@@ -257,6 +258,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="ideas">Ideas</TabsTrigger>
             <TabsTrigger value="quality">Quality</TabsTrigger>
+            <TabsTrigger value="files">Files</TabsTrigger>
             <TabsTrigger value="posts">Posts</TabsTrigger>
             <TabsTrigger value="links">Links</TabsTrigger>
             <TabsTrigger value="appearance">Appearance</TabsTrigger>
@@ -285,6 +287,10 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
           <TabsContent value="quality">
             <AdminContentQuality posts={posts} onEditPost={handleEdit} />
+          </TabsContent>
+
+          <TabsContent value="files">
+            <AdminResourceFiles />
           </TabsContent>
 
           <TabsContent value="posts">

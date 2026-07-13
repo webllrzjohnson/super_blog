@@ -11,6 +11,7 @@ import type { BrandingSettings } from '@/lib/settings'
 const navItems = [
   { label: 'Home', href: '/' },
   { label: 'Blog', href: '/blog' },
+  { label: 'Resources', href: '/resources' },
   { label: 'About', href: '/about' },
 ]
 

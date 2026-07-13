@@ -23,6 +23,7 @@ export function Footer({ links, siteName = 'Lester J.' }: FooterProps) {
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
             <Link href="/blog" className="hover:text-foreground transition-colors">Blog</Link>
             <Link href="/blog/tags" className="hover:text-foreground transition-colors">Tags</Link>
+            <Link href="/resources" className="hover:text-foreground transition-colors">Resources</Link>
             <Link href="/about" className="hover:text-foreground transition-colors">About</Link>
             <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
             <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
