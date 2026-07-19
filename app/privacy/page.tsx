@@ -215,11 +215,10 @@ export default async function PrivacyPage() {
           <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
             <li>Accept all cookies</li>
             <li>Reject non-essential cookies</li>
-            <li>Customize your preferences by category</li>
           </ul>
           <p className="text-muted-foreground leading-relaxed">
-            You can change your cookie preferences at any time by clearing your browser cookies and revisiting the 
-            Site, or by adjusting your browser settings. Note that blocking certain cookies may impact your 
+            You can change your cookie preference at any time by clearing this Site&apos;s stored data and revisiting the
+            Site. You can also block cookies in your browser settings. Note that blocking certain cookies may impact your
             experience on the Site.
           </p>
         </section>
@@ -240,7 +239,7 @@ export default async function PrivacyPage() {
             <strong className="text-foreground">Your choices:</strong>
           </p>
           <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
-            <li>Reject advertising cookies via our cookie consent banner (ads will still appear but will not be personalized)</li>
+            <li>Reject advertising cookies via our cookie consent banner (AdSense ads will not load)</li>
             <li>Opt out at <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Google Ads Settings</a></li>
             <li>Install the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Google Analytics Opt-out Browser Add-on</a></li>
             <li>Visit <a href="https://www.networkadvertising.org/choices/" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Network Advertising Initiative opt-out page</a></li>
@@ -346,7 +345,7 @@ export default async function PrivacyPage() {
             <li><strong className="text-foreground">Analytics data:</strong> 26 months (Google Analytics default)</li>
             <li><strong className="text-foreground">Contact form submissions:</strong> 3 years or until you request deletion</li>
             <li><strong className="text-foreground">Newsletter subscriptions:</strong> Until you unsubscribe</li>
-            <li><strong className="text-foreground">Cookie consent records:</strong> 12 months</li>
+            <li><strong className="text-foreground">Cookie consent preference:</strong> Stored in your browser until you clear this Site&apos;s stored data</li>
             <li><strong className="text-foreground">Comments:</strong> Indefinitely, unless you request deletion</li>
           </ul>
           <p className="text-muted-foreground leading-relaxed">

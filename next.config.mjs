@@ -2,7 +2,16 @@ import { withSentryConfig } from '@sentry/nextjs'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    serverExternalPackages: ['postgres'],
+  serverExternalPackages: ['postgres'],
+  async redirects() {
+    return [
+      {
+        source: '/blog/respecting-shared-space-update',
+        destination: '/blog/respecting-shared-space',
+        permanent: true,
+      },
+    ]
+  },
   async rewrites() {
     return [{ source: '/rss.xml', destination: '/feed' }]
   },

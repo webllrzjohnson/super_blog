@@ -5,6 +5,12 @@ import { z } from 'zod'
 import { getSetting, getSettings, upsertSetting } from '@/lib/settings'
 import { isAdminSession } from '@/lib/auth-session'
 import { revalidateSettingsCache } from '@/lib/revalidate-cache'
+import {
+  AD_POSITIONS,
+  hasUniqueAdPositions,
+  normalizeAdSenseClientId,
+  normalizeAdSenseSlotId,
+} from '@/lib/adsense'
 
 async function checkAdmin(): Promise<boolean> {
   const headersList = await headers()
@@ -35,20 +41,36 @@ const appearanceSchema = z.object({
   customPrimaryOklch: z.string().trim().optional(),
 })
 
+const adSlotSchema = z
+  .object({
+    slotId: z
+      .string()
+      .trim()
+      .refine((value) => !value || Boolean(normalizeAdSenseSlotId(value)), {
+        message: 'AdSense slot ID must contain exactly 10 digits',
+      }),
+    position: z.enum(AD_POSITIONS),
+    enabled: z.boolean(),
+  })
+  .refine((slot) => !slot.enabled || Boolean(normalizeAdSenseSlotId(slot.slotId)), {
+    message: 'Enabled ad slots require a valid slot ID',
+    path: ['slotId'],
+  })
+
 const adsSchema = z.object({
-  clientId: z.string().trim().optional(),
-  slots: z.array(
-    z
-      .object({
-        slotId: z.string().trim(),
-        position: z.string().trim().min(1),
-        enabled: z.boolean(),
-      })
-      .refine((slot) => !slot.enabled || slot.slotId.length > 0, {
-        message: 'Enabled ad slots require a slot ID',
-        path: ['slotId'],
-      })
-  ),
+  clientId: z
+    .string()
+    .trim()
+    .optional()
+    .refine((value) => !value || Boolean(normalizeAdSenseClientId(value)), {
+      message: 'AdSense client ID must use the format ca-pub- followed by 16 digits',
+    }),
+  slots: z
+    .array(adSlotSchema)
+    .max(AD_POSITIONS.length)
+    .refine(hasUniqueAdPositions, {
+      message: 'Ad slot positions must be unique',
+    }),
 })
 
 const pagesSchema = z.object({

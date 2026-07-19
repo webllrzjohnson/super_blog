@@ -2,6 +2,13 @@ import { unstable_cache } from 'next/cache'
 import { cache } from 'react'
 import { defaultAiSettings } from '@/lib/ai-defaults'
 import {
+  AD_POSITIONS,
+  isAdPosition,
+  normalizeAdSenseClientId,
+  normalizeAdSenseSlotId,
+  type AdPosition,
+} from '@/lib/adsense'
+import {
   normalizeAiProviderOrder,
   type AiTextProvider,
 } from '@/lib/ai-providers'
@@ -37,7 +44,7 @@ export interface AppearanceSettings {
 
 export interface AdSlotSetting {
   slotId: string
-  position: string
+  position: AdPosition
   enabled: boolean
 }
 
@@ -147,19 +154,26 @@ function sanitizeAppearanceSettings(value: unknown): AppearanceSettings {
 function sanitizeAdsSettings(value: unknown): AdsSettings {
   if (!isRecord(value)) return { clientId: defaultSettings.ads.clientId, slots: [...defaultSettings.ads.slots] }
   const rawSlots = Array.isArray(value.slots) ? value.slots : []
+  const seenPositions = new Set<AdPosition>()
   const slots = rawSlots
+    .slice(0, AD_POSITIONS.length)
     .filter(isRecord)
     .map((slot) => {
       const rawSlotId = slot.slotId
-      const slotId = typeof rawSlotId === 'string' ? rawSlotId.trim() : ''
+      const slotId = typeof rawSlotId === 'string' ? normalizeAdSenseSlotId(rawSlotId) ?? '' : ''
       const position = readOptionalString(slot, 'position')
       const enabled = slot.enabled
-      if (!position || typeof enabled !== 'boolean') return null
+      if (!position || !isAdPosition(position) || typeof enabled !== 'boolean') return null
       if (enabled && !slotId) return null
       return { slotId, position, enabled }
     })
     .filter((slot): slot is AdSlotSetting => slot !== null)
-  return { clientId: readOptionalString(value, 'clientId'), slots }
+    .filter((slot) => {
+      if (seenPositions.has(slot.position)) return false
+      seenPositions.add(slot.position)
+      return true
+    })
+  return { clientId: normalizeAdSenseClientId(readOptionalString(value, 'clientId')), slots }
 }
 
 function sanitizePagesSettings(value: unknown): PagesSettings {

@@ -21,6 +21,7 @@ export function revalidatePostsCache() {
 export function revalidateSettingsCache() {
   revalidateTag(CACHE_TAG_SETTINGS, TAG_PROFILE)
   revalidatePath('/', 'layout')
+  revalidatePath('/ads.txt')
   revalidatePath('/blog', 'layout')
   revalidatePath('/about', 'layout')
   revalidatePath('/bookmarks', 'layout')

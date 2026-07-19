@@ -8,17 +8,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import {
+  AD_POSITIONS,
+  normalizeAdSenseClientId,
+  normalizeAdSenseSlotId,
+  type AdPosition,
+} from '@/lib/adsense'
 
 interface SettingsAdsProps {
   initialValue?: AdsSettings
 }
-
-const adPositions = [
-  'top-of-content',
-  'mid-content',
-  'end-of-article',
-  'between-posts',
-] as const
 
 function buildSlotMap(slots: AdSlotSetting[]): Record<string, AdSlotSetting> {
   return Object.fromEntries(slots.map((slot) => [slot.position, slot]))
@@ -28,7 +27,7 @@ export function SettingsAds({ initialValue }: SettingsAdsProps) {
   const initialSlots = useMemo(() => {
     const slotMap = buildSlotMap(initialValue?.slots ?? [])
 
-    return adPositions.map((position) => ({
+    return AD_POSITIONS.map((position) => ({
       slotId: slotMap[position]?.slotId ?? '',
       position,
       enabled: slotMap[position]?.enabled ?? false,
@@ -39,7 +38,7 @@ export function SettingsAds({ initialValue }: SettingsAdsProps) {
   const [slots, setSlots] = useState<AdSlotSetting[]>(initialSlots)
   const [isSaving, setIsSaving] = useState(false)
 
-  const updateSlot = (position: string, patch: Partial<AdSlotSetting>) => {
+  const updateSlot = (position: AdPosition, patch: Partial<AdSlotSetting>) => {
     setSlots((current) =>
       current.map((slot) =>
         slot.position === position
@@ -57,6 +56,9 @@ export function SettingsAds({ initialValue }: SettingsAdsProps) {
 
     try {
       const normalizedClientId = clientId.trim()
+      if (normalizedClientId && !normalizeAdSenseClientId(normalizedClientId)) {
+        throw new Error('Use a valid AdSense client ID in the format ca-pub- followed by 16 digits')
+      }
       const normalizedSlots = slots.map((slot) => ({
         ...slot,
         slotId: slot.slotId.trim(),
@@ -68,6 +70,14 @@ export function SettingsAds({ initialValue }: SettingsAdsProps) {
 
       if (invalidEnabledSlot) {
         throw new Error(`Provide a slot ID for ${invalidEnabledSlot.position}`)
+      }
+
+      const invalidSlot = normalizedSlots.find(
+        (slot) => slot.slotId && !normalizeAdSenseSlotId(slot.slotId)
+      )
+
+      if (invalidSlot) {
+        throw new Error(`Use a 10-digit slot ID for ${invalidSlot.position}`)
       }
 
       const response = await fetch('/api/settings', {
@@ -105,7 +115,7 @@ export function SettingsAds({ initialValue }: SettingsAdsProps) {
       <CardHeader>
         <CardTitle>Ads</CardTitle>
         <CardDescription>
-          Configure the AdSense client ID and the allowed ad placements used by the site.
+          Add the AdSense client ID after Google issues it. The site then publishes the verification meta tag and ads.txt record automatically; ad placements remain disabled until you add slot IDs and enable them.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

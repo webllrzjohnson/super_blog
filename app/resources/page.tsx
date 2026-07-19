@@ -3,9 +3,14 @@ import Link from 'next/link'
 import { Download, FileText } from 'lucide-react'
 import { getResourceFilesFromDb, type ResourceFileItem } from '@/lib/resource-files'
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.maplehub.cloud'
+
 export const metadata: Metadata = {
   title: 'Resources',
   description: 'Useful downloadable templates, notices, checklists, and guides.',
+  alternates: {
+    canonical: `${BASE_URL}/resources`,
+  },
 }
 
 function formatBytes(bytes: number): string {

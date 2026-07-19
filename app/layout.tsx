@@ -21,6 +21,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { getSettings } from '@/lib/settings'
 import './globals.css'
 import { colorPresets } from '@/lib/theme-presets'
+import { getAdSenseAccountMetadata, normalizeAdSenseClientId } from '@/lib/adsense'
 
 const sourceSerif = Source_Serif_4({
   subsets: ['latin'],
@@ -115,6 +116,7 @@ const fontPairClasses = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings()
+  const adsenseClientId = normalizeAdSenseClientId(settings.ads.clientId)
   const siteName = process.env.NEXT_PUBLIC_SITE_NAME || settings.branding.siteName || 'Lester J.'
   const description =
     'A building superintendent in Toronto writing about property management, AI experiments, running, food, and everyday life.'
@@ -147,6 +149,7 @@ export async function generateMetadata(): Promise<Metadata> {
       index: true,
       follow: true,
     },
+    other: getAdSenseAccountMetadata(adsenseClientId),
     icons: settings.branding.faviconUrl
       ? {
           icon: settings.branding.faviconUrl,
@@ -163,6 +166,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const settings = await getSettings()
+  const adsenseClientId = normalizeAdSenseClientId(settings.ads.clientId)
   const fontPairClass =
     fontPairClasses[
       settings.appearance.fontPair as keyof typeof fontPairClasses
@@ -236,7 +240,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ConsentProvider adsenseClientId={settings.ads.clientId}>
+          <ConsentProvider adsenseClientId={adsenseClientId}>
             <SiteWrapper branding={settings.branding} links={settings.links}>
               {children}
             </SiteWrapper>
