@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   AD_POSITIONS,
+  buildAdSenseScriptSrc,
   buildAdsTxt,
   createAdsTxtResponse,
   getAdSenseAccountMetadata,
@@ -34,6 +35,18 @@ describe('getAdSenseAccountMetadata', () => {
 
   it('omits account metadata for an invalid client ID', () => {
     expect(getAdSenseAccountMetadata('ca-pub-invalid')).toBeUndefined()
+  })
+})
+
+describe('buildAdSenseScriptSrc', () => {
+  it('builds the exact Google verification script URL for a valid client ID', () => {
+    expect(buildAdSenseScriptSrc('ca-pub-1234567890123456')).toBe(
+      'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456',
+    )
+  })
+
+  it('omits the script URL for an invalid client ID', () => {
+    expect(buildAdSenseScriptSrc('ca-pub-invalid')).toBeUndefined()
   })
 })
 

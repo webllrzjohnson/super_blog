@@ -32,6 +32,15 @@ export function normalizeAdSenseClientId(value: string | null | undefined): stri
   return normalized
 }
 
+export function buildAdSenseScriptSrc(
+  value: string | null | undefined,
+): string | undefined {
+  const clientId = normalizeAdSenseClientId(value)
+  return clientId
+    ? `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${clientId}`
+    : undefined
+}
+
 export function getAdSenseAccountMetadata(
   value: string | null | undefined,
 ): Record<string, string> | undefined {

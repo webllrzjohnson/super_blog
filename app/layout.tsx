@@ -21,7 +21,11 @@ import { Toaster } from '@/components/ui/sonner'
 import { getSettings } from '@/lib/settings'
 import './globals.css'
 import { colorPresets } from '@/lib/theme-presets'
-import { getAdSenseAccountMetadata, normalizeAdSenseClientId } from '@/lib/adsense'
+import {
+  buildAdSenseScriptSrc,
+  getAdSenseAccountMetadata,
+  normalizeAdSenseClientId,
+} from '@/lib/adsense'
 
 const sourceSerif = Source_Serif_4({
   subsets: ['latin'],
@@ -167,6 +171,7 @@ export default async function RootLayout({
 }>) {
   const settings = await getSettings()
   const adsenseClientId = normalizeAdSenseClientId(settings.ads.clientId)
+  const adsenseScriptSrc = buildAdSenseScriptSrc(adsenseClientId)
   const fontPairClass =
     fontPairClasses[
       settings.appearance.fontPair as keyof typeof fontPairClasses
@@ -180,7 +185,10 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
-      <style>{`
+        {adsenseScriptSrc ? (
+          <script async src={adsenseScriptSrc} crossOrigin="anonymous" />
+        ) : null}
+        <style>{`
           :root {
             --background: ${light.background};
             --foreground: ${light.foreground};
