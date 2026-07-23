@@ -11,6 +11,12 @@ const ALLOWED_IMAGE_TYPES = new Set([
   'image/gif',
 ])
 
+type SaveUploadedImageOptions = {
+  requestOrigin?: string
+  forwardedHost?: string | null
+  forwardedProto?: string | null
+}
+
 function getExtension(file: File): string {
   const fromName = file.name.split('.').pop()?.toLowerCase()
   if (fromName) return fromName
@@ -52,7 +58,7 @@ export async function saveUploadedImageBuffer(
   buffer: Buffer,
   mimeType: string,
   prefix = 'generated',
-  requestOrigin?: string
+  options: SaveUploadedImageOptions | string = {}
 ): Promise<{ url: string; filename: string }> {
   const ext =
     mimeType === 'image/png'
@@ -70,5 +76,5 @@ export async function saveUploadedImageBuffer(
   await mkdir(uploadDir, { recursive: true })
   await writeFile(fullPath, buffer)
 
-  return { url: publicUploadUrl(filename, requestOrigin), filename }
+  return { url: publicUploadUrl(filename, options), filename }
 }

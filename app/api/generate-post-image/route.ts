@@ -32,6 +32,7 @@ export async function POST(request: Request) {
   const alt = buildPostImageAlt(topic)
 
   try {
+    const headersList = await headers()
     const imageRes = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
       headers: {
@@ -59,7 +60,11 @@ export async function POST(request: Request) {
       binary,
       'image/png',
       'generated',
-      new URL(request.url).origin
+      {
+        requestOrigin: new URL(request.url).origin,
+        forwardedHost: headersList.get('x-forwarded-host') ?? headersList.get('host'),
+        forwardedProto: headersList.get('x-forwarded-proto'),
+      }
     )
     return NextResponse.json({ url: uploaded.url, alt })
 

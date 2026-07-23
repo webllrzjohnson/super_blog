@@ -11,9 +11,22 @@ describe('upload storage helpers', () => {
     expect(resolveUploadDir({ cwd: '/repo', nodeEnv: 'production' })).toBe('/app/public/uploads')
   })
 
-  it('builds upload URLs from the request origin first', () => {
-    expect(publicUploadUrl('image.png', 'http://localhost:3006')).toBe(
-      'http://localhost:3006/api/uploads/image.png'
-    )
+  it('uses the public site URL before an internal request origin', () => {
+    expect(
+      publicUploadUrl('image.png', {
+        requestOrigin: 'https://localhost:3000',
+        siteUrl: 'https://www.maplehub.cloud',
+      })
+    ).toBe('https://www.maplehub.cloud/api/uploads/image.png')
+  })
+
+  it('falls back to forwarded host before localhost request origin', () => {
+    expect(
+      publicUploadUrl('image.png', {
+        requestOrigin: 'https://localhost:3000',
+        forwardedHost: 'www.maplehub.cloud',
+        forwardedProto: 'https',
+      })
+    ).toBe('https://www.maplehub.cloud/api/uploads/image.png')
   })
 })

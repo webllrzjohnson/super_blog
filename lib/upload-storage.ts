@@ -8,6 +8,13 @@ type ResolveUploadDirOptions = {
   uploadDir?: string
 }
 
+type PublicUploadUrlOptions = {
+  requestOrigin?: string
+  siteUrl?: string
+  forwardedHost?: string | null
+  forwardedProto?: string | null
+}
+
 export function resolveUploadDir(options: ResolveUploadDirOptions = {}): string {
   const configured = options.uploadDir ?? process.env.UPLOAD_DIR
   if (configured?.trim()) return configured.trim()
@@ -18,10 +25,27 @@ export function resolveUploadDir(options: ResolveUploadDirOptions = {}): string 
   return path.join(options.cwd ?? process.cwd(), 'public', 'uploads')
 }
 
-export function publicUploadUrl(filename: string, requestOrigin?: string): string {
+function cleanBaseUrl(value?: string | null): string {
+  return value?.trim().replace(/\/$/, '') ?? ''
+}
+
+function publicOriginFromForwardedHeaders(host?: string | null, proto?: string | null): string {
+  const forwardedHost = host?.split(',')[0]?.trim()
+  if (!forwardedHost) return ''
+
+  const forwardedProto = proto?.split(',')[0]?.trim() || 'https'
+  return `${forwardedProto}://${forwardedHost}`
+}
+
+export function publicUploadUrl(
+  filename: string,
+  options: string | PublicUploadUrlOptions = {}
+): string {
+  const opts = typeof options === 'string' ? { requestOrigin: options } : options
   const base =
-    requestOrigin?.replace(/\/$/, '') ||
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ||
-    ''
+    cleanBaseUrl(opts.siteUrl ?? process.env.NEXT_PUBLIC_SITE_URL) ||
+    cleanBaseUrl(publicOriginFromForwardedHeaders(opts.forwardedHost, opts.forwardedProto)) ||
+    cleanBaseUrl(opts.requestOrigin)
+
   return `${base}/api/uploads/${filename}`
 }
