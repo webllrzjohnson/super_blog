@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { isAdminSession } from '@/lib/auth-session'
 import { buildPostImageAlt, buildPostImagePrompt } from '@/lib/generate-post-image-prompt'
+import { getModelApiKey } from '@/lib/model-api-keys'
 import { getSetting } from '@/lib/settings'
 
 async function checkAdmin(): Promise<boolean> {
@@ -20,7 +21,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Topic is required' }, { status: 400 })
   }
 
-  const apiKey = process.env.OPENAI_API_KEY
+  const apiKey = await getModelApiKey('openai')
   if (!apiKey) {
     return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 })
   }
@@ -58,7 +59,7 @@ export async function POST(request: Request) {
     const formData = new FormData()
     formData.append('file', new Blob([binary], { type: 'image/png' }), filename)
 
-    const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/upload`, {
+    const uploadRes = await fetch(new URL('/api/upload', request.url), {
       method: 'POST',
       headers: {
         cookie: (await headers()).get('cookie') || '',

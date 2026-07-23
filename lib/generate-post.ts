@@ -21,6 +21,7 @@ import { evaluateGeneratedPostQuality } from '@/lib/generated-post-quality'
 import { calculateReadTime, defaultAuthor, getPublishedPosts } from '@/lib/posts'
 import { revalidatePostsCache } from '@/lib/revalidate-cache'
 import { saveUploadedImageBuffer, saveUploadedImageFile } from '@/lib/save-uploaded-image'
+import { getAvailableConfiguredAiTextProviders, getModelApiKey } from '@/lib/model-api-keys'
 import { getSetting } from '@/lib/settings'
 import type { AiSettings } from '@/lib/settings'
 import type { Post } from '@/lib/types'
@@ -91,7 +92,7 @@ async function resolveFeaturedImage(
     return { url: uploaded.url, alt }
   }
 
-  const apiKey = process.env.OPENAI_API_KEY
+  const apiKey = await getModelApiKey('openai')
   if (!apiKey) {
     return { alt }
   }
@@ -127,6 +128,7 @@ async function resolveFeaturedImage(
 }
 
 async function callClaude(
+  apiKey: string,
   model: string,
   system: string,
   user: string
@@ -136,7 +138,7 @@ async function callClaude(
     headers: {
       'content-type': 'application/json',
       'anthropic-version': '2023-06-01',
-      'x-api-key': process.env.ANTHROPIC_API_KEY ?? '',
+      'x-api-key': apiKey,
     },
     body: JSON.stringify({
       model,
@@ -156,6 +158,7 @@ async function callClaude(
 }
 
 async function callOpenAi(
+  apiKey: string,
   model: string,
   system: string,
   user: string
@@ -164,7 +167,7 @@ async function callOpenAi(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ''}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model,
@@ -188,6 +191,7 @@ async function callOpenAi(
 }
 
 async function callGroq(
+  apiKey: string,
   model: string,
   system: string,
   user: string
@@ -196,7 +200,7 @@ async function callGroq(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.GROQ_API_KEY ?? ''}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model,
@@ -234,10 +238,7 @@ async function generateRawPostText(
   wordCount: number
   providerAttempts: string[]
 }> {
-  const availableProviders = new Set<AiTextProvider>()
-  if (process.env.ANTHROPIC_API_KEY) availableProviders.add('claude')
-  if (process.env.OPENAI_API_KEY) availableProviders.add('openai')
-  if (process.env.GROQ_API_KEY) availableProviders.add('groq')
+  const availableProviders = await getAvailableConfiguredAiTextProviders()
 
   const providers = ai.providerOrder.filter((provider) => availableProviders.has(provider))
 
@@ -275,10 +276,10 @@ async function generateRawPostText(
     try {
       const raw =
         provider === 'claude'
-          ? await callClaude(claudeModel, systemPrompt, userMessage)
+          ? await callClaude((await getModelApiKey('anthropic'))!, claudeModel, systemPrompt, userMessage)
           : provider === 'openai'
-            ? await callOpenAi(openaiModel, systemPrompt, userMessage)
-            : await callGroq(groqModel, groqSystemPrompt, groqUserMessage)
+            ? await callOpenAi((await getModelApiKey('openai'))!, openaiModel, systemPrompt, userMessage)
+            : await callGroq((await getModelApiKey('groq'))!, groqModel, groqSystemPrompt, groqUserMessage)
 
       if (!raw.trim()) {
         lastError = `${label} returned an empty response`

@@ -1,8 +1,8 @@
 import { mkdir, writeFile } from 'fs/promises'
 import path from 'path'
+import { publicUploadUrl, resolveUploadDir } from '@/lib/upload-storage'
 
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024
-const UPLOAD_DIR = '/app/public/uploads'
 
 const ALLOWED_IMAGE_TYPES = new Set([
   'image/jpeg',
@@ -28,11 +28,6 @@ function getExtension(file: File): string {
   }
 }
 
-function publicUploadUrl(filename: string): string {
-  const base = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || ''
-  return `${base}/api/uploads/${filename}`
-}
-
 export async function saveUploadedImageFile(file: File): Promise<{ url: string; filename: string }> {
   if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
     throw new Error('Unsupported file type')
@@ -43,9 +38,10 @@ export async function saveUploadedImageFile(file: File): Promise<{ url: string; 
 
   const ext = getExtension(file)
   const filename = `${Date.now()}-${crypto.randomUUID()}.${ext}`
-  const fullPath = path.join(UPLOAD_DIR, filename)
+  const uploadDir = resolveUploadDir()
+  const fullPath = path.join(uploadDir, filename)
 
-  await mkdir(UPLOAD_DIR, { recursive: true })
+  await mkdir(uploadDir, { recursive: true })
   const buffer = Buffer.from(await file.arrayBuffer())
   await writeFile(fullPath, buffer)
 
@@ -67,9 +63,10 @@ export async function saveUploadedImageBuffer(
           : 'png'
 
   const filename = `${prefix}_${Date.now()}-${crypto.randomUUID()}.${ext}`
-  const fullPath = path.join(UPLOAD_DIR, filename)
+  const uploadDir = resolveUploadDir()
+  const fullPath = path.join(uploadDir, filename)
 
-  await mkdir(UPLOAD_DIR, { recursive: true })
+  await mkdir(uploadDir, { recursive: true })
   await writeFile(fullPath, buffer)
 
   return { url: publicUploadUrl(filename), filename }

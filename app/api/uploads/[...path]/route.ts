@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readFile } from 'fs/promises'
 import path from 'path'
+import { resolveUploadDir } from '@/lib/upload-storage'
 
 const UPLOAD_CACHE_CONTROL = 'public, max-age=31536000, immutable'
 
@@ -48,7 +49,7 @@ export async function GET(
       return new NextResponse('Not found', { status: 404 })
     }
 
-    const fullPath = path.join('/app/public/uploads', ...filePath)
+    const fullPath = path.join(resolveUploadDir(), ...filePath)
     const file = await readFile(fullPath)
 
     const ext = filePath[filePath.length - 1].split('.').pop()

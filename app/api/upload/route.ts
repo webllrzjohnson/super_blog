@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
 import { getClientIdentifier, rateLimit } from '@/lib/rate-limit'
+import { publicUploadUrl, resolveUploadDir } from '@/lib/upload-storage'
  
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -79,7 +80,7 @@ export async function POST(request: Request) {
  
   const ext = getExtension(file)
   const filename = `${Date.now()}-${crypto.randomUUID()}.${ext}`
-  const uploadDir = '/app/public/uploads'
+  const uploadDir = resolveUploadDir()
   const fullPath = path.join(uploadDir, filename)
  
   try {
@@ -91,7 +92,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to save file' }, { status: 500 })
   }
  
-  const publicUrl = `https://maplehub.cloud/api/uploads/${filename}`
+  const publicUrl = publicUploadUrl(filename, new URL(request.url).origin)
  
   return NextResponse.json({ url: publicUrl, filename })
 }

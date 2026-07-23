@@ -14,8 +14,6 @@ import {
 } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
-import { ConsentProvider } from '@/lib/consent-context'
-import { CookieConsent } from '@/components/cookie-consent'
 import { SiteWrapper } from '@/components/site-wrapper'
 import { Toaster } from '@/components/ui/sonner'
 import { getSettings } from '@/lib/settings'
@@ -248,12 +246,9 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ConsentProvider adsenseClientId={adsenseClientId}>
-            <SiteWrapper branding={settings.branding} links={settings.links}>
-              {children}
-            </SiteWrapper>
-            <CookieConsent />
-          </ConsentProvider>
+          <SiteWrapper branding={settings.branding} links={settings.links}>
+            {children}
+          </SiteWrapper>
           <Toaster />
         </ThemeProvider>
         {process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true' ? <Analytics /> : null}

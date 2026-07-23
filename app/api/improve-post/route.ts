@@ -9,6 +9,7 @@ import {
   type DraftAssistantAction,
 } from '@/lib/editor-assistant'
 import { rateLimit, getClientIdentifier } from '@/lib/rate-limit'
+import { getAvailableConfiguredAiTextProviders, getModelApiKey } from '@/lib/model-api-keys'
 import { getSetting } from '@/lib/settings'
 import type { AiSettings } from '@/lib/settings'
 
@@ -46,13 +47,13 @@ function resolveOpenAiModel(ai: AiSettings): string {
   return ai.openaiModel.trim() || process.env.OPENAI_TEXT_MODEL?.trim() || 'gpt-4.1'
 }
 
-async function callClaude(model: string, prompt: string): Promise<string> {
+async function callClaude(apiKey: string, model: string, prompt: string): Promise<string> {
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
       'anthropic-version': '2023-06-01',
-      'x-api-key': process.env.ANTHROPIC_API_KEY ?? '',
+      'x-api-key': apiKey,
     },
     body: JSON.stringify({
       model,
@@ -71,12 +72,12 @@ async function callClaude(model: string, prompt: string): Promise<string> {
   return data.content?.[0]?.text ?? ''
 }
 
-async function callOpenAi(model: string, prompt: string): Promise<string> {
+async function callOpenAi(apiKey: string, model: string, prompt: string): Promise<string> {
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ''}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model,
@@ -99,12 +100,12 @@ async function callOpenAi(model: string, prompt: string): Promise<string> {
   return data.choices?.[0]?.message?.content ?? ''
 }
 
-async function callGroq(model: string, prompt: string): Promise<string> {
+async function callGroq(apiKey: string, model: string, prompt: string): Promise<string> {
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.GROQ_API_KEY ?? ''}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model,
@@ -132,10 +133,7 @@ async function generateAssistantSuggestion(
   ai: AiSettings,
   post: z.infer<typeof postSchema>
 ) {
-  const available = new Set<AiTextProvider>()
-  if (process.env.ANTHROPIC_API_KEY) available.add('claude')
-  if (process.env.OPENAI_API_KEY) available.add('openai')
-  if (process.env.GROQ_API_KEY) available.add('groq')
+  const available = await getAvailableConfiguredAiTextProviders()
 
   const providers = ai.providerOrder.filter((provider) => available.has(provider))
   if (providers.length === 0) {
@@ -151,10 +149,10 @@ async function generateAssistantSuggestion(
     try {
       const raw =
         provider === 'claude'
-          ? await callClaude(resolveClaudeModel(ai), prompt)
+          ? await callClaude((await getModelApiKey('anthropic'))!, resolveClaudeModel(ai), prompt)
           : provider === 'openai'
-            ? await callOpenAi(resolveOpenAiModel(ai), prompt)
-            : await callGroq(ai.groqModel.trim() || 'llama-3.3-70b-versatile', prompt)
+            ? await callOpenAi((await getModelApiKey('openai'))!, resolveOpenAiModel(ai), prompt)
+            : await callGroq((await getModelApiKey('groq'))!, ai.groqModel.trim() || 'llama-3.3-70b-versatile', prompt)
 
       if (!raw.trim()) {
         lastError = `${label} returned an empty response`

@@ -1,12 +1,29 @@
 'use client'
 
-import { useConsent } from '@/lib/consent-context'
 import { useEffect, useRef } from 'react'
 
 declare global {
   interface Window {
     adsbygoogle: unknown[]
   }
+}
+
+interface AdSenseQueueTarget {
+  adsbygoogle?: unknown[]
+}
+
+interface PushState {
+  current: boolean
+}
+
+export function pushAdSenseOnce(target: AdSenseQueueTarget, state: PushState) {
+  if (state.current) return false
+
+  const queue = target.adsbygoogle || []
+  target.adsbygoogle = queue
+  queue.push({})
+  state.current = true
+  return true
 }
 
 interface AdSlotProps {
@@ -23,7 +40,6 @@ const AD_SLOTS: Record<string, string> = {
 }
 
 export function AdSlot({ position, adSlot, clientId }: AdSlotProps) {
-  const { hasConsented, isLoaded } = useConsent()
   const adRef = useRef<HTMLModElement>(null)
   const adPushed = useRef(false)
 
@@ -32,16 +48,15 @@ export function AdSlot({ position, adSlot, clientId }: AdSlotProps) {
     clientId || process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || 'ca-pub-XXXXXXXXXXXXXXXX'
 
   useEffect(() => {
-    // Only push ad if consent given and not already pushed
-    if (hasConsented && !adPushed.current && adRef.current) {
+    // Google CMP and AdSense apply the visitor's regional consent signal.
+    if (adRef.current) {
       try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({})
-        adPushed.current = true
+        pushAdSenseOnce(window, adPushed)
       } catch (error) {
         console.error('AdSense error:', error)
       }
     }
-  }, [hasConsented])
+  }, [])
 
   const adStyles = {
     top: 'min-h-24 mb-8',
@@ -50,27 +65,6 @@ export function AdSlot({ position, adSlot, clientId }: AdSlotProps) {
     footer: 'min-h-24 mt-8',
   }
 
-  // Show placeholder while loading consent status
-  if (!isLoaded) {
-    return (
-      <div className={`${adStyles[position]} bg-secondary/20 rounded animate-pulse`} />
-    )
-  }
-
-  // If user declined cookies, show non-personalized ad placeholder
-  if (!hasConsented) {
-    return (
-      <div 
-        className={`${adStyles[position]} bg-secondary/30 rounded border border-dashed border-border flex items-center justify-center`}
-      >
-        <span className="text-xs text-muted-foreground text-center px-4">
-          Enable cookies to see personalized content
-        </span>
-      </div>
-    )
-  }
-
-  // User consented - show actual AdSense ad
   return (
     <div className={adStyles[position]}>
       <ins

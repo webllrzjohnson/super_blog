@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { defaultAiSettings } from '@/lib/ai-defaults'
 import type { AiSettings } from '@/lib/settings'
@@ -15,6 +15,20 @@ import {
   DEFAULT_AI_PROVIDER_ORDER,
   type AiTextProvider,
 } from '@/lib/ai-providers'
+
+type ApiKeyProviderStatus = {
+  provider: 'anthropic' | 'openai' | 'groq'
+  envKey: string
+  envConfigured: boolean
+  storedConfigured: boolean
+  masked: string
+}
+
+const API_KEY_LABELS: Record<ApiKeyProviderStatus['provider'], string> = {
+  anthropic: 'Anthropic / Claude',
+  openai: 'OpenAI',
+  groq: 'Groq',
+}
 
 interface SettingsAiProps {
   initialValue?: AiSettings
@@ -39,6 +53,51 @@ export function SettingsAi({ initialValue }: SettingsAiProps) {
       initialValue?.imagePromptTemplate ?? defaultAiSettings.imagePromptTemplate,
   })
   const [isSaving, setIsSaving] = useState(false)
+  const [apiKeyStatus, setApiKeyStatus] = useState<ApiKeyProviderStatus[]>([])
+  const [apiKeyDraft, setApiKeyDraft] = useState<Record<ApiKeyProviderStatus['provider'], string>>({
+    anthropic: '',
+    openai: '',
+    groq: '',
+  })
+  const [apiKeyClear, setApiKeyClear] = useState<Record<ApiKeyProviderStatus['provider'], boolean>>({
+    anthropic: false,
+    openai: false,
+    groq: false,
+  })
+  const [isLoadingKeys, setIsLoadingKeys] = useState(true)
+  const [isSavingKeys, setIsSavingKeys] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    fetch('/api/model-api-keys', { credentials: 'include' })
+      .then(async (response) => {
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}))
+          throw new Error(data.error || 'Failed to load API key status')
+        }
+        return response.json()
+      })
+      .then((data) => {
+        if (!cancelled && Array.isArray(data.providers)) {
+          setApiKeyStatus(data.providers)
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          toast.error('Failed to load API key status', {
+            description: error instanceof Error ? error.message : 'Unknown error',
+          })
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingKeys(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const updateField = <K extends keyof AiSettings>(key: K, value: AiSettings[K]) => {
     setFormData((current) => ({ ...current, [key]: value }))
@@ -95,14 +154,111 @@ export function SettingsAi({ initialValue }: SettingsAiProps) {
     }
   }
 
+  const handleSaveApiKeys = async () => {
+    setIsSavingKeys(true)
+
+    try {
+      const response = await fetch('/api/model-api-keys', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ keys: apiKeyDraft, clear: apiKeyClear }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.error || 'Failed to save API keys')
+      }
+
+      const data = await response.json()
+      if (Array.isArray(data.providers)) setApiKeyStatus(data.providers)
+      setApiKeyDraft({ anthropic: '', openai: '', groq: '' })
+      setApiKeyClear({ anthropic: false, openai: false, groq: false })
+      toast.success('Model API keys saved')
+    } catch (error) {
+      toast.error('Failed to save API keys', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      })
+    } finally {
+      setIsSavingKeys(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
+          <CardTitle>Model API keys</CardTitle>
+          <CardDescription>
+            Add or rotate Claude, OpenAI, and Groq keys without editing environment variables.
+            Saved keys are masked after saving; blank fields keep the current key.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {isLoadingKeys ? (
+            <p className="text-sm text-muted-foreground">Checking configured keys...</p>
+          ) : (
+            <div className="grid gap-4 lg:grid-cols-3">
+              {apiKeyStatus.map((status) => (
+                <div key={status.provider} className="space-y-3 rounded-lg border border-border p-4">
+                  <div>
+                    <Label htmlFor={`${status.provider}-api-key`}>
+                      {API_KEY_LABELS[status.provider]}
+                    </Label>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {status.envKey} · {status.masked}
+                      {status.envConfigured ? ' · environment wins' : ''}
+                    </p>
+                  </div>
+                  <Input
+                    id={`${status.provider}-api-key`}
+                    type="password"
+                    autoComplete="off"
+                    value={apiKeyDraft[status.provider]}
+                    onChange={(event) =>
+                      setApiKeyDraft((current) => ({
+                        ...current,
+                        [status.provider]: event.target.value,
+                      }))
+                    }
+                    placeholder={
+                      status.storedConfigured || status.envConfigured
+                        ? 'Leave blank to keep current key'
+                        : 'Paste API key'
+                    }
+                  />
+                  <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={apiKeyClear[status.provider]}
+                      disabled={status.envConfigured}
+                      onChange={(event) =>
+                        setApiKeyClear((current) => ({
+                          ...current,
+                          [status.provider]: event.target.checked,
+                        }))
+                      }
+                    />
+                    Clear saved key
+                  </label>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="flex justify-end">
+            <Button onClick={handleSaveApiKeys} disabled={isLoadingKeys || isSavingKeys}>
+              {isSavingKeys ? 'Saving keys...' : 'Save API keys'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Models</CardTitle>
           <CardDescription>
-            API keys stay in environment variables. These model IDs are used for post and image
-            generation.
+            These model IDs are used for post and image generation. API keys can be saved in
+            the card above or kept in environment variables.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

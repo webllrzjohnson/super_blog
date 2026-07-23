@@ -6,7 +6,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'Our GDPR-compliant privacy policy explains how we collect, use, and protect your personal information when using Google AdSense and Amazon affiliate links.',
+  description: 'Learn how this site collects, uses, and protects information when using Google AdSense, analytics, and affiliate links.',
   alternates: {
     canonical: `${BASE_URL}/privacy`,
   },
@@ -24,7 +24,7 @@ export default async function PrivacyPage() {
           Privacy Policy
         </h1>
         <p className="text-muted-foreground">
-          Last updated: March 22, 2026
+          Last updated: July 19, 2026
         </p>
       </header>
 
@@ -40,9 +40,9 @@ export default async function PrivacyPage() {
             application related or connected thereto.
           </p>
           <p className="text-muted-foreground leading-relaxed mb-4">
-            We are committed to protecting your personal data and respecting your privacy. This policy complies with 
-            the General Data Protection Regulation (GDPR), the California Consumer Privacy Act (CCPA), and other 
-            applicable data protection laws.
+            We are committed to protecting personal data and respecting privacy. This policy describes our practices
+            in light of data protection laws that may apply, including the General Data Protection Regulation (GDPR)
+            and the California Consumer Privacy Act (CCPA).
           </p>
           <p className="text-muted-foreground leading-relaxed">
             Please read this Privacy Policy carefully. If you do not agree with the terms of this Privacy Policy, 
@@ -96,8 +96,8 @@ export default async function PrivacyPage() {
 
           <h3 className="text-lg font-medium text-foreground mt-6 mb-3">3.3 Information from Third Parties</h3>
           <p className="text-muted-foreground leading-relaxed">
-            We may receive information about you from third-party services such as Google Analytics, Google AdSense, 
-            and Amazon Associates when you interact with advertisements or affiliate links on our Site.
+            We may receive information about you from third-party services such as website analytics, Google AdSense,
+            and Amazon Associates when you interact with the Site, advertisements, or affiliate links.
           </p>
         </section>
 
@@ -138,9 +138,9 @@ export default async function PrivacyPage() {
           <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2">
             <li>To operate, maintain, and improve our Site</li>
             <li>To personalize your experience and deliver content relevant to your interests</li>
-            <li>To serve advertisements through Google AdSense (with your consent)</li>
+            <li>To serve advertisements through Google AdSense, including personalized ads when consent is available and non-personalized or limited ads where Google permits them</li>
             <li>To track affiliate purchases through Amazon Associates</li>
-            <li>To analyze Site traffic and usage patterns via Google Analytics</li>
+            <li>To analyze Site traffic and usage patterns through website analytics when enabled</li>
             <li>To respond to your inquiries and provide customer support</li>
             <li>To send you our newsletter (if you have subscribed)</li>
             <li>To detect, prevent, and address technical issues and security threats</li>
@@ -167,26 +167,27 @@ export default async function PrivacyPage() {
             <li>Theme preference (dark/light mode)</li>
           </ul>
 
-          <h3 className="text-lg font-medium text-foreground mt-6 mb-3">6.2 Analytics Cookies (Consent Required)</h3>
+          <h3 className="text-lg font-medium text-foreground mt-6 mb-3">6.2 Website Analytics</h3>
           <p className="text-muted-foreground leading-relaxed mb-4">
-            With your consent, we use Google Analytics to understand how visitors interact with our Site. These 
-            cookies collect information in an anonymous form, including:
+            When enabled, we use Vercel Web Analytics to understand aggregate traffic and how visitors use the Site.
+            Analytics data may include:
           </p>
           <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
-            <li>Number of visitors</li>
-            <li>Pages visited and time spent</li>
-            <li>Traffic sources</li>
-            <li>User journey through the Site</li>
+            <li>Pages visited and referral source</li>
+            <li>General device and browser information</li>
+            <li>Approximate country or region</li>
+            <li>Aggregated usage and performance metrics</li>
           </ul>
           <p className="text-muted-foreground leading-relaxed">
-            Google Analytics cookies: _ga, _ga_*, _gid, _gat
+            Vercel processes analytics data according to its published privacy and data-processing terms.
           </p>
 
-          <h3 className="text-lg font-medium text-foreground mt-6 mb-3">6.3 Advertising Cookies (Consent Required)</h3>
+          <h3 className="text-lg font-medium text-foreground mt-6 mb-3">6.3 Advertising Technologies</h3>
           <p className="text-muted-foreground leading-relaxed mb-4">
-            With your consent, we display advertisements through Google AdSense. Google and other third-party vendors
-            may use advertising cookies to serve personalized ads based on your visits to this Site and other websites.
-            Google and its partners use cookies to:
+            We display advertisements through Google AdSense. Google and other participating vendors may use cookies
+            or similar technologies to measure and serve ads. Personalized advertising requires consent where
+            applicable. If consent is not provided, Google may serve non-personalized or limited ads in accordance with
+            its policies and applicable requirements. Google and its partners may use these technologies to:
           </p>
           <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
             <li>Serve ads based on your prior visits to this Site or other websites</li>
@@ -210,16 +211,18 @@ export default async function PrivacyPage() {
 
           <h3 className="text-lg font-medium text-foreground mt-6 mb-3">6.4 Managing Your Cookie Preferences</h3>
           <p className="text-muted-foreground leading-relaxed mb-4">
-            When you first visit our Site, you will see a cookie consent banner where you can:
+            For visitors in the European Economic Area, the United Kingdom, and Switzerland, Google&apos;s certified
+            consent management platform displays our European regulations message and offers three choices:
           </p>
           <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
-            <li>Accept all cookies</li>
-            <li>Reject non-essential cookies</li>
+            <li>Consent</li>
+            <li>Do not consent</li>
+            <li>Manage options</li>
           </ul>
           <p className="text-muted-foreground leading-relaxed">
-            You can change your cookie preference at any time by clearing this Site&apos;s stored data and revisiting the
-            Site. You can also block cookies in your browser settings. Note that blocking certain cookies may impact your
-            experience on the Site.
+            Google communicates that choice to participating advertising providers through the IAB Transparency and
+            Consent Framework. Where available, you can reopen Google&apos;s privacy options to review or withdraw your
+            choice. You can also clear this Site&apos;s stored data or block cookies in your browser settings.
           </p>
         </section>
 
@@ -239,11 +242,15 @@ export default async function PrivacyPage() {
             <strong className="text-foreground">Your choices:</strong>
           </p>
           <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
-            <li>Reject advertising cookies via our cookie consent banner (AdSense ads will not load)</li>
-            <li>Opt out at <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Google Ads Settings</a></li>
-            <li>Install the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Google Analytics Opt-out Browser Add-on</a></li>
+            <li>Use Google&apos;s consent message to select Consent, Do not consent, or Manage options where offered</li>
+            <li>Review or withdraw consent through Google&apos;s privacy options where available</li>
+            <li>Opt out of personalized ads at <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Google Ads Settings</a></li>
             <li>Visit <a href="https://www.networkadvertising.org/choices/" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Network Advertising Initiative opt-out page</a></li>
           </ul>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Choosing not to consent prevents personalized advertising where consent is required, but Google may still
+            serve non-personalized or limited ads depending on applicable law and its policies.
+          </p>
           <p className="text-muted-foreground leading-relaxed">
             For more information, see{' '}
             <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
@@ -294,8 +301,9 @@ export default async function PrivacyPage() {
               email service providers). These providers are contractually obligated to protect your data.
             </li>
             <li>
-              <strong className="text-foreground">Advertising Partners:</strong> With your consent, we share data 
-              with Google AdSense for the purpose of serving advertisements.
+              <strong className="text-foreground">Advertising Partners:</strong> Google and participating advertising
+              providers may process data to measure and serve ads according to your consent choices, applicable legal
+              bases, and their published policies. Personalized advertising requires consent where applicable.
             </li>
             <li>
               <strong className="text-foreground">Legal Requirements:</strong> We may disclose your information 
@@ -342,7 +350,7 @@ export default async function PrivacyPage() {
             collected, including:
           </p>
           <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
-            <li><strong className="text-foreground">Analytics data:</strong> 26 months (Google Analytics default)</li>
+            <li><strong className="text-foreground">Analytics data:</strong> According to the analytics provider&apos;s configured retention period and applicable requirements</li>
             <li><strong className="text-foreground">Contact form submissions:</strong> 3 years or until you request deletion</li>
             <li><strong className="text-foreground">Newsletter subscriptions:</strong> Until you unsubscribe</li>
             <li><strong className="text-foreground">Cookie consent preference:</strong> Stored in your browser until you clear this Site&apos;s stored data</li>
@@ -471,9 +479,9 @@ export default async function PrivacyPage() {
           <h2 className="text-xl font-semibold text-foreground mb-4">16. Do Not Track Signals</h2>
           <p className="text-muted-foreground leading-relaxed">
             Some browsers have a &quot;Do Not Track&quot; (DNT) feature that signals to websites that you do not 
-            want to be tracked. There is no uniform standard for responding to DNT signals. Currently, we do not 
-            respond to DNT browser signals. However, you can manage your cookie preferences through our consent 
-            banner.
+            want to be tracked. There is no uniform standard for responding to DNT signals. Currently, we do not
+            respond to DNT browser signals. You can manage advertising choices through Google&apos;s consent message and
+            privacy options where available, Google Ads Settings, and your browser or device controls.
           </p>
         </section>
 
