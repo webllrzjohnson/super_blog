@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import { isAdminSession } from '@/lib/auth-session'
 import { buildPostImageAlt, buildPostImagePrompt } from '@/lib/generate-post-image-prompt'
 import { getModelApiKey } from '@/lib/model-api-keys'
+import { saveUploadedImageBuffer } from '@/lib/save-uploaded-image'
 import { getSetting } from '@/lib/settings'
 
 async function checkAdmin(): Promise<boolean> {
@@ -54,25 +55,13 @@ export async function POST(request: Request) {
     if (!b64) throw new Error('No image data returned')
 
     const binary = Buffer.from(b64, 'base64')
-    const filename = `generated_${Date.now()}.png`
-
-    const formData = new FormData()
-    formData.append('file', new Blob([binary], { type: 'image/png' }), filename)
-
-    const uploadRes = await fetch(new URL('/api/upload', request.url), {
-      method: 'POST',
-      headers: {
-        cookie: (await headers()).get('cookie') || '',
-      },
-      body: formData,
-    })
-
-    if (!uploadRes.ok) {
-      throw new Error('Failed to upload generated image')
-    }
-
-    const uploadData = await uploadRes.json()
-    return NextResponse.json({ url: uploadData.url, alt })
+    const uploaded = await saveUploadedImageBuffer(
+      binary,
+      'image/png',
+      'generated',
+      new URL(request.url).origin
+    )
+    return NextResponse.json({ url: uploaded.url, alt })
 
   } catch (error) {
     return NextResponse.json(

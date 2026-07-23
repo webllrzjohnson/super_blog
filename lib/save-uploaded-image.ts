@@ -51,7 +51,8 @@ export async function saveUploadedImageFile(file: File): Promise<{ url: string; 
 export async function saveUploadedImageBuffer(
   buffer: Buffer,
   mimeType: string,
-  prefix = 'generated'
+  prefix = 'generated',
+  requestOrigin?: string
 ): Promise<{ url: string; filename: string }> {
   const ext =
     mimeType === 'image/png'
@@ -69,5 +70,5 @@ export async function saveUploadedImageBuffer(
   await mkdir(uploadDir, { recursive: true })
   await writeFile(fullPath, buffer)
 
-  return { url: publicUploadUrl(filename), filename }
+  return { url: publicUploadUrl(filename, requestOrigin), filename }
 }

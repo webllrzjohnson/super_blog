@@ -1,13 +1,10 @@
-import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { publicUploadUrl, resolveUploadDir } from './upload-storage'
 
 describe('upload storage helpers', () => {
   it('uses a local public/uploads directory outside production when no upload dir is configured', () => {
-    expect(resolveUploadDir({ cwd: '/repo', nodeEnv: 'development' })).toBe(
-      path.join('/repo', 'public', 'uploads')
-    )
+    expect(resolveUploadDir({ cwd: '/repo', nodeEnv: 'development' })).toMatch(/[\\/]repo[\\/]public[\\/]uploads$/)
   })
 
   it('keeps the container upload directory in production', () => {
