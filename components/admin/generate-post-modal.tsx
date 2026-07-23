@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
+import Image from 'next/image'
 import { AlertTriangle, CheckCircle2, Save, Sparkles, X } from 'lucide-react'
 import { AI_PROMPT_PRESETS, DEFAULT_AI_PROMPT_PRESET_ID } from '@/lib/ai-prompt-presets'
 import { AI_PROVIDER_LABELS, type AiTextProvider } from '@/lib/ai-providers'
@@ -272,7 +273,7 @@ export function GeneratePostModal({
                 className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
               <p className="mt-1 text-xs text-muted-foreground">
-                Preview mode does not upload or generate images. Add one in the post editor after saving.
+                Optional. If empty, the AI workflow generates a featured image with the saved OpenAI key.
               </p>
               {featuredImage && <p className="mt-1 text-xs text-muted-foreground">{featuredImage.name}</p>}
             </div>
@@ -309,6 +310,17 @@ export function GeneratePostModal({
                   wordCount={preview.wordCount}
                 />
                 <article className="rounded-lg border border-border bg-background p-5 shadow-sm">
+                  {preview.post.featuredImage ? (
+                    <div className="relative mb-4 aspect-[3/2] overflow-hidden rounded-lg bg-muted">
+                      <Image
+                        src={preview.post.featuredImage}
+                        alt={preview.post.featuredImageAlt || preview.post.title}
+                        width={768}
+                        height={512}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ) : null}
                   <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     <span>{preview.model ? AI_PROVIDER_LABELS[preview.model] : 'AI'}</span>
                     <span aria-hidden>·</span>

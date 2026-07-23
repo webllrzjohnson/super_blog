@@ -84,7 +84,7 @@ async function resolveFeaturedImage(
   topic: string,
   ai: AiSettings,
   featuredImage?: File | null
-): Promise<{ url?: string; alt: string }> {
+): Promise<{ url?: string; alt: string; error?: string }> {
   const alt = buildPostImageAlt(topic)
 
   if (featuredImage && featuredImage.size > 0) {
@@ -94,7 +94,7 @@ async function resolveFeaturedImage(
 
   const apiKey = await getModelApiKey('openai')
   if (!apiKey) {
-    return { alt }
+    return { alt, error: 'OpenAI API key not configured for featured image generation.' }
   }
 
   try {
@@ -112,18 +112,22 @@ async function resolveFeaturedImage(
     })
 
     if (!imageRes.ok) {
-      return { alt }
+      const err = await imageRes.json().catch(() => ({}))
+      return { alt, error: err.error?.message || 'OpenAI image generation failed.' }
     }
 
     const imageData = (await imageRes.json()) as { data?: Array<{ b64_json?: string }> }
     const b64 = imageData.data?.[0]?.b64_json
-    if (!b64) return { alt }
+    if (!b64) return { alt, error: 'OpenAI returned no image data.' }
 
     const binary = Buffer.from(b64, 'base64')
     const uploaded = await saveUploadedImageBuffer(binary, 'image/png', 'dalle')
     return { url: uploaded.url, alt }
-  } catch {
-    return { alt }
+  } catch (error) {
+    return {
+      alt,
+      error: error instanceof Error ? error.message : 'Featured image generation failed.',
+    }
   }
 }
 
@@ -339,9 +343,13 @@ async function buildGeneratedPostDraft(
     const [image, generated] = await Promise.all([
       options.includeFeaturedImage
         ? resolveFeaturedImage(topic, ai, params.featuredImage)
-        : Promise.resolve({ url: undefined, alt: buildPostImageAlt(topic) }),
+        : Promise.resolve({ url: undefined, alt: buildPostImageAlt(topic), error: undefined }),
       generateRawPostText(ai, { topic, context, schedule, recentPosts }),
     ])
+
+    if (options.includeFeaturedImage && !image.url && image.error) {
+      return { ok: false, message: image.error }
+    }
 
     const parsed = parseAiPostResponse(generated.raw)
     const slug = sanitizeSlug(parsed.meta.slug) || sanitizeSlug(parsed.meta.title)
@@ -395,7 +403,7 @@ async function buildGeneratedPostDraft(
 export async function previewGeneratedPost(
   params: GeneratePostParams
 ): Promise<GeneratePostPreviewResult> {
-  return buildGeneratedPostDraft(params, { includeFeaturedImage: false })
+  return buildGeneratedPostDraft(params, { includeFeaturedImage: true })
 }
 
 export async function generateAndSavePost(
