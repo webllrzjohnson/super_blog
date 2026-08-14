@@ -28,3 +28,6 @@ n8n/
 
 # Project notes/checkpoints
 docs/
+
+# Local document exports/reference files
+documents/
