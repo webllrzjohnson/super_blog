@@ -142,6 +142,30 @@ D:/Factory/super_blog-archives/adsense-originals-2026-07-19T18-32-36-276Z.json
 
 Confirm that archive exists before applying/verifying production rewrites.
 
+### Validation run on 2026-08-14
+
+Read-only validation was run after this status file was created:
+
+```bash
+node plans/validate-adsense-rewrites.mjs
+node plans/validate-humanized-rewrites.mjs
+```
+
+Results:
+
+- `plans/validate-humanized-rewrites.mjs` passed for four rewrite drafts:
+  - `heat-wave-chaos-in-the-building` — 650 words, 1 internal link, no flags
+  - `respecting-shared-space` — 738 words, 1 internal link, no flags
+  - `basement-flooding-old-townhouses` — 753 words, 1 internal link, no flags
+  - `scooters-in-hallway-problem` — 669 words, 1 internal link, no flags
+- `plans/validate-adsense-rewrites.mjs` is stale and failed because it still expects the duplicate live slug `respecting-shared-space-update`:
+
+```text
+Error: Live post missing: respecting-shared-space-update
+```
+
+Before applying production changes, update or replace that older validator so it treats `respecting-shared-space-update` as already missing/retired instead of a required live post.
+
 ## Recommended next work
 
 ### Phase 1 — Stabilize local work buckets
@@ -181,3 +205,5 @@ node plans/validate-humanized-rewrites.mjs
 ```
 
 Then review the generated report and decide whether to apply any content changes.
+
+Current validation result: the four humanized rewrite drafts are clean, but the older AdSense validator needs a small maintenance update for the already-missing duplicate slug before it can be used as the source of truth.
