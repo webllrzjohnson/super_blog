@@ -214,4 +214,36 @@ node plans/validate-humanized-rewrites.mjs
 
 Then review the generated report and decide whether to apply any content changes.
 
-Current validation result: both rewrite validators pass. Next step is human review/approval of the four rewritten post drafts before any production content is changed.
+Current validation result: both rewrite validators pass.
+
+### Production rewrite application on 2026-08-14
+
+Louie approved applying the four validated humanized rewrites.
+
+Command run:
+
+```bash
+node plans/apply-humanized-rewrites.mjs --apply
+```
+
+Result:
+
+- Original post backup saved outside the repo:
+
+```text
+D:/Factory/super_blog-archives/adsense-originals-2026-08-14T03-09-38-845Z.json
+```
+
+- Updated live posts:
+  - `heat-wave-chaos-in-the-building`
+  - `respecting-shared-space`
+  - `basement-flooding-old-townhouses`
+  - `scooters-in-hallway-problem`
+- Script-reported `Live API verification passed`.
+- Independent verification confirmed:
+  - all four live API titles match expected titles
+  - all four live API bodies match the committed markdown drafts
+  - all four public `/blog/<slug>` pages return `200`
+  - `respecting-shared-space-update` is not present in `/api/posts`
+
+Next step: after Coolify/static cache behavior settles, browser-check the four public pages visually and confirm the AdSense/content cleanup looks good in the live layout.
