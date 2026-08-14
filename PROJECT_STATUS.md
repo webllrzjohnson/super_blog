@@ -248,6 +248,26 @@ D:/Factory/super_blog-archives/adsense-originals-2026-08-14T03-09-38-845Z.json
 
 Next step: after Coolify/static cache behavior settles, browser-check the four public pages visually and confirm the AdSense/content cleanup looks good in the live layout.
 
+### Visual rewrite-page browser check on 2026-08-14
+
+The four AdSense-rewritten public pages were checked in the browser after cache settled:
+
+```text
+https://www.maplehub.cloud/blog/heat-wave-chaos-in-the-building
+https://www.maplehub.cloud/blog/respecting-shared-space
+https://www.maplehub.cloud/blog/basement-flooding-old-townhouses
+https://www.maplehub.cloud/blog/scooters-in-hallway-problem
+```
+
+Verification result:
+
+- All four pages returned `200`.
+- Hero images rendered.
+- Article title/excerpt/tag blocks rendered correctly.
+- Body headings and paragraphs were readable and aligned.
+- Sidebar, newsletter, recent posts, tags, comments, reactions, and related-post sections rendered normally.
+- No broken hero images, overlapping text, duplicate markdown H1 artifacts, public employer references, placeholder image-alt labels, or leftover `---CONTENT---` markers were found.
+
 ### Garmin battery article rewrite on 2026-08-14
 
 Louie approved applying the Garmin Epix Pro Gen 2 battery article correction.
