@@ -158,13 +158,21 @@ Results:
   - `respecting-shared-space` — 738 words, 1 internal link, no flags
   - `basement-flooding-old-townhouses` — 753 words, 1 internal link, no flags
   - `scooters-in-hallway-problem` — 669 words, 1 internal link, no flags
-- `plans/validate-adsense-rewrites.mjs` is stale and failed because it still expects the duplicate live slug `respecting-shared-space-update`:
+- `plans/validate-adsense-rewrites.mjs` was updated and now passes.
+- The retired duplicate slug `respecting-shared-space-update` is allowed only when its action is `consolidate`, and the validator reports it as:
 
 ```text
-Error: Live post missing: respecting-shared-space-update
+retired duplicate missing from live API
 ```
 
-Before applying production changes, update or replace that older validator so it treats `respecting-shared-space-update` as already missing/retired instead of a required live post.
+This is informational only and no longer fails validation.
+
+Current clean AdSense rewrite package results:
+
+- `heat-wave-chaos-in-the-building` — expand, 650 live words → 808 proposed words, no flags
+- `respecting-shared-space` — rewrite, 738 live words → 849 proposed words, no flags
+- `basement-flooding-old-townhouses` — expand, 753 live words → 865 proposed words, no flags
+- `scooters-in-hallway-problem` — expand, 669 live words → 934 proposed words, no flags
 
 ## Recommended next work
 
@@ -206,4 +214,4 @@ node plans/validate-humanized-rewrites.mjs
 
 Then review the generated report and decide whether to apply any content changes.
 
-Current validation result: the four humanized rewrite drafts are clean, but the older AdSense validator needs a small maintenance update for the already-missing duplicate slug before it can be used as the source of truth.
+Current validation result: both rewrite validators pass. Next step is human review/approval of the four rewritten post drafts before any production content is changed.
