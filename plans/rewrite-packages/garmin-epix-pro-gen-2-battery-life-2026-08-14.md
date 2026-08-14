@@ -8,17 +8,17 @@ How I Got 31+ Days Out of My Garmin Epix Pro Gen 2 Battery
 
 ## Proposed excerpt
 
-My Garmin Epix Pro Gen 2 was not dying after a few days. I was already seeing about 27 days from it. The real win was pushing it past 31 days by turning off features I do not actually use every day.
+My Garmin Epix Pro Gen 2 was already giving me about 27 days on a charge. Here is how I pushed it past 31 days by turning off features I do not actually need every day.
 
 ## Proposed body
 
-I need to correct something about my Garmin Epix Pro Gen 2 battery life.
+My Garmin Epix Pro Gen 2 was already strong on battery. With my normal setup, I was getting about 27 days on a charge, which is honestly one of the reasons I like the watch so much.
 
-The problem was not that the watch only lasted a few days. That would be the wrong story. Mine was already doing around 27 days on a charge, which is one of the reasons I liked it so much in the first place.
+But I wanted to see if I could stretch it a little further without making the watch annoying to use.
 
-The better story is this: I was able to push it past 31 days by turning off features I honestly did not need running all the time.
+That is how I got it past 31 days. I did not use any magic trick. I just turned off features I do not really need running all the time and kept the parts of the watch that actually matter to me.
 
-That matters because the Epix Pro Gen 2 is not a cheap watch. If you buy something this serious, you should not have to treat it like a phone that needs charging every night. You should be able to wear it, track your runs, check your health stats, use it at work, and forget about the charger for weeks.
+That matters because the Epix Pro Gen 2 is not a cheap watch. If you buy something this serious, you should be able to wear it, track your runs, check your health stats, use it at work, and forget about the charger for weeks.
 
 That is what I wanted from it.
 
@@ -32,7 +32,7 @@ But my real number was close enough to take seriously. I was getting about 27 da
 
 ## I stopped treating every feature like it had to be on
 
-This is the mistake I made at first.
+This was the habit I had to change first.
 
 When you buy a high-end watch, the natural thing is to turn everything on. Every sensor, every notification, every health feature, every display option. You paid for the watch, so you want the full watch.
 
@@ -122,9 +122,7 @@ My normal baseline was about 27 days.
 
 After dialing things in, I got it past 31 days.
 
-That is the correction I wanted to make. This was never a story about a premium Garmin dying after four or five days. That would be misleading for my actual experience with the Epix Pro Gen 2.
-
-The real lesson is better: the watch already had excellent battery life, and careful settings pushed it beyond the number I expected.
+That is the part that impressed me. The watch already had excellent battery life, and careful settings pushed it beyond the number I expected without making it feel stripped down.
 
 ## What I would do first
 
@@ -134,7 +132,7 @@ If you have the Epix Pro Gen 2 and want better battery life, I would start with 
 2. Set Pulse Ox to manual or limited use unless you have a real reason to run it constantly.
 3. Trim notifications down to the apps that deserve your wrist.
 
-Then give it a full charge and watch the estimate for a few days.
+Then give it a full charge and watch the estimate through the next charge cycle.
 
 Do not change fifteen things at once if you want to understand what helped. Start with the obvious drains, then adjust from there.
 

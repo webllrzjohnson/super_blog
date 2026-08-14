@@ -286,3 +286,29 @@ Verification after production update:
   - `https://www.maplehub.cloud/blog/garmin-epix-pro-gen-2-battery-life-tips`
 - Public page contains the corrected `27 days` and `31+` framing.
 - Public page no longer contains the old incorrect few-days baseline wording.
+
+### Garmin battery article tone revision on 2026-08-14
+
+Louie requested a follow-up edit so the post does not point out or mention the previous mistake. The live article was revised to focus directly on how Louie got `31+ days` from the Garmin watch.
+
+Changes applied:
+
+- Rewrote the intro/excerpt to say the watch was already giving about `27 days` on a charge.
+- Reframed the result as a practical setup that pushed battery life past `31 days`.
+- Removed mistake/correction wording from the post body.
+- Updated the featured-image alt text so it no longer repeated the old few-days framing.
+
+Backup before this tone revision:
+
+```text
+D:/Factory/super_blog-archives/garmin-battery-pre-tone-revision-2026-08-14T04-15-33-867Z.json
+```
+
+Verification after the tone revision:
+
+- Live API update completed successfully.
+- Public page returned `200`.
+- Public page contains `27 days` and `31+` framing.
+- Public page includes the new excerpt.
+- Public page includes the new featured-image alt text.
+- Public page no longer contains mistake/correction/few-days framing.
