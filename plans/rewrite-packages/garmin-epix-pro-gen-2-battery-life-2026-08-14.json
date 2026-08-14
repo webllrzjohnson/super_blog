@@ -24,5 +24,13 @@
     "State 31+ days as the optimized result from disabling unnecessary features.",
     "Ground Garmin 51 mm official spec as up to 31 days smartwatch and 11 days always-on."
   ],
-  "applyStatus": "draft_only_not_applied"
+  "applyStatus": "applied_to_production_2026-08-14",
+  "backupPath": "D:/Factory/super_blog-archives/garmin-battery-original-2026-08-14T03-57-11-145Z.json",
+  "verification": {
+    "apiContentMatched": true,
+    "publicPageStatus": 200,
+    "publicPageContained27Days": true,
+    "publicPageContained31Days": true,
+    "oldIncorrectBaselineAbsent": true
+  }
 }

@@ -247,3 +247,42 @@ D:/Factory/super_blog-archives/adsense-originals-2026-08-14T03-09-38-845Z.json
   - `respecting-shared-space-update` is not present in `/api/posts`
 
 Next step: after Coolify/static cache behavior settles, browser-check the four public pages visually and confirm the AdSense/content cleanup looks good in the live layout.
+
+### Garmin battery article rewrite on 2026-08-14
+
+Louie approved applying the Garmin Epix Pro Gen 2 battery article correction.
+
+Target post:
+
+```text
+garmin-epix-pro-gen-2-battery-life-tips
+```
+
+Corrected factual framing:
+
+- The watch was not lasting only a few days.
+- Louie's normal baseline was about `27 days`.
+- The optimized result was `31+ days` by turning off features Louie did not really need.
+- Research source used: Garmin's official Epix Pro Gen 2 Sapphire 51 mm specs and Garmin's battery-drain support article.
+
+Rewrite package:
+
+```text
+plans/rewrite-packages/garmin-epix-pro-gen-2-battery-life-2026-08-14.md
+plans/rewrite-packages/garmin-epix-pro-gen-2-battery-life-2026-08-14.json
+```
+
+Original post backup saved outside the repo:
+
+```text
+D:/Factory/super_blog-archives/garmin-battery-original-2026-08-14T03-57-11-145Z.json
+```
+
+Verification after production update:
+
+- Live API update completed successfully.
+- Live API title, excerpt, and content matched the approved rewrite package.
+- Public page returned `200`:
+  - `https://www.maplehub.cloud/blog/garmin-epix-pro-gen-2-battery-life-tips`
+- Public page contains the corrected `27 days` and `31+` framing.
+- Public page no longer contains the old incorrect few-days baseline wording.
