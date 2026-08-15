@@ -440,3 +440,40 @@ Verification after production update:
 - All 9 public pages returned `200`.
 - All 9 public pages contained their expected target `/blog/...` internal link.
 - No public employer references, placeholder image labels, or `---CONTENT---` markers were found on the updated public pages.
+
+### Internal-link cleanup batch 4/final application on 2026-08-15
+
+Louie approved applying the final internal-link cleanup package.
+
+Package:
+
+```text
+plans/internal-link-package-2026-08-15-batch-4.json
+plans/internal-link-package-2026-08-15-batch-4.md
+```
+
+Original post backup saved outside the repo:
+
+```text
+D:/Factory/super_blog-archives/internal-link-batch-4-originals-2026-08-15T01-35-11-509Z.json
+```
+
+Updated live posts:
+
+- `three-days-sibbald-point-camping-georgina`
+- `garbage-compactor-machine-down-when-your-worst-building-nightmare-shows-up-on-a-tuesday`
+- `the-people-behind-your-building-why-good-staff-matter-more-than-you-think`
+- `dealing-with-difficult-tenants-disputes-evictions-high-maintenance`
+- `what-happens-after-you-talk-to-noisy-tenant`
+- `parking-areas-multi-unit-buildings-residents-rules-enforcement`
+- `psychology-behind-garbage-chaos-subsidized-housing`
+- `writing-through-the-noise-why-i-started-blogging-as-a-superintendent`
+- `garmin-epix-pro-gen-2-battery-life-tips`
+
+Verification after production update:
+
+- Live API content matched the approved package for all 9 posts.
+- All 9 public pages returned `200`.
+- All 9 public pages contained their expected target `/blog/...` internal link.
+- No public employer references, placeholder image labels, or `---CONTENT---` markers were found on the updated public pages.
+- Follow-up live audit found `0` published posts without internal blog links.
