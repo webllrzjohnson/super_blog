@@ -17,6 +17,7 @@ Voice:
 
 House style rules:
 - Minimum 800 useful words unless the user explicitly asks for a shorter field note.
+- Excerpt: write 2-3 sentences that capture the gist of the story for readers and image generation. Include the important scene elements: setting, main activity/problem, people or roles involved, mood/stakes, and any concrete objects that should shape the featured image. Do not make the excerpt a vague teaser.
 - Short paragraphs, usually 2 to 4 sentences.
 - Use at least two markdown section headings, but do not start the content with a # H1. The page already renders the title. Use ## headings only.
 - Use contractions.
@@ -37,13 +38,13 @@ Return exactly this, with no preamble and no markdown fences:
 }
 ---CONTENT---
 Markdown body here, minimum 800 words, ## headings only.
----END---`
+---END---`;
 
 export const DEFAULT_GROQ_SYSTEM_PROMPT = `You are a Toronto building superintendent writing a first-person personal blog. Never name the employer/public housing organization. Sound like a real super telling a colleague what happened, not an SEO article.
 
 Must include: field details, people by role (tenant/resident/maintenance guy/custodian/vendor/contractor), what you checked or tried, constraints, and any uncertainty.
 
-Style: short paragraphs, contractions, plain language, 800+ useful words, at least two ## headings, no opening # H1.
+Style: short paragraphs, contractions, plain language, 800+ useful words, at least two ## headings, no opening # H1. Excerpt must be a 2-3 sentence story snapshot for readers and image generation: include setting, activity/problem, people/roles, mood/stakes, and key visual objects when relevant.
 
 Never use: em dash characters; content-generation disclosures; Conclusion/Final Thoughts/Practical Takeaway headings; generic phrases like in today's world, when it comes to, it is important to note, ensure, utilize, leverage, seamless, crucial, delve, underscores; SEO formulas like everything you need to know, here is what, step-by-step guide, more than you think, actually matters, makes all the difference, not just. Mention AI tools only when the topic is AI/coding.
 
@@ -52,7 +53,7 @@ Return only:
 {"title":"string","slug":"lowercase-hyphen-slug","excerpt":"2-3 sentence string","category":"Life, Work, Hobbies, or Experience","tags":"comma-separated string"}
 ---CONTENT---
 Markdown body, 800+ words, ## headings only.
----END---`
+---END---`;
 
 export const DEFAULT_USER_MESSAGE_TEMPLATE = `Topic: {{topic}}
 Context: {{context}}
@@ -60,65 +61,66 @@ Schedule: {{schedule}}
 Recent posts for continuity only, do not repeat them:
 {{recentPosts}}
 
-Write the post now using the exact response format. Keep it human, specific, first-person, 800+ words, no em dashes, no opening # H1, and no employer/public-organization names.`
+Write the post now using the exact response format. Keep it human, specific, first-person, 800+ words, no em dashes, no opening # H1, and no employer/public-organization names. Make the excerpt a concrete story snapshot for image generation, not a vague teaser.`;
 
 export const DEFAULT_GROQ_USER_MESSAGE_TEMPLATE = `Topic: {{topic}}
 Context: {{context}}
-Write the post now in the exact required format.`
+Write the post now in the exact required format.`;
 
 function applyTemplate(
   template: string,
-  values: Record<string, string>
+  values: Record<string, string>,
 ): string {
   return Object.entries(values).reduce(
     (result, [key, value]) => result.replaceAll(`{{${key}}}`, value),
-    template
-  )
+    template,
+  );
 }
 
 export function buildSystemPrompt(override?: string): string {
-  const trimmed = override?.trim()
-  return trimmed || DEFAULT_CLAUDE_SYSTEM_PROMPT
+  const trimmed = override?.trim();
+  return trimmed || DEFAULT_CLAUDE_SYSTEM_PROMPT;
 }
 
 export function buildShortSystemPrompt(override?: string): string {
-  const trimmed = override?.trim()
-  return trimmed || DEFAULT_GROQ_SYSTEM_PROMPT
+  const trimmed = override?.trim();
+  return trimmed || DEFAULT_GROQ_SYSTEM_PROMPT;
 }
 
 export function buildUserMessage(
   params: {
-    topic: string
-    context: string
-    schedule: string
-    recentPosts: Array<{ title: string; excerpt: string }>
+    topic: string;
+    context: string;
+    schedule: string;
+    recentPosts: Array<{ title: string; excerpt: string }>;
   },
-  templateOverride?: string
+  templateOverride?: string,
 ): string {
   const recentPostsContext =
     params.recentPosts.length > 0
-      ? params.recentPosts.map((p) => `- "${p.title}": ${p.excerpt}`).join('\n')
-      : 'No previous posts available'
+      ? params.recentPosts.map((p) => `- "${p.title}": ${p.excerpt}`).join("\n")
+      : "No previous posts available";
 
-  const template = templateOverride?.trim() || DEFAULT_USER_MESSAGE_TEMPLATE
+  const template = templateOverride?.trim() || DEFAULT_USER_MESSAGE_TEMPLATE;
 
   return applyTemplate(template, {
     topic: params.topic,
-    context: params.context || 'No additional context provided',
+    context: params.context || "No additional context provided",
     schedule: params.schedule,
     recentPosts: recentPostsContext,
-  })
+  });
 }
 
 export function buildGroqUserMessage(
   topic: string,
   context: string,
-  templateOverride?: string
+  templateOverride?: string,
 ): string {
-  const template = templateOverride?.trim() || DEFAULT_GROQ_USER_MESSAGE_TEMPLATE
+  const template =
+    templateOverride?.trim() || DEFAULT_GROQ_USER_MESSAGE_TEMPLATE;
 
   return applyTemplate(template, {
     topic,
-    context: context || '',
-  })
+    context: context || "",
+  });
 }

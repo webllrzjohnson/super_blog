@@ -872,3 +872,26 @@ Verification:
 - `npm run build` passed.
 
 Deployment note: the live Admin setting is already updated; Coolify deploy is recommended so the deployed source fallback also matches the repo.
+
+### Excerpt snapshot generation rule on 2026-08-15
+
+Louie clarified that because the post excerpt is now the source of truth for featured-image generation, future generated excerpts should be a compact snapshot or gist of the important elements in the story.
+
+What changed:
+
+- Updated `DEFAULT_CLAUDE_SYSTEM_PROMPT` and `DEFAULT_GROQ_SYSTEM_PROMPT` in `lib/generate-post-prompts.ts` so generated excerpts must be 2-3 sentence story snapshots for readers and image generation.
+- Excerpt guidance now asks for important scene elements: setting, main activity/problem, people or roles involved, mood/stakes, and concrete objects that should shape the featured image.
+- Updated `DEFAULT_USER_MESSAGE_TEMPLATE` to remind providers that the excerpt should be a concrete story snapshot, not a vague teaser.
+- Updated live Admin AI post-generation prompt settings immediately: `claudeSystemPrompt`, `groqSystemPrompt`, `userMessageTemplate`, and `groqUserMessageTemplate`.
+- Archived the previous live Admin post-generation prompt fields outside the repo at `D:/Factory/super_blog-archives/ai-post-prompts-before-excerpt-snapshot-2026-08-15T14-13-52-820Z.json`.
+
+Verification:
+
+- Live Admin prompts contain excerpt snapshot/image-generation guidance.
+- Live Admin image prompt still preserves the waste-equipment guidance.
+- Temporary Admin API script was removed after use.
+- `npm run test` passed: 27 files, 146 tests.
+- `npm run lint` passed.
+- `npm run build` passed.
+
+Deployment note: the live Admin settings are already updated; Coolify deploy is recommended so the deployed source fallback also matches the repo.
