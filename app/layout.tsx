@@ -24,6 +24,7 @@ import {
   getAdSenseAccountMetadata,
   normalizeAdSenseClientId,
 } from '@/lib/adsense'
+import { AUTHOR_NAME, SITE_NAME } from '@/lib/site-identity'
 
 const sourceSerif = Source_Serif_4({
   subsets: ['latin'],
@@ -119,7 +120,7 @@ const fontPairClasses = {
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings()
   const adsenseClientId = normalizeAdSenseClientId(settings.ads.clientId)
-  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || settings.branding.siteName || 'Lester J.'
+  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || settings.branding.siteName || SITE_NAME
   const description =
     'A building superintendent in Toronto writing about property management, AI experiments, running, food, and everyday life.'
 
@@ -132,8 +133,8 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     description,
     keywords: ['blog', 'personal', 'work', 'life', 'hobbies', 'experiences'],
-    authors: [{ name: siteName }],
-    creator: siteName,
+    authors: [{ name: AUTHOR_NAME, url: `${siteUrl}/about` }],
+    creator: AUTHOR_NAME,
     openGraph: {
       type: 'website',
       locale: 'en_CA',

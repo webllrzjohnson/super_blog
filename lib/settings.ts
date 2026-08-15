@@ -18,6 +18,7 @@ import {
   CACHE_TAG_SETTINGS,
   SETTINGS_CACHE_REVALIDATE_SECONDS,
 } from '@/lib/cache-tags'
+import { SITE_NAME } from '@/lib/site-identity'
 
 export interface LinksSettings {
   github?: string
@@ -89,7 +90,7 @@ export type SettingsKey = keyof SettingsMap
 export const defaultSettings: SettingsMap = {
   links: {},
   branding: {
-    siteName: 'Lester J.',
+    siteName: SITE_NAME,
   },
   appearance: {
     fontPair: 'inter-source-serif',

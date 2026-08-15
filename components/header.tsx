@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { Menu, X, Moon, Sun, Search } from 'lucide-react'
 import { useTheme } from '@/components/theme-provider'
 import type { BrandingSettings } from '@/lib/settings'
+import { SITE_NAME } from '@/lib/site-identity'
 
 
 const navItems = [
@@ -23,7 +24,7 @@ export function Header({ branding }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || branding?.siteName || 'Lester J.'
+  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || branding?.siteName || SITE_NAME
 
   React.useEffect(() => {
     setMounted(true)

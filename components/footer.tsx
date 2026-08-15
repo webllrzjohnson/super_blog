@@ -1,12 +1,13 @@
 import Link from 'next/link'
 import type { LinksSettings } from '@/lib/settings'
+import { SITE_NAME } from '@/lib/site-identity'
 
 interface FooterProps {
   links?: LinksSettings
   siteName?: string
 }
 
-export function Footer({ links, siteName = 'Lester J.' }: FooterProps) {
+export function Footer({ links, siteName = SITE_NAME }: FooterProps) {
   const socialLinks = [
     links?.github ? { href: links.github, label: 'GitHub' } : null,
     links?.linkedin ? { href: links.linkedin, label: 'LinkedIn' } : null,

@@ -1,4 +1,5 @@
 import type { Post, PostListItem } from '@/lib/types'
+import { AUTHOR_NAME } from '@/lib/site-identity'
 
 export const samplePosts: Post[] = []
 
@@ -9,7 +10,7 @@ export function calculateReadTime(content: string): number {
 }
 
 export const defaultAuthor = {
-  name: 'Admin',
+  name: AUTHOR_NAME,
   avatar: undefined as string | undefined,
   bio: undefined as string | undefined,
 }

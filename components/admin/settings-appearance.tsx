@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { toast } from 'sonner'
 import { ImagePlus } from 'lucide-react'
 import type { AppearanceSettings, BrandingSettings } from '@/lib/settings'
+import { AUTHOR_NAME, SITE_NAME } from '@/lib/site-identity'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -46,12 +47,12 @@ export function SettingsAppearance({
 }: SettingsAppearanceProps) {
 
   const [branding, setBranding] = useState<BrandingSettings>({
-    siteName: initialBranding?.siteName ?? 'Lester J.',
+    siteName: initialBranding?.siteName ?? SITE_NAME,
     logoUrl: initialBranding?.logoUrl ?? '',
     faviconUrl: initialBranding?.faviconUrl ?? '',
     avatarUrl: initialBranding?.avatarUrl ?? '',
     shortBio: initialBranding?.shortBio ?? '',
-    displayName: initialBranding?.displayName ?? 'Lester J.',
+    displayName: initialBranding?.displayName ?? AUTHOR_NAME,
     roleLocation: initialBranding?.roleLocation ?? 'Building superintendent · Toronto, ON',
 
   })

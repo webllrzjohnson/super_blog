@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSetting } from "@/lib/settings";
+import { SITE_NAME } from "@/lib/site-identity";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description:
-    "Learn how this site collects, uses, and protects information when using Google AdSense, analytics, and affiliate links.",
+  description: `How ${SITE_NAME} handles information, browser storage, submissions, and third-party services.`,
   alternates: {
     canonical: `${BASE_URL}/privacy`,
   },
@@ -26,8 +26,8 @@ export default async function PrivacyPage() {
           Privacy Policy
         </h1>
         <p className="mt-4 max-w-2xl leading-7 text-muted-foreground">
-          This page explains what information the site may collect, how ads and
-          affiliate links work, and how to contact me about privacy questions.
+          This policy explains how {SITE_NAME} handles information when you
+          read, subscribe, contact me, comment, react, or save a bookmark.
         </p>
         <p className="mt-4 text-sm text-muted-foreground">
           Last updated: August 15, 2026
@@ -36,814 +36,186 @@ export default async function PrivacyPage() {
 
       <section className="mb-10 grid gap-3 text-sm text-muted-foreground sm:grid-cols-3">
         <div className="surface-card p-4">
-          <p className="font-semibold text-foreground">What you provide</p>
+          <p className="font-semibold text-foreground">
+            Information you choose
+          </p>
           <p className="mt-1 leading-6">
-            Newsletter, contact, and comment details only when you choose to
-            send them.
+            Contact, newsletter, and comment details are collected only when you
+            submit them.
           </p>
         </div>
         <div className="surface-card p-4">
-          <p className="font-semibold text-foreground">Ads and affiliates</p>
+          <p className="font-semibold text-foreground">Local preferences</p>
           <p className="mt-1 leading-6">
-            Google AdSense and Amazon links may use cookies or referral data as
-            described below.
+            Theme, bookmarks, and an anonymous browser identifier may be stored
+            in your browser.
           </p>
         </div>
         <div className="surface-card p-4">
-          <p className="font-semibold text-foreground">Your choices</p>
+          <p className="font-semibold text-foreground">No ads or affiliates</p>
           <p className="mt-1 leading-6">
-            Use Google privacy options where available, browser controls, or the
-            contact form.
+            The site does not currently display advertising or use affiliate
+            links.
           </p>
         </div>
       </section>
 
       <div className="prose prose-neutral dark:prose-invert max-w-none space-y-10 rounded-3xl border border-border/60 bg-card/65 p-6 shadow-sm md:p-8">
-        {/* Introduction */}
         <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            1. Introduction
+          <h2 className="mb-4 text-xl font-semibold text-foreground">
+            1. About this policy
           </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            Welcome to Lester J.&apos;s blog (&quot;we,&quot; &quot;us,&quot; or
-            &quot;our&quot;). This Privacy Policy explains how we collect, use,
-            disclose, and safeguard your information when you visit our website
-            (the &quot;Site&quot;), including any other media form, media
-            channel, mobile website, or mobile application related or connected
-            thereto.
-          </p>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            We are committed to protecting personal data and respecting privacy.
-            This policy describes our practices in light of data protection laws
-            that may apply, including the General Data Protection Regulation
-            (GDPR) and the California Consumer Privacy Act (CCPA).
-          </p>
-          <p className="text-muted-foreground leading-relaxed">
-            Please read this Privacy Policy carefully. If you do not agree with
-            the terms of this Privacy Policy, please do not access the Site.
+          <p className="leading-relaxed text-muted-foreground">
+            This policy applies to {SITE_NAME} at www.maplehub.cloud. The site
+            is operated by Lester J. Questions or privacy requests can be sent
+            through the <Link href="/contact">contact form</Link> or to{" "}
+            {contactEmail}.
           </p>
         </section>
 
-        {/* Data Controller */}
         <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            2. Data Controller
+          <h2 className="mb-4 text-xl font-semibold text-foreground">
+            2. Information handled by the site
           </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            For the purposes of GDPR, the data controller is:
-          </p>
-          <div className="bg-muted/50 p-4 rounded-lg text-muted-foreground">
-            <p>
-              <strong className="text-foreground">Lester J.</strong>
-            </p>
-            <p>Email: {contactEmail}</p>
-            <p>
-              Contact:{" "}
-              <Link href="/contact" className="underline hover:text-foreground">
-                Contact Form
-              </Link>
-            </p>
-          </div>
-        </section>
-
-        {/* Information We Collect */}
-        <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            3. Information We Collect
-          </h2>
-
-          <h3 className="text-lg font-medium text-foreground mt-6 mb-3">
-            3.1 Information Automatically Collected
-          </h3>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            When you visit our Site, we may automatically collect certain
-            information about your device and your visit, including:
-          </p>
-          <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
+          <ul className="ml-2 list-inside list-disc space-y-3 text-muted-foreground">
             <li>
-              <strong className="text-foreground">Device Information:</strong>{" "}
-              Browser type and version, operating system, device type, screen
-              resolution
+              <strong className="text-foreground">Contact messages:</strong>{" "}
+              your name, email address, and message are sent so I can reply.
             </li>
             <li>
-              <strong className="text-foreground">Usage Data:</strong> Pages
-              visited, time spent on pages, click patterns, scroll depth
+              <strong className="text-foreground">Newsletter signups:</strong>{" "}
+              your email address is sent to the email service used to manage the
+              subscriber list.
             </li>
             <li>
-              <strong className="text-foreground">Connection Data:</strong> IP
-              address (which may be anonymized), internet service provider,
-              referring/exit pages
-            </li>
-            <li>
-              <strong className="text-foreground">Location Data:</strong>{" "}
-              Approximate geographic location based on IP address
-              (country/region level only)
-            </li>
-            <li>
-              <strong className="text-foreground">Temporal Data:</strong> Date
-              and time of your visit, time zone
-            </li>
-          </ul>
-
-          <h3 className="text-lg font-medium text-foreground mt-6 mb-3">
-            3.2 Information You Provide Voluntarily
-          </h3>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            We may collect information that you voluntarily provide when you:
-          </p>
-          <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
-            <li>Subscribe to our newsletter (email address, name)</li>
-            <li>
-              Submit a contact form (name, email address, message content)
-            </li>
-            <li>
-              Leave comments on blog posts (display name and comment text; an
-              opaque hashed device id may be stored for spam prevention;
-              comments are reviewed before publication)
-            </li>
-            <li>Participate in surveys or promotions</li>
-          </ul>
-
-          <h3 className="text-lg font-medium text-foreground mt-6 mb-3">
-            3.3 Information from Third Parties
-          </h3>
-          <p className="text-muted-foreground leading-relaxed">
-            We may receive information about you from third-party services such
-            as website analytics, Google AdSense, and Amazon Associates when you
-            interact with the Site, advertisements, or affiliate links.
-          </p>
-        </section>
-
-        {/* Legal Basis for Processing */}
-        <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            4. Legal Basis for Processing (GDPR)
-          </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            Under GDPR, we must have a lawful basis for processing your personal
-            data. We rely on the following legal bases:
-          </p>
-          <ul className="list-disc list-inside space-y-3 text-muted-foreground ml-2">
-            <li>
-              <strong className="text-foreground">
-                Consent (Article 6(1)(a)):
-              </strong>{" "}
-              For non-essential cookies (advertising, analytics), newsletter
-              subscriptions, and personalized advertising. You can withdraw
-              consent at any time.
+              <strong className="text-foreground">Comments:</strong> your chosen
+              display name and comment are stored for moderation and
+              publication. An anonymous hashed browser identifier may be
+              retained for abuse prevention.
             </li>
             <li>
               <strong className="text-foreground">
-                Legitimate Interests (Article 6(1)(f)):
+                Reactions and bookmarks:
               </strong>{" "}
-              For website security, fraud prevention, site functionality
-              improvements, and understanding how visitors use our Site.
+              selections may be associated with an anonymous browser identifier
+              so the feature works consistently.
             </li>
             <li>
-              <strong className="text-foreground">
-                Contract Performance (Article 6(1)(b)):
-              </strong>{" "}
-              When you request us to perform a specific service, such as
-              responding to your inquiries.
-            </li>
-            <li>
-              <strong className="text-foreground">
-                Legal Obligation (Article 6(1)(c)):
-              </strong>{" "}
-              When we must comply with legal requirements.
+              <strong className="text-foreground">Technical requests:</strong>{" "}
+              hosting and security systems may process standard request data
+              such as IP address, browser information, requested page, and
+              timestamps.
             </li>
           </ul>
         </section>
 
-        {/* How We Use Your Information */}
         <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            5. How We Use Your Information
+          <h2 className="mb-4 text-xl font-semibold text-foreground">
+            3. Browser storage and cookies
           </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            We use the information we collect for the following purposes:
+          <p className="leading-relaxed text-muted-foreground">
+            The public site uses browser storage for practical features such as
+            theme preference, saved bookmarks, and an anonymous identifier used
+            by reactions, comments, and optional bookmark synchronization. You
+            can clear this information through your browser settings.
           </p>
-          <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2">
-            <li>To operate, maintain, and improve our Site</li>
-            <li>
-              To personalize your experience and deliver content relevant to
-              your interests
-            </li>
-            <li>
-              To serve advertisements through Google AdSense, including
-              personalized ads when consent is available and non-personalized or
-              limited ads where Google permits them
-            </li>
-            <li>To track affiliate purchases through Amazon Associates</li>
-            <li>
-              To analyze Site traffic and usage patterns through website
-              analytics when enabled
-            </li>
-            <li>To respond to your inquiries and provide customer support</li>
-            <li>To send you our newsletter (if you have subscribed)</li>
-            <li>
-              To detect, prevent, and address technical issues and security
-              threats
-            </li>
-            <li>To comply with legal obligations</li>
+          <p className="mt-4 leading-relaxed text-muted-foreground">
+            No ad placements or audience analytics are currently enabled. Google
+            publisher verification code may make a technical request while the
+            site&apos;s application is reviewed. Administrative sign-in uses a
+            secure session cookie, but that area is not part of the public
+            reader experience.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-4 text-xl font-semibold text-foreground">
+            4. How information is used
+          </h2>
+          <ul className="ml-2 list-inside list-disc space-y-2 text-muted-foreground">
+            <li>Respond to messages and correction requests</li>
+            <li>Manage newsletter subscriptions</li>
+            <li>Moderate and publish approved comments</li>
+            <li>Provide reactions, bookmarks, and reader preferences</li>
+            <li>Protect the site from spam, abuse, and technical failures</li>
+            <li>Comply with applicable legal obligations</li>
           </ul>
         </section>
 
-        {/* Cookies and Tracking */}
         <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            6. Cookies and Tracking Technologies
+          <h2 className="mb-4 text-xl font-semibold text-foreground">
+            5. Service providers and sharing
           </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            Cookies are small text files stored on your device when you visit a
-            website. We use cookies and similar technologies for the following
-            purposes:
-          </p>
-
-          <h3 className="text-lg font-medium text-foreground mt-6 mb-3">
-            6.1 Essential Cookies
-          </h3>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            These cookies are strictly necessary for the Site to function and
-            cannot be disabled. They include:
-          </p>
-          <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
-            <li>Session management cookies</li>
-            <li>Cookie consent preferences</li>
-            <li>Security cookies</li>
-            <li>Theme preference (dark/light mode)</li>
-          </ul>
-
-          <h3 className="text-lg font-medium text-foreground mt-6 mb-3">
-            6.2 Website Analytics
-          </h3>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            When enabled, we use Vercel Web Analytics to understand aggregate
-            traffic and how visitors use the Site. Analytics data may include:
-          </p>
-          <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
-            <li>Pages visited and referral source</li>
-            <li>General device and browser information</li>
-            <li>Approximate country or region</li>
-            <li>Aggregated usage and performance metrics</li>
-          </ul>
-          <p className="text-muted-foreground leading-relaxed">
-            Vercel processes analytics data according to its published privacy
-            and data-processing terms.
-          </p>
-
-          <h3 className="text-lg font-medium text-foreground mt-6 mb-3">
-            6.3 Advertising Technologies
-          </h3>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            We display advertisements through Google AdSense. Google and other
-            participating vendors may use cookies or similar technologies to
-            measure and serve ads. Personalized advertising requires consent
-            where applicable. If consent is not provided, Google may serve
-            non-personalized or limited ads in accordance with its policies and
-            applicable requirements. Google and its partners may use these
-            technologies to:
-          </p>
-          <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
-            <li>
-              Serve ads based on your prior visits to this Site or other
-              websites
-            </li>
-            <li>Measure ad performance and effectiveness</li>
-            <li>Prevent the same ad from being shown repeatedly</li>
-            <li>Detect and prevent fraudulent ad clicks</li>
-          </ul>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            Google AdSense may set cookies including: IDE, DSID, FLC, AID, TAID,
-            __gads, __gpi
-          </p>
-          <p className="text-muted-foreground leading-relaxed">
-            You can opt out of personalized advertising by visiting{" "}
-            <a
-              href="https://www.google.com/settings/ads"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-foreground"
-            >
-              Google Ads Settings
-            </a>{" "}
-            or{" "}
-            <a
-              href="https://www.aboutads.info/choices/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-foreground"
-            >
-              www.aboutads.info/choices
-            </a>
-            .
-          </p>
-
-          <h3 className="text-lg font-medium text-foreground mt-6 mb-3">
-            6.4 Managing Your Cookie Preferences
-          </h3>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            For visitors in the European Economic Area, the United Kingdom, and
-            Switzerland, Google&apos;s certified consent management platform
-            displays our European regulations message and offers three choices:
-          </p>
-          <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
-            <li>Consent</li>
-            <li>Do not consent</li>
-            <li>Manage options</li>
-          </ul>
-          <p className="text-muted-foreground leading-relaxed">
-            Google communicates that choice to participating advertising
-            providers through the IAB Transparency and Consent Framework. Where
-            available, you can reopen Google&apos;s privacy options to review or
-            withdraw your choice. You can also clear this Site&apos;s stored
-            data or block cookies in your browser settings.
+          <p className="leading-relaxed text-muted-foreground">
+            Information is shared only with service providers needed to host the
+            site, store site data, deliver contact or newsletter email, and
+            monitor security or technical errors. Google may also process a
+            technical request when publisher verification code loads. These
+            providers process information under their own terms and privacy
+            commitments. Personal information is not sold.
           </p>
         </section>
 
-        {/* Google AdSense */}
         <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            7. Google AdSense
+          <h2 className="mb-4 text-xl font-semibold text-foreground">
+            6. Advertising and affiliate status
           </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            We use Google AdSense to display advertisements on our Site. Google
-            AdSense is provided by Google LLC (for users outside the EEA) or
-            Google Ireland Limited (for users in the EEA).
-          </p>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            <strong className="text-foreground">How it works:</strong> Google
-            uses cookies and web beacons to serve ads based on your prior visits
-            to our Site or other websites on the Internet. This is called
-            &quot;interest-based advertising&quot; or &quot;personalized
-            advertising.&quot;
-          </p>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            <strong className="text-foreground">Your choices:</strong>
-          </p>
-          <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
-            <li>
-              Use Google&apos;s consent message to select Consent, Do not
-              consent, or Manage options where offered
-            </li>
-            <li>
-              Review or withdraw consent through Google&apos;s privacy options
-              where available
-            </li>
-            <li>
-              Opt out of personalized ads at{" "}
-              <a
-                href="https://www.google.com/settings/ads"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-foreground"
-              >
-                Google Ads Settings
-              </a>
-            </li>
-            <li>
-              Visit{" "}
-              <a
-                href="https://www.networkadvertising.org/choices/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-foreground"
-              >
-                Network Advertising Initiative opt-out page
-              </a>
-            </li>
-          </ul>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            Choosing not to consent prevents personalized advertising where
-            consent is required, but Google may still serve non-personalized or
-            limited ads depending on applicable law and its policies.
-          </p>
-          <p className="text-muted-foreground leading-relaxed">
-            For more information, see{" "}
-            <a
-              href="https://policies.google.com/technologies/ads"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-foreground"
-            >
-              How Google Uses Information from Sites That Use Our Services
-            </a>
-            .
+          <p className="leading-relaxed text-muted-foreground">
+            {SITE_NAME} does not currently display advertisements, participate
+            in Amazon Associates, or use affiliate links. Google publisher
+            verification may be present while an application is reviewed, but no
+            ad placements are enabled. If advertising, sponsorships, affiliate
+            links, or audience analytics are introduced later, this policy and
+            the relevant on-page disclosures will be updated before those
+            features are used.
           </p>
         </section>
 
-        {/* Amazon Associates */}
         <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            8. Amazon Associates Program
+          <h2 className="mb-4 text-xl font-semibold text-foreground">
+            7. Retention and deletion
           </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            We are a participant in the Amazon Services LLC Associates Program,
-            an affiliate advertising program designed to provide a means for
-            sites to earn advertising fees by advertising and linking to
-            Amazon.com and affiliated sites.
-          </p>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            <strong className="text-foreground">How it works:</strong> When you
-            click on an Amazon affiliate link on our Site and make a purchase,
-            we may earn a small commission at no additional cost to you. Amazon
-            uses cookies to track these referrals.
-          </p>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            <strong className="text-foreground">
-              Data collected by Amazon:
-            </strong>
-          </p>
-          <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
-            <li>Click data (which links you clicked)</li>
-            <li>Purchase information (if you buy something)</li>
-            <li>Device and browser information</li>
-          </ul>
-          <p className="text-muted-foreground leading-relaxed">
-            For more information, see{" "}
-            <a
-              href="https://www.amazon.com/gp/help/customer/display.html?nodeId=201909010"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-foreground"
-            >
-              Amazon&apos;s Privacy Notice
-            </a>
-            .
+          <p className="leading-relaxed text-muted-foreground">
+            Information is kept only as long as reasonably needed for the
+            purpose for which it was submitted, site security, moderation,
+            recordkeeping, or legal requirements. You may request correction or
+            deletion of information associated with you by contacting me. Some
+            anonymous or legally required records may need to be retained.
           </p>
         </section>
 
-        {/* Data Sharing */}
         <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            9. Data Sharing and Disclosure
+          <h2 className="mb-4 text-xl font-semibold text-foreground">
+            8. External links
           </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            We may share your information in the following circumstances:
-          </p>
-          <ul className="list-disc list-inside space-y-3 text-muted-foreground ml-2">
-            <li>
-              <strong className="text-foreground">Service Providers:</strong> We
-              share data with third-party service providers who assist us in
-              operating the Site (e.g., hosting providers, analytics services,
-              email service providers). These providers are contractually
-              obligated to protect your data.
-            </li>
-            <li>
-              <strong className="text-foreground">Advertising Partners:</strong>{" "}
-              Google and participating advertising providers may process data to
-              measure and serve ads according to your consent choices,
-              applicable legal bases, and their published policies. Personalized
-              advertising requires consent where applicable.
-            </li>
-            <li>
-              <strong className="text-foreground">Legal Requirements:</strong>{" "}
-              We may disclose your information if required by law, regulation,
-              legal process, or governmental request.
-            </li>
-            <li>
-              <strong className="text-foreground">Protection of Rights:</strong>{" "}
-              We may disclose information to protect our rights, privacy,
-              safety, or property, or that of our users or the public.
-            </li>
-            <li>
-              <strong className="text-foreground">Business Transfers:</strong>{" "}
-              In the event of a merger, acquisition, or sale of assets, your
-              information may be transferred as part of that transaction.
-            </li>
-          </ul>
-          <p className="text-muted-foreground leading-relaxed mt-4">
-            <strong className="text-foreground">
-              We do not sell your personal information.
-            </strong>
+          <p className="leading-relaxed text-muted-foreground">
+            Posts may link to independent websites for reference. Their privacy
+            practices are controlled by their operators. An external link does
+            not mean that {SITE_NAME} receives compensation from it.
           </p>
         </section>
 
-        {/* International Transfers */}
         <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            10. International Data Transfers
+          <h2 className="mb-4 text-xl font-semibold text-foreground">
+            9. Children&apos;s privacy
           </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            Your information may be transferred to and processed in countries
-            other than your country of residence, including the United States.
-            These countries may have data protection laws that are different
-            from those in your country.
-          </p>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            When we transfer data outside the European Economic Area (EEA), we
-            ensure appropriate safeguards are in place, such as:
-          </p>
-          <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2">
-            <li>
-              Standard Contractual Clauses approved by the European Commission
-            </li>
-            <li>Data Processing Agreements with our service providers</li>
-            <li>
-              Adequacy decisions by the European Commission (where applicable)
-            </li>
-          </ul>
-        </section>
-
-        {/* Data Retention */}
-        <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            11. Data Retention
-          </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            We retain your personal data only for as long as necessary to
-            fulfill the purposes for which it was collected, including:
-          </p>
-          <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
-            <li>
-              <strong className="text-foreground">Analytics data:</strong>{" "}
-              According to the analytics provider&apos;s configured retention
-              period and applicable requirements
-            </li>
-            <li>
-              <strong className="text-foreground">
-                Contact form submissions:
-              </strong>{" "}
-              3 years or until you request deletion
-            </li>
-            <li>
-              <strong className="text-foreground">
-                Newsletter subscriptions:
-              </strong>{" "}
-              Until you unsubscribe
-            </li>
-            <li>
-              <strong className="text-foreground">
-                Cookie consent preference:
-              </strong>{" "}
-              Stored in your browser until you clear this Site&apos;s stored
-              data
-            </li>
-            <li>
-              <strong className="text-foreground">Comments:</strong>{" "}
-              Indefinitely, unless you request deletion
-            </li>
-          </ul>
-          <p className="text-muted-foreground leading-relaxed">
-            After the retention period, we will securely delete or anonymize
-            your personal data.
+          <p className="leading-relaxed text-muted-foreground">
+            The site is intended for a general audience and is not directed to
+            children. If you believe a child submitted personal information,
+            contact me so it can be reviewed and removed where appropriate.
           </p>
         </section>
 
-        {/* Your Rights (GDPR) */}
         <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            12. Your Rights Under GDPR
+          <h2 className="mb-4 text-xl font-semibold text-foreground">
+            10. Changes and contact
           </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            If you are located in the European Economic Area (EEA), United
-            Kingdom, or Switzerland, you have the following rights regarding
-            your personal data:
-          </p>
-          <ul className="list-disc list-inside space-y-3 text-muted-foreground ml-2">
-            <li>
-              <strong className="text-foreground">
-                Right of Access (Article 15):
-              </strong>{" "}
-              You can request a copy of the personal data we hold about you.
-            </li>
-            <li>
-              <strong className="text-foreground">
-                Right to Rectification (Article 16):
-              </strong>{" "}
-              You can request that we correct any inaccurate or incomplete
-              personal data.
-            </li>
-            <li>
-              <strong className="text-foreground">
-                Right to Erasure (Article 17):
-              </strong>{" "}
-              You can request that we delete your personal data (&quot;right to
-              be forgotten&quot;).
-            </li>
-            <li>
-              <strong className="text-foreground">
-                Right to Restrict Processing (Article 18):
-              </strong>{" "}
-              You can request that we limit how we use your data.
-            </li>
-            <li>
-              <strong className="text-foreground">
-                Right to Data Portability (Article 20):
-              </strong>{" "}
-              You can request a copy of your data in a structured,
-              machine-readable format.
-            </li>
-            <li>
-              <strong className="text-foreground">
-                Right to Object (Article 21):
-              </strong>{" "}
-              You can object to our processing of your data for direct marketing
-              or based on legitimate interests.
-            </li>
-            <li>
-              <strong className="text-foreground">
-                Right to Withdraw Consent (Article 7):
-              </strong>{" "}
-              Where we rely on consent, you can withdraw it at any time without
-              affecting prior processing.
-            </li>
-            <li>
-              <strong className="text-foreground">
-                Right to Lodge a Complaint:
-              </strong>{" "}
-              You can file a complaint with your local data protection
-              authority.
-            </li>
-          </ul>
-          <p className="text-muted-foreground leading-relaxed mt-4">
-            To exercise any of these rights, please contact us at {contactEmail}
-            . We will respond within 30 days.
-          </p>
-        </section>
-
-        {/* Your Rights (CCPA) */}
-        <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            13. Your Rights Under CCPA (California Residents)
-          </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            If you are a California resident, you have the following rights
-            under the California Consumer Privacy Act (CCPA):
-          </p>
-          <ul className="list-disc list-inside space-y-3 text-muted-foreground ml-2">
-            <li>
-              <strong className="text-foreground">Right to Know:</strong> You
-              can request disclosure of the categories and specific pieces of
-              personal information we have collected about you.
-            </li>
-            <li>
-              <strong className="text-foreground">Right to Delete:</strong> You
-              can request deletion of your personal information (subject to
-              certain exceptions).
-            </li>
-            <li>
-              <strong className="text-foreground">
-                Right to Opt-Out of Sale:
-              </strong>{" "}
-              We do not sell personal information as defined by CCPA.
-            </li>
-            <li>
-              <strong className="text-foreground">
-                Right to Non-Discrimination:
-              </strong>{" "}
-              We will not discriminate against you for exercising your privacy
-              rights.
-            </li>
-          </ul>
-          <p className="text-muted-foreground leading-relaxed mt-4">
-            To exercise these rights, contact us at {contactEmail} or use our{" "}
-            <Link href="/contact" className="underline hover:text-foreground">
-              contact form
-            </Link>
-            .
-          </p>
-        </section>
-
-        {/* Data Security */}
-        <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            14. Data Security
-          </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            We implement appropriate technical and organizational measures to
-            protect your personal data against unauthorized access, alteration,
-            disclosure, or destruction, including:
-          </p>
-          <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
-            <li>SSL/TLS encryption for data in transit</li>
-            <li>Secure hosting infrastructure</li>
-            <li>Regular security assessments</li>
-            <li>Access controls and authentication measures</li>
-            <li>Data minimization practices</li>
-          </ul>
-          <p className="text-muted-foreground leading-relaxed">
-            However, no method of transmission over the Internet or electronic
-            storage is 100% secure. While we strive to protect your personal
-            data, we cannot guarantee its absolute security.
-          </p>
-        </section>
-
-        {/* Children's Privacy */}
-        <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            15. Children&apos;s Privacy
-          </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            Our Site is not intended for children under the age of 16 (or 13 in
-            the United States). We do not knowingly collect personal information
-            from children. If you are a parent or guardian and believe your
-            child has provided us with personal information, please contact us
-            immediately at {contactEmail}.
-          </p>
-          <p className="text-muted-foreground leading-relaxed">
-            If we become aware that we have collected personal information from
-            a child without parental consent, we will take steps to delete that
-            information.
-          </p>
-        </section>
-
-        {/* Do Not Track */}
-        <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            16. Do Not Track Signals
-          </h2>
-          <p className="text-muted-foreground leading-relaxed">
-            Some browsers have a &quot;Do Not Track&quot; (DNT) feature that
-            signals to websites that you do not want to be tracked. There is no
-            uniform standard for responding to DNT signals. Currently, we do not
-            respond to DNT browser signals. You can manage advertising choices
-            through Google&apos;s consent message and privacy options where
-            available, Google Ads Settings, and your browser or device controls.
-          </p>
-        </section>
-
-        {/* Third-Party Links */}
-        <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            17. Third-Party Links
-          </h2>
-          <p className="text-muted-foreground leading-relaxed">
-            Our Site may contain links to third-party websites, including
-            Amazon.com and other affiliate sites. We are not responsible for the
-            privacy practices of these external sites. We encourage you to read
-            the privacy policies of any third-party sites you visit.
-          </p>
-        </section>
-
-        {/* Changes to Policy */}
-        <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            18. Changes to This Privacy Policy
-          </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            We may update this Privacy Policy from time to time to reflect
-            changes in our practices, technology, legal requirements, or other
-            factors. When we make material changes:
-          </p>
-          <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-2 mb-4">
-            <li>
-              We will update the &quot;Last updated&quot; date at the top of
-              this page
-            </li>
-            <li>We may notify you by email (if you have provided one)</li>
-            <li>We may display a prominent notice on our Site</li>
-          </ul>
-          <p className="text-muted-foreground leading-relaxed">
-            We encourage you to review this Privacy Policy periodically to stay
-            informed about how we protect your information.
-          </p>
-        </section>
-
-        {/* Contact Information */}
-        <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            19. Contact Us
-          </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            If you have any questions, concerns, or requests regarding this
-            Privacy Policy or our data practices, please contact us:
-          </p>
-          <div className="bg-muted/50 p-4 rounded-lg text-muted-foreground space-y-2">
-            <p>
-              <strong className="text-foreground">Email:</strong> {contactEmail}
-            </p>
-            <p>
-              <strong className="text-foreground">Contact Form:</strong>{" "}
-              <Link href="/contact" className="underline hover:text-foreground">
-                Submit a Request
-              </Link>
-            </p>
-            <p>
-              <strong className="text-foreground">Response Time:</strong> We aim
-              to respond within 30 days
-            </p>
-          </div>
-        </section>
-
-        {/* Supervisory Authority */}
-        <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            20. Supervisory Authority
-          </h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            If you are located in the EEA and believe we have not adequately
-            addressed your concerns, you have the right to lodge a complaint
-            with your local data protection supervisory authority. A list of EEA
-            data protection authorities is available at:{" "}
-            <a
-              href="https://edpb.europa.eu/about-edpb/about-edpb/members_en"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-foreground"
-            >
-              European Data Protection Board
-            </a>
+          <p className="leading-relaxed text-muted-foreground">
+            This policy may be updated when site features or service providers
+            change. The revision date above will be updated when material
+            changes are made. For questions, corrections, access requests, or
+            deletion requests, email {contactEmail} or use the{" "}
+            <Link href="/contact">contact form</Link>.
           </p>
         </section>
       </div>

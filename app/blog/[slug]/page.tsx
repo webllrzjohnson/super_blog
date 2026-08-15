@@ -13,7 +13,6 @@ import {
   isPostPubliclyVisible,
 } from '@/lib/posts'
 import { PostCard } from '@/components/post-card'
-import { AffiliateDisclosure } from '@/components/affiliate-disclosure'
 import { GoogleAd } from '@/components/google-ad'
 import { ReadingProgressBar } from '@/components/reading-progress-bar'
 import { PostBookmarkButton } from '@/components/post-bookmark-button'
@@ -137,7 +136,6 @@ export default async function BlogPostPage({ params }: Props) {
 
           {/* Main content */}
           <article className="surface-card overflow-hidden p-5 md:p-8">
-            <AffiliateDisclosure />
             <GoogleAd position="top-of-content" />
 
             <header className="mb-10">
