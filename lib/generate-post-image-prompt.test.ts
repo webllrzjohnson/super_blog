@@ -1,11 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   DEFAULT_IMAGE_PROMPT_TEMPLATE,
+  WASTE_PROMPT_BLOCKS,
   buildPostImagePrompt,
+  selectWastePromptBlock,
 } from "@/lib/generate-post-image-prompt";
 
 describe("generate post image prompt", () => {
-  it("keeps the default featured-image style aligned to excerpt-driven personal story illustrations", () => {
+  it("keeps the base featured-image style aligned to excerpt-driven personal story illustrations", () => {
     expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain(
       "Cinematic cel-shaded editorial illustration",
     );
@@ -22,20 +24,12 @@ describe("generate post image prompt", () => {
       "Do not literalize metaphors",
     );
     expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain("carrying a child");
-    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain(
-      "For waste-related stories",
-    );
-    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain(
+    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain("{{wasteDetails}}");
+    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).not.toContain(
       "green organic on the left",
     );
-    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain(
-      "black garbage in the middle",
-    );
-    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain(
-      "blue recycling on the right",
-    );
-    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain("townhouse bins");
-    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain(
+    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).not.toContain("townhouse bins");
+    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).not.toContain(
       "stainless-steel chute door",
     );
     expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain("no glossy 3D render");
@@ -43,7 +37,7 @@ describe("generate post image prompt", () => {
     expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).not.toContain("Makoto Shinkai");
   });
 
-  it("builds prompts with the story source and soft setting guidance", () => {
+  it("builds non-waste prompts without optional waste equipment blocks", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
 
     const prompt = buildPostImagePrompt(
@@ -56,6 +50,8 @@ describe("generate post image prompt", () => {
     );
     expect(prompt).toContain("camping");
     expect(prompt).toContain("No speech bubbles");
+    expect(prompt).not.toContain("Waste equipment reference");
+    expect(prompt).not.toContain("{{wasteDetails}}");
 
     vi.restoreAllMocks();
   });
@@ -75,8 +71,17 @@ describe("generate post image prompt", () => {
     );
     expect(prompt).toContain("carrying a child");
     expect(prompt).toContain("running with someone");
+    expect(prompt).not.toContain("Waste equipment reference");
 
     vi.restoreAllMocks();
+  });
+
+  it("selects dirty chute mess before broader compactor or dumpster cues", () => {
+    const block = selectWastePromptBlock(
+      "Tenant garbage bags and cardboard were left on the floor beside the chute near the compactor room after a townhouse pickup delay.",
+    );
+
+    expect(block).toBe(WASTE_PROMPT_BLOCKS.dirtyChute);
   });
 
   it("describes Louie's actual compactor room when waste excerpts mention compactors", () => {
@@ -87,46 +92,61 @@ describe("generate post image prompt", () => {
     );
 
     expect(prompt).toContain(
+      "Waste equipment reference: indoor chute-fed compactor room",
+    );
+    expect(prompt).toContain(
       "three chute-fed compactors lined up side by side",
     );
     expect(prompt).toContain("green organic on the left");
     expect(prompt).toContain("black garbage in the middle");
     expect(prompt).toContain("blue recycling on the right");
-    expect(prompt).toContain("industrial steel chute feeds above");
-    expect(prompt).toContain("Avoid generic curbside bins");
+    expect(prompt).toContain("industrial steel chute feed above");
+    expect(prompt).not.toContain(
+      "large scuffed metal rolling dumpsters outdoors",
+    );
 
     vi.restoreAllMocks();
   });
 
-  it("distinguishes outdoor townhouse dumpsters from indoor compactor equipment", () => {
+  it("adds outdoor townhouse dumpster details only for exterior waste cues", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
 
     const prompt = buildPostImagePrompt(
       "A townhouse resident left garbage beside the external bins near the rear service area.",
     );
 
+    expect(prompt).toContain(
+      "Waste equipment reference: townhouse or exterior dumpster area",
+    );
     expect(prompt).toContain("large scuffed metal rolling dumpsters outdoors");
     expect(prompt).toContain("black hinged lids");
     expect(prompt).toContain("small caster wheels");
-    expect(prompt).toContain("chute-fed compactors outdoors");
+    expect(prompt).not.toContain(
+      "three chute-fed compactors lined up side by side",
+    );
 
     vi.restoreAllMocks();
   });
 
-  it("describes dirty garbage chute alcoves when tenants leave bags on the floor", () => {
+  it("adds dirty garbage chute alcove details only when tenants leave bags by the chute", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
 
     const prompt = buildPostImagePrompt(
       "Tenant garbage bags and cardboard were left on the floor beside the chute instead of being taken downstairs.",
     );
 
+    expect(prompt).toContain(
+      "Waste equipment reference: dirty garbage chute alcove",
+    );
     expect(prompt).toContain("small apartment chute alcove");
     expect(prompt).toContain("wall-mounted stainless-steel chute door");
     expect(prompt).toContain("white plastic bags with orange drawstrings");
     expect(prompt).toContain(
       "cardboard packaging, cans, small loose recyclables",
     );
-    expect(prompt).toContain("exaggerated landfill piles");
+    expect(prompt).not.toContain(
+      "three chute-fed compactors lined up side by side",
+    );
 
     vi.restoreAllMocks();
   });

@@ -895,3 +895,39 @@ Verification:
 - `npm run build` passed.
 
 Deployment note: the live Admin settings are already updated; Coolify deploy is recommended so the deployed source fallback also matches the repo.
+
+### Conditional waste image prompt blocks on 2026-08-15
+
+Louie asked whether the earlier recommendation had actually been applied: move waste-equipment descriptions into conditional object prompt blocks instead of keeping every waste description in one giant image prompt.
+
+Answer at the time of the request: not yet. The previous commit `8c9b3fc` added all waste-equipment descriptions directly to the base image prompt. This update implements the cleaner conditional approach in source.
+
+What changed:
+
+- Added `WASTE_PROMPT_BLOCKS` in `lib/generate-post-image-prompt.ts` for three optional object blocks:
+  - `dirtyChute`
+  - `compactorRoom`
+  - `townhouseDumpster`
+- Added `selectWastePromptBlock(topic)` with the priority order Louie approved:
+  1. Dirty chute mess: bags/cardboard/tenant garbage left near or on the floor by the chute.
+  2. Compactor room: compactor room, garbage room, main building garbage system, chute-fed compactors.
+  3. Townhouse/external dumpsters: townhouse bins, external bins, outdoor dumpsters, rear service area, parking-lot/exterior garbage areas.
+  4. No special block: if no specific waste-equipment cue is detected.
+- Changed `DEFAULT_IMAGE_PROMPT_TEMPLATE` so the base prompt stays focused on source-of-truth, style, character traits, no metaphor literalization, and no text/logos/watermarks, with a `{{wasteDetails}}` insertion point for only the selected object block.
+- Added regression tests proving non-waste prompts receive no waste block and each waste cue receives only the relevant equipment block.
+
+Live Admin setting note:
+
+- A temporary attempt updated live Admin `ai.imagePromptTemplate` to the new `{{wasteDetails}}` base template, then this was restored immediately because Coolify deployment is manual and the current production code may not yet know how to replace the new placeholder.
+- The live Admin prompt is currently restored to the safe all-in-one waste guidance and does not contain a literal `{{wasteDetails}}` placeholder.
+- Archive of the pre-conditional live Admin prompt: `D:/Factory/super_blog-archives/ai-image-prompt-template-before-conditional-waste-blocks-2026-08-15T14-23-25-389Z.json`.
+- After Coolify deploys this source change, update live Admin `ai.imagePromptTemplate` to the new source default so the conditional block system is active in production.
+
+Verification:
+
+- Targeted `lib/generate-post-image-prompt.test.ts` passed: 7 tests.
+- Full `npm run test` passed: 27 files, 147 tests.
+- `npm run lint` passed.
+- `npm run build` passed.
+- Live Admin prompt verified safe until deploy: no `{{wasteDetails}}` placeholder and still has all-in-one waste guidance.
+- Temporary Admin scripts were removed after use.
