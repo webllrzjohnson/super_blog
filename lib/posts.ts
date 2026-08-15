@@ -1,73 +1,79 @@
-import type { Post, PostListItem } from '@/lib/types'
-import { AUTHOR_NAME } from '@/lib/site-identity'
+import type { Post, PostListItem } from "@/lib/types";
+import { AUTHOR_NAME } from "@/lib/site-identity";
 
-export const samplePosts: Post[] = []
+export const samplePosts: Post[] = [];
 
 export function calculateReadTime(content: string): number {
-  const wordsPerMinute = 200
-  const words = content.trim().split(/\s+/).length
-  return Math.ceil(words / wordsPerMinute)
+  const wordsPerMinute = 200;
+  const words = content.trim().split(/\s+/).length;
+  return Math.ceil(words / wordsPerMinute);
 }
 
 export const defaultAuthor = {
   name: AUTHOR_NAME,
   avatar: undefined as string | undefined,
   bio: undefined as string | undefined,
-}
+};
 
 export function isPostPubliclyVisible(
   post: Post | PostListItem,
-  now: Date = new Date()
+  now: Date = new Date(),
 ): boolean {
-  if (post.status === 'published') return true
-  if (post.status === 'draft') return false
-  if (post.status === 'scheduled') {
-    const publishDate = new Date(post.publishedAt)
-    return !Number.isNaN(publishDate.getTime()) && publishDate.getTime() <= now.getTime()
+  if (post.status === "published") return true;
+  if (post.status === "draft") return false;
+  if (post.status === "scheduled") {
+    const publishDate = new Date(post.publishedAt);
+    return (
+      !Number.isNaN(publishDate.getTime()) &&
+      publishDate.getTime() <= now.getTime()
+    );
   }
-  return false
+  return false;
 }
 
 export function getPublishedPosts(
   posts: Array<Post | PostListItem>,
-  now: Date = new Date()
+  now: Date = new Date(),
 ): PostListItem[] {
   return posts
     .filter((p) => isPostPubliclyVisible(p, now))
     .sort(
       (a, b) =>
-        new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-    )
+        new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
+    );
 }
 
 export function scoreRelatedPost(
   current: Post | PostListItem,
-  candidate: Post | PostListItem
+  candidate: Post | PostListItem,
 ): number {
-  if (candidate.slug === current.slug) return 0
+  if (candidate.slug === current.slug) return 0;
 
-  let score = 0
-  if (candidate.category === current.category) score += 2
+  let score = 0;
+  if (candidate.category === current.category) score += 2;
 
-  const currentTags = current.tags ?? []
-  const candidateTags = candidate.tags ?? []
-  score += candidateTags.filter((tag) => currentTags.includes(tag)).length * 3
+  const currentTags = current.tags ?? [];
+  const candidateTags = candidate.tags ?? [];
+  score += candidateTags.filter((tag) => currentTags.includes(tag)).length * 3;
 
   const currentTokens = new Set(
-    current.title.toLowerCase().split(/\s+/).filter(Boolean)
-  )
-  for (const token of candidate.title.toLowerCase().split(/\s+/).filter(Boolean)) {
-    if (currentTokens.has(token)) score += 1
+    current.title.toLowerCase().split(/\s+/).filter(Boolean),
+  );
+  for (const token of candidate.title
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)) {
+    if (currentTokens.has(token)) score += 1;
   }
 
-  return score
+  return score;
 }
 
 export function getRelatedPosts(
   post: Post | PostListItem,
   posts: Array<Post | PostListItem>,
   limit = 3,
-  now: Date = new Date()
+  now: Date = new Date(),
 ): PostListItem[] {
   return posts
     .filter((p) => p.slug !== post.slug && isPostPubliclyVisible(p, now))
@@ -75,65 +81,81 @@ export function getRelatedPosts(
     .filter(({ score }) => score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
-    .map(({ post: p }) => p)
+    .map(({ post: p }) => p);
 }
 
 export function getAdjacentPosts(
   post: Post | PostListItem,
   posts: Array<Post | PostListItem>,
-  now: Date = new Date()
+  now: Date = new Date(),
 ): { prev: PostListItem | null; next: PostListItem | null } {
   const published = getPublishedPosts(posts, now)
     .slice()
     .sort(
       (a, b) =>
-        new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime()
-    )
-  const index = published.findIndex((p) => p.slug === post.slug)
+        new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime(),
+    );
+  const index = published.findIndex((p) => p.slug === post.slug);
   return {
     prev: index > 0 ? published[index - 1] : null,
-    next: index >= 0 && index < published.length - 1 ? published[index + 1] : null,
-  }
+    next:
+      index >= 0 && index < published.length - 1 ? published[index + 1] : null,
+  };
 }
 
-export function getAllTags(posts: Array<Post | PostListItem>, now: Date = new Date()): string[] {
+export function getAllTags(
+  posts: Array<Post | PostListItem>,
+  now: Date = new Date(),
+): string[] {
   const tags = posts
     .filter((p) => isPostPubliclyVisible(p, now))
     .flatMap((p) => p.tags ?? [])
-    .map((tag) => tag.toLowerCase())
-  return [...new Set(tags)]
+    .map((tag) => tag.toLowerCase());
+  return [...new Set(tags)];
 }
 
 export function getPostsByTag(
   posts: Array<Post | PostListItem>,
-  tag: string
+  tag: string,
 ): PostListItem[] {
-  return posts.filter((p) => p.tags?.includes(tag) && p.status === 'published')
+  const normalizedTag = tag.trim().toLowerCase();
+  return posts.filter(
+    (post) =>
+      isPostPubliclyVisible(post) &&
+      post.tags?.some(
+        (postTag) => postTag.trim().toLowerCase() === normalizedTag,
+      ),
+  );
 }
 
-export function searchPosts(posts: Array<Post | PostListItem>, query: string): Array<Post | PostListItem> {
-  const q = query.toLowerCase()
+export function searchPosts(
+  posts: Array<Post | PostListItem>,
+  query: string,
+): Array<Post | PostListItem> {
+  const q = query.toLowerCase();
   return posts.filter(
     (p) =>
       p.title.toLowerCase().includes(q) ||
       p.excerpt.toLowerCase().includes(q) ||
-      ('content' in p && typeof p.content === 'string' && p.content.toLowerCase().includes(q)) ||
-      (p.tags ?? []).some((tag) => tag.toLowerCase().includes(q))
-  )
+      ("content" in p &&
+        typeof p.content === "string" &&
+        p.content.toLowerCase().includes(q)) ||
+      (p.tags ?? []).some((tag) => tag.toLowerCase().includes(q)),
+  );
 }
 
 export function getPostsFromDb(): Promise<Post[]> {
-  return import('@/lib/db-posts').then((m) => m.getPostsFromDb())
+  return import("@/lib/db-posts").then((m) => m.getPostsFromDb());
 }
 
 export function getPostBySlugFromDb(slug: string): Promise<Post | null> {
-  return import('@/lib/db-posts').then((m) => m.getPostBySlugFromDb(slug))
+  return import("@/lib/db-posts").then((m) => m.getPostBySlugFromDb(slug));
 }
 
 export function savePostToDb(post: Post): Promise<Post | null> {
-  return import('@/lib/db-posts').then((m) => m.savePostToDb(post))
+  return import("@/lib/db-posts").then((m) => m.savePostToDb(post));
 }
 
 export function deletePostFromDb(id: string): Promise<boolean> {
-  return import('@/lib/db-posts').then((m) => m.deletePostFromDb(id))
+  return import("@/lib/db-posts").then((m) => m.deletePostFromDb(id));
 }

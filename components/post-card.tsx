@@ -1,19 +1,25 @@
-import Link from 'next/link'
-import Image from 'next/image'
-import type { PostListItem } from '@/lib/types'
-import { getSafeImageAltText } from '@/lib/image-alt'
+import Link from "next/link";
+import Image from "next/image";
+import type { PostListItem } from "@/lib/types";
+import { getSafeImageAltText } from "@/lib/image-alt";
+import { formatPostDate } from "@/lib/post-date";
 
 interface PostCardProps {
-  post: PostListItem
-  featured?: boolean
+  post: PostListItem;
+  featured?: boolean;
 }
 
 export function PostCard({ post, featured = false }: PostCardProps) {
-  const visibleTags = post.tags.slice(0, 2)
+  const visibleTags = post.tags.slice(0, 2);
 
   return (
-    <article className={`group surface-card overflow-hidden transition-transform duration-300 hover:-translate-y-1 ${featured ? 'mb-8' : ''}`}>
-      <Link href={`/blog/${post.slug}`} className="grid h-full gap-0 sm:grid-cols-[112px_1fr]">
+    <article
+      className={`group surface-card overflow-hidden transition-transform duration-300 hover:-translate-y-1 ${featured ? "mb-8" : ""}`}
+    >
+      <Link
+        href={`/blog/${post.slug}`}
+        className="grid h-full gap-0 sm:grid-cols-[112px_1fr]"
+      >
         {post.featuredImage ? (
           <div className="relative min-h-36 overflow-hidden bg-muted sm:min-h-full">
             <Image
@@ -31,18 +37,18 @@ export function PostCard({ post, featured = false }: PostCardProps) {
         <div className="flex min-w-0 flex-col p-5">
           <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground">
             <time dateTime={post.publishedAt}>
-              {new Date(post.publishedAt).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              })}
-              {post.updatedAt && ' (updated)'}
+              {formatPostDate(post.publishedAt)}
+              {post.updatedAt && " (updated)"}
             </time>
-            <span className="opacity-60" aria-hidden>·</span>
+            <span className="opacity-60" aria-hidden>
+              ·
+            </span>
             <span>{post.readTime} min read</span>
           </div>
 
-          <h2 className={`${featured ? 'text-2xl' : 'text-lg'} mb-2 font-semibold leading-snug tracking-[-0.02em] text-foreground transition-colors group-hover:text-primary`}>
+          <h2
+            className={`${featured ? "text-2xl" : "text-lg"} mb-2 font-semibold leading-snug tracking-[-0.02em] text-foreground transition-colors group-hover:text-primary`}
+          >
             {post.title}
           </h2>
 
@@ -70,5 +76,5 @@ export function PostCard({ post, featured = false }: PostCardProps) {
         </div>
       </Link>
     </article>
-  )
+  );
 }

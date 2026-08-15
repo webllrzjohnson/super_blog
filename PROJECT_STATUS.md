@@ -953,3 +953,65 @@ Live Admin setting activation:
 - Temporary Admin update script was removed after use.
 
 No migration was required.
+
+### AdSense Phase 1 trust and utility-route remediation on 2026-08-15
+
+Louie manually deployed commit `6f2a259 fix: align public identity and monetization disclosures` through Coolify.
+
+Production trust verification after the manual deployment:
+
+- `/`, `/about`, `/privacy`, `/disclaimer`, `/feed`, `/ads.txt`, and `/blog/sump-pump-down-friday-afternoon` returned `200`.
+- Header/footer and metadata now identify the site as **The Super's Logbook**.
+- `Lester J.` remains present as the author/person identity, not as the site name.
+- The sampled article no longer renders a blanket affiliate disclosure.
+- No active AdSense, Amazon Associates, affiliate commission, sponsored-post, advertising-cookie, or active audience-analytics claim was found in the sampled public surfaces.
+- Privacy/Disclaimer mention inactive monetization only in accurate negative language such as “does not currently display advertisements.”
+- Google publisher verification remains available in public HTML where expected, and `/ads.txt` remains available.
+- Browser console on `/privacy` returned no JavaScript errors or console messages.
+
+Mobile overflow follow-up:
+
+- The prior 390×844 mobile overflow finding was re-tested against the current production homepage and a published article.
+- Current production measured a `390px` viewport and `390px` document width with zero offending horizontal-overflow elements.
+- Visual screenshots showed no clipped homepage headline, article disclosure, hero image, bookmark control, or paragraph text.
+- No speculative CSS/layout patch was made for mobile overflow.
+
+Local utility-route/indexing package prepared but not yet committed or deployed:
+
+- Unknown `/blog/<missing-slug>` article paths now return true HTTP `404` locally through proxy preflight before streamed App Router rendering.
+- `/blog/random` is converted from a page to a dynamic route handler returning `307` with `Cache-Control: no-store`.
+- `/search` and `/blog/tags` emit `noindex, follow`.
+- Tag matching is normalized/case-insensitive and the tag directory only lists tags with at least two matching posts.
+- Human sitemap now loads actual published database posts instead of the empty `samplePosts` array.
+- Public date formatting now goes through UTC-safe `formatPostDate` to avoid one-day date shifts.
+- Bare-host canonicalization is implemented locally as `maplehub.cloud` → `www.maplehub.cloud` with `308`, using `x-forwarded-host`/`host` rather than assuming `request.nextUrl.hostname` is the public hostname.
+
+Local utility verification:
+
+- Focused tests passed: `lib/posts.test.ts`, `lib/post-date.test.ts`, and `lib/public-route-integrity.test.ts` reported 22 passing tests.
+- Local production-server HTTP checks confirmed:
+  - `/blog/not-a-real-post` → `404`;
+  - `/blog/random` → `307` to `/blog`, `Cache-Control: no-store`;
+  - `/search?q=nomatch123` → `200` with `<meta name="robots" content="noindex, follow">`;
+  - `/blog/tags` → `200` with `<meta name="robots" content="noindex, follow">`;
+  - `/sitemap-page` → `200` and contains normal public page links;
+  - `Host: maplehub.cloud` on local production server → `308` to `www.maplehub.cloud`.
+- Full verification passed after local utility changes:
+  - `npm run test`: 30 files, 163 tests passed;
+  - `npm run lint` passed;
+  - `npm run build` passed;
+  - `git diff --check` passed.
+- Local production server was stopped after verification.
+
+Prepared approval-only noindex package:
+
+- Created `plans/eight-post-noindex-approval-package-2026-08-15.md`.
+- The package lists eight high-risk articles recommended for temporary `noindex, follow`, gives rationale, editorial repair criteria, implementation options, and verification steps.
+- Nothing from the noindex package has been applied to production.
+- Current post model/API has no per-post noindex field, so applying the package requires either a code-controlled slug list or a database-backed SEO field/migration.
+
+Deployment state:
+
+- Latest deployed production commit verified: `6f2a259`.
+- Utility-route/indexing package is local only, uncommitted, unpushed, and undeployed.
+- No database migration is currently required for the local utility package.

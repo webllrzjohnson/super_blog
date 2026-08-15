@@ -3,6 +3,37 @@ import type { NextRequest } from "next/server";
 import { verifySessionToken } from "@/lib/auth-session";
 
 export async function proxy(request: NextRequest) {
+  const requestHost = (
+    request.headers.get("x-forwarded-host") ||
+    request.headers.get("host") ||
+    ""
+  )
+    .split(",")[0]
+    .trim()
+    .split(":")[0]
+    .toLowerCase();
+
+  if (requestHost === "maplehub.cloud") {
+    const url = request.nextUrl.clone();
+    url.hostname = "www.maplehub.cloud";
+    return NextResponse.redirect(url, { status: 308 });
+  }
+
+  const articleMatch = request.nextUrl.pathname.match(/^\/blog\/([^/]+)$/);
+  if (
+    articleMatch &&
+    articleMatch[1] !== "random" &&
+    articleMatch[1] !== "tags"
+  ) {
+    const { getPostBySlugFromDb } = await import("@/lib/db-posts");
+    const post = await getPostBySlugFromDb(articleMatch[1]);
+    if (!post) {
+      return NextResponse.rewrite(new URL("/_not-found", request.url), {
+        status: 404,
+      });
+    }
+  }
+
   const isAdmin = request.nextUrl.pathname.startsWith("/admin");
 
   if (!isAdmin) {
@@ -27,5 +58,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

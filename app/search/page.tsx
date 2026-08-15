@@ -1,38 +1,42 @@
-import Link from 'next/link'
-import Image from 'next/image'
-import type { Metadata } from 'next'
-import sql from '@/lib/db'
-import { hasDatabaseConfig } from '@/lib/db-config'
-import { getSafeImageAltText } from '@/lib/image-alt'
+import Link from "next/link";
+import Image from "next/image";
+import type { Metadata } from "next";
+import sql from "@/lib/db";
+import { hasDatabaseConfig } from "@/lib/db-config";
+import { getSafeImageAltText } from "@/lib/image-alt";
+import { formatPostDate } from "@/lib/post-date";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
 interface SearchResult {
-  id: string
-  title: string
-  slug: string
-  excerpt: string
-  published_at: string
-  read_time: number
-  featured_image?: string
-  featured_image_alt?: string
-  tags: string[]
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  published_at: string;
+  read_time: number;
+  featured_image?: string;
+  featured_image_alt?: string;
+  tags: string[];
 }
 
 interface SearchPageProps {
-  searchParams: Promise<{ q?: string }>
+  searchParams: Promise<{ q?: string }>;
 }
 
-export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
-  const { q } = await searchParams
+export async function generateMetadata({
+  searchParams,
+}: SearchPageProps): Promise<Metadata> {
+  const { q } = await searchParams;
   return {
-    title: q ? `Search: ${q}` : 'Search',
-  }
+    title: q ? `Search: ${q}` : "Search",
+    robots: { index: false, follow: true },
+  };
 }
 
 async function searchPosts(q: string): Promise<SearchResult[]> {
-  if (!q || q.trim().length < 2) return []
-  if (!hasDatabaseConfig()) return []
+  if (!q || q.trim().length < 2) return [];
+  if (!hasDatabaseConfig()) return [];
 
   try {
     const rows = await sql<SearchResult[]>`
@@ -50,17 +54,17 @@ async function searchPosts(q: string): Promise<SearchResult[]> {
             @@ plainto_tsquery('english', ${q.trim()})
       ORDER BY rank DESC
       LIMIT 20
-    `
-    return rows
+    `;
+    return rows;
   } catch {
-    return []
+    return [];
   }
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const { q } = await searchParams
-  const query = q?.trim() ?? ''
-  const results = await searchPosts(query)
+  const { q } = await searchParams;
+  const query = q?.trim() ?? "";
+  const results = await searchPosts(query);
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-12">
@@ -91,23 +95,33 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <div>
           {results.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              No posts found for <strong className="text-foreground">&quot;{query}&quot;</strong>.
+              No posts found for{" "}
+              <strong className="text-foreground">&quot;{query}&quot;</strong>.
             </p>
           ) : (
             <>
               <p className="text-xs text-muted-foreground mb-6">
-                {results.length} result{results.length === 1 ? '' : 's'} for{' '}
+                {results.length} result{results.length === 1 ? "" : "s"} for{" "}
                 <strong className="text-foreground">&quot;{query}&quot;</strong>
               </p>
               <div className="space-y-8">
                 {results.map((post) => (
-                  <article key={post.id} className="flex gap-4 items-start group">
+                  <article
+                    key={post.id}
+                    className="flex gap-4 items-start group"
+                  >
                     {post.featured_image && (
-                      <Link href={`/blog/${post.slug}`} className="flex-shrink-0">
+                      <Link
+                        href={`/blog/${post.slug}`}
+                        className="flex-shrink-0"
+                      >
                         <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted border border-border/40">
                           <Image
                             src={post.featured_image}
-                            alt={getSafeImageAltText(post.featured_image_alt, post.title)}
+                            alt={getSafeImageAltText(
+                              post.featured_image_alt,
+                              post.title,
+                            )}
                             width={80}
                             height={80}
                             className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
@@ -122,9 +136,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                         </h2>
                         <div className="text-sm text-muted-foreground mb-2">
                           <time dateTime={post.published_at}>
-                            {new Date(post.published_at).toLocaleDateString('en-US', {
-                              month: 'short', day: 'numeric', year: 'numeric',
-                            })}
+                            {formatPostDate(post.published_at)}
                           </time>
                           <span className="mx-2 opacity-60">·</span>
                           <span>{post.read_time} min read</span>
@@ -158,8 +170,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       )}
 
       {query.length > 0 && query.length < 2 && (
-        <p className="text-muted-foreground text-sm">Type at least 2 characters to search.</p>
+        <p className="text-muted-foreground text-sm">
+          Type at least 2 characters to search.
+        </p>
       )}
     </div>
-  )
+  );
 }

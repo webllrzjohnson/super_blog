@@ -7,6 +7,7 @@ import { getPostSummariesFromDb } from "@/lib/db-posts";
 import { getPublishedPosts } from "@/lib/posts";
 import { getSettings } from "@/lib/settings";
 import { getSafeImageAltText } from "@/lib/image-alt";
+import { formatPostDate } from "@/lib/post-date";
 
 /** Must be a literal for Next.js segment config (see POSTS_CACHE_REVALIDATE_SECONDS). */
 export const revalidate = 120;
@@ -146,14 +147,7 @@ export default async function HomePage() {
                 </div>
                 <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-muted-foreground">
                   <time dateTime={featured.publishedAt}>
-                    {new Date(featured.publishedAt).toLocaleDateString(
-                      "en-US",
-                      {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      },
-                    )}
+                    {formatPostDate(featured.publishedAt)}
                   </time>
                   <span aria-hidden>·</span>
                   <span>{featured.readTime} min read</span>
