@@ -332,3 +332,39 @@ Verification after the tone revision:
 - Public page includes the new excerpt.
 - Public page includes the new featured-image alt text.
 - Public page no longer contains mistake/correction/few-days framing.
+
+### Internal-link cleanup application on 2026-08-15
+
+Louie approved applying the first internal-link cleanup package.
+
+Package:
+
+```text
+plans/internal-link-package-2026-08-14.json
+plans/internal-link-package-2026-08-14.md
+```
+
+Original post backup saved outside the repo:
+
+```text
+D:/Factory/super_blog-archives/internal-link-originals-2026-08-15T01-12-47-353Z.json
+```
+
+Updated live posts:
+
+- `this-isn-t-a-landfill-ongoing-battles-with-garbage-compactor-misuse-in-residential-buildings`
+- `why-following-the-plan-actually-matters`
+- `coming-back-to-running-after-knee-injury`
+- `the-audit-nobody-wants-to-run`
+- `the-mould-problem-dangers-resolution-and-prevention`
+- `how-superintendents-handle-faucet-repairs-step-by-step-process-guide`
+- `the-elevator-woes-better-habits-building-experience`
+- `no-i-cant-read-your-mind-why-reporting-building-issues-matters`
+- `why-your-building-garbage-compactor-matters`
+
+Verification after production update:
+
+- Live API content matched the approved package for all 9 posts.
+- All 9 public pages returned `200`.
+- All 9 public pages contained their expected target `/blog/...` internal link.
+- No public employer references, placeholder image labels, or `---CONTENT---` markers were found on the updated public pages.
