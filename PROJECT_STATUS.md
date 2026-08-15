@@ -809,3 +809,42 @@ Verification:
 - `npm run build` passed.
 
 Deployment note: the live Admin setting is already updated; Coolify deploy is recommended so the deployed source fallback also matches the repo.
+
+### Image prompt rollback note requested by Louie on 2026-08-15 05:50 EDT
+
+Louie said he will run more image-generation tests and asked to note exactly where/when the image prompt was changed from the original because he may revert back to it.
+
+Prompt-change locations:
+
+- Source default: `lib/generate-post-image-prompt.ts` (`DEFAULT_IMAGE_PROMPT_TEMPLATE`).
+- Source tests: `lib/generate-post-image-prompt.test.ts`.
+- Generated-post image source wiring: `lib/generate-post.ts` changed image generation to use `excerpt || title || topic` after post text generation.
+- Live Admin setting: `/api/settings` key `ai.imagePromptTemplate` was updated through the Admin settings API.
+- Project notes: `PROJECT_STATUS.md` records each prompt update and archive path.
+
+Prompt-change timeline:
+
+1. `ebb42d2 feat: standardize blog image style`
+   - First changed the image prompt from the prior/original template to the reference-image-inspired cinematic cel-shaded blog style.
+   - Updated live Admin AI prompt setting.
+   - Archived previous live Admin AI settings at `D:/Factory/super_blog-archives/ai-image-prompt-template-original-2026-08-15T04-46-12-876Z.json`.
+
+2. `754bab6 feat: make blog image prompts excerpt driven`
+   - Changed the prompt from building-operations-specific to universal excerpt-driven story scenes.
+   - Added Louie's visible character traits when a main character appears.
+   - Changed full AI post generation so images use `excerpt || title || topic`.
+   - Updated live Admin AI prompt setting.
+   - Archived previous live Admin setting at `D:/Factory/super_blog-archives/ai-image-prompt-template-before-universal-excerpt-2026-08-15T08-50-19-339Z.json`.
+
+3. `e561650 fix: prevent literalized image prompt metaphors`
+   - Added guardrails after Louie reported the burnout/compassion post generated an out-of-context man carrying a child/running-style image.
+   - Added explicit instruction not to literalize emotional metaphors like "weight" or "carrying home" into physically carrying a person/child, running with someone, or family-outing imagery.
+   - Updated live Admin AI prompt setting.
+   - Archived previous live Admin setting at `D:/Factory/super_blog-archives/ai-image-prompt-template-before-metaphor-guardrails-2026-08-15T09-33-36-332Z.json`.
+
+Rollback guidance:
+
+- To revert fully to the original pre-style-change live prompt, use the archive from step 1.
+- To keep the cel-shaded reference-image style but undo excerpt-driven/general-subject behavior, compare against the archive from step 2.
+- To keep excerpt-driven behavior but undo only the metaphor guardrails, compare against the archive from step 3.
+- Do not regenerate or replace existing production images without Louie's explicit approval.
