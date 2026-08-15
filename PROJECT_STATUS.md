@@ -683,3 +683,25 @@ Verified production at `https://www.maplehub.cloud` after deployment:
 Note: the admin-managed About body still contains older employer-size wording. The source-code fallback was cleaned in commit `14bf07b`, but the live custom About content would need a separate approved Admin content update if Louie wants that sentence generalized too.
 
 No migration was required.
+
+### About-page admin content cleanup on 2026-08-15
+
+Louie approved a small Admin content cleanup after the trust-page deploy verification.
+
+What changed in production Admin settings:
+
+- Archived the original `pages.about` setting outside the repo at `D:/Factory/super_blog-archives/about-page-original-2026-08-15T04-09-45-306Z.json`.
+- Replaced the older sentence that referenced becoming a Senior Building Superintendent at one of the largest subsidized housing companies in North America.
+- New generalized wording says the career pivot was "into building operations" and avoids employer-size specificity.
+
+Verification:
+
+- `/about` returned `200`.
+- Public About page no longer contains "largest subsidized housing companies".
+- Public About page no longer contains the older "I became a Senior Building Superintendent" sentence.
+- Public About page contains "wild career pivot into building operations".
+- Public About page still contains the trust cards: Personal perspective, Anonymized stories, Practical notes.
+- Browser console on `/about` returned no console messages and no JavaScript errors.
+- Temporary Admin API script was removed after use; repo remained clean before this status update.
+
+No deployment or migration was required because this was a production Admin settings update.
