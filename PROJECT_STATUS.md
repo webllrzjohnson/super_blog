@@ -535,3 +535,21 @@ Verified production at `https://www.maplehub.cloud` after deployment:
 - Browser console check returned no console messages and no JavaScript errors.
 
 No migration was required.
+
+### Next.js proxy convention cleanup on 2026-08-15
+
+Migrated the deprecated Next.js `middleware.ts` convention to the Next.js 16 `proxy.ts` convention.
+
+Changed files:
+
+- Removed `middleware.ts`.
+- Added `proxy.ts` with the existing `/admin/:path*` guard exported as `proxy`.
+
+Verification:
+
+- `npm run test` passed: 26 files, 139 tests.
+- `npm run lint` passed.
+- `npm run build` passed.
+- The previous Next.js `middleware` deprecation warning no longer appears in the build output.
+
+Deployment note: this code change requires the usual manual Coolify deploy before the production runtime uses `proxy.ts` instead of `middleware.ts`.
