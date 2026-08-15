@@ -780,3 +780,32 @@ Verified production at `https://www.maplehub.cloud` after deployment:
 - Browser console on `/` returned no console messages and no JavaScript errors.
 
 No migration was required.
+
+### Image prompt metaphor guardrails on 2026-08-15
+
+Louie reported a bad image-generation outcome for `/blog/the-fine-line-between-compassion-and-burnout-in-working-as-a-building-superintendent`: the model produced an out-of-context man carrying a child/running-style scene instead of an emotionally tired superintendent/burnout scene.
+
+Root cause:
+
+- The excerpt contains metaphorical language about "weight" and "carrying home".
+- The universal prompt previously allowed broad activity categories such as running and family time without explicitly limiting them to what the excerpt states.
+- The prompt did not forbid literalizing emotional metaphors into physically carrying a person, carrying a child, running with someone, or family-outing imagery.
+
+What changed:
+
+- Added explicit prompt guardrails: use the excerpt as the source of truth for setting, people, activity, mood, and objects.
+- Added "Do not literalize metaphors" guidance for emotional weight, carrying things home, burnout, pressure, and burden.
+- Added specific negative guidance against physically carrying a person, carrying a child, carrying a heavy object, running with someone, or a family outing unless the excerpt explicitly says so.
+- Added a regression test using the burnout excerpt to protect against this exact failure mode.
+- Updated the live Admin AI image prompt setting immediately.
+- Archived the previous live Admin prompt setting outside the repo at `D:/Factory/super_blog-archives/ai-image-prompt-template-before-metaphor-guardrails-2026-08-15T09-33-36-332Z.json`.
+
+Verification:
+
+- Live Admin prompt contains the metaphor, child-carrying, and running guardrails.
+- Temporary Admin API script was removed after use.
+- `npm run test` passed: 27 files, 142 tests.
+- `npm run lint` passed.
+- `npm run build` passed.
+
+Deployment note: the live Admin setting is already updated; Coolify deploy is recommended so the deployed source fallback also matches the repo.

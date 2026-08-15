@@ -18,6 +18,10 @@ describe("generate post image prompt", () => {
     expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain("clean-shaven head");
     expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain("Garmin Epix Pro");
     expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain("Do not force a building");
+    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain(
+      "Do not literalize metaphors",
+    );
+    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain("carrying a child");
     expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain("no glossy 3D render");
     expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).not.toContain("Studio Ghibli");
     expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).not.toContain("Makoto Shinkai");
@@ -36,6 +40,25 @@ describe("generate post image prompt", () => {
     );
     expect(prompt).toContain("camping");
     expect(prompt).toContain("No speech bubbles");
+
+    vi.restoreAllMocks();
+  });
+
+  it("guards emotional-weight excerpts from becoming literal child or running scenes", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+
+    const prompt = buildPostImagePrompt(
+      "Nobody warned me that the hardest part of this job wouldn't be the boilers or the work orders, it would be the people, and how much of their weight I'd end up carrying home.",
+    );
+
+    expect(prompt).toContain("weight I'd end up carrying home");
+    expect(prompt).toContain("Do not literalize metaphors");
+    expect(prompt).toContain("show emotional strain through posture");
+    expect(prompt).toContain(
+      "Do not turn those metaphors into physically carrying a person",
+    );
+    expect(prompt).toContain("carrying a child");
+    expect(prompt).toContain("running with someone");
 
     vi.restoreAllMocks();
   });
