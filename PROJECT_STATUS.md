@@ -705,3 +705,34 @@ Verification:
 - Temporary Admin API script was removed after use; repo remained clean before this status update.
 
 No deployment or migration was required because this was a production Admin settings update.
+
+### Blog illustration style standard on 2026-08-15
+
+Louie provided `C:/Users/louie/Pictures/must replicate.jpeg` as the target visual style for future MapleHub blog illustrations.
+
+Style direction extracted from the reference:
+
+- Cinematic cel-shaded editorial illustration.
+- Detailed building-operations environmental storytelling.
+- Strong architectural perspective with believable stairs, doors, hallways, railings, service rooms, sidewalks, and apartment interiors.
+- Thick clean ink outlines, crisp linework, hand-painted background texture, and subtle film grain.
+- Warm daylight or practical interior light, deep readable shadows, muted cream/green/gray building surfaces, and saturated accent objects such as blue doors, garbage bags, safety signs, tools, notices, boxes, or maintenance supplies.
+- Grounded animated-story feel: realistic, slightly cinematic, human but not cute, no glossy 3D render, no plastic vector look, no childish clip art, no distorted anatomy.
+
+What changed:
+
+- Updated `DEFAULT_IMAGE_PROMPT_TEMPLATE` in `lib/generate-post-image-prompt.ts` so new fallback/generated image prompts use this style without named artist references.
+- Added `lib/generate-post-image-prompt.test.ts` to protect the new style requirements.
+- Updated the live Admin AI setting `ai.imagePromptTemplate` so future production generated images use this style immediately.
+- Archived the previous live AI image prompt settings outside the repo at `D:/Factory/super_blog-archives/ai-image-prompt-template-original-2026-08-15T04-46-12-876Z.json`.
+
+Verification:
+
+- Live Admin settings now contain the cinematic cel-shaded style, strong architectural perspective, and garbage-bag/building-operations detail cues.
+- Live Admin settings no longer contain the previous named style references.
+- Temporary Admin API script was removed after use.
+- `npm run test` passed: 27 files, 141 tests.
+- `npm run lint` passed.
+- `npm run build` passed.
+
+Deployment note: the live Admin setting is already updated; deploy is only needed to make the source-code fallback/tested default live in the deployed app image.
