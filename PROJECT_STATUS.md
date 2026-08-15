@@ -477,3 +477,37 @@ Verification after production update:
 - All 9 public pages contained their expected target `/blog/...` internal link.
 - No public employer references, placeholder image labels, or `---CONTENT---` markers were found on the updated public pages.
 - Follow-up live audit found `0` published posts without internal blog links.
+
+### Short-post expansion and generated-post minimum on 2026-08-15
+
+Louie approved applying the short-post expansion package and setting 700 words as the standard minimum length for future generated posts.
+
+Package:
+
+```text
+plans/short-post-expansion-package-2026-08-15.json
+plans/short-post-expansion-package-2026-08-15.md
+```
+
+Original post backup saved outside the repo:
+
+```text
+D:/Factory/super_blog-archives/short-post-expansion-originals-2026-08-15T02-18-57-865Z.json
+```
+
+Updated live posts:
+
+- `heat-wave-chaos-in-the-building`: 650 → 773 words
+- `scooters-in-hallway-problem`: 669 → 786 words
+
+Verification after production update:
+
+- Live API content matched the approved package for both posts.
+- Both public pages returned `200`.
+- Both public pages contained the approved added paragraphs.
+- No public employer references, placeholder image labels, or `---CONTENT---` markers were found on the updated public pages.
+
+Future generated-post standard:
+
+- `lib/generated-post-quality.ts` now enforces `MIN_GENERATED_WORDS = 700`.
+- `lib/generated-post-quality.test.ts` covers the 700-word minimum so a 699-word generated post is blocked as too thin.
