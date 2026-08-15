@@ -663,3 +663,23 @@ Verification:
 - Leftover Node process occupying port 3000 was identified and stopped with `taskkill.exe`.
 
 Deployment note: this trust-page polish requires the usual manual Coolify deploy before production reflects it. No migration is required.
+
+### Trust-page polish post-deploy verification on 2026-08-15
+
+Louie manually triggered Coolify deployment for commit `14bf07b feat: polish public trust pages`.
+
+Verified production at `https://www.maplehub.cloud` after deployment:
+
+- `/`, `/blog`, `/about`, `/contact`, `/privacy`, `/disclaimer`, `/resources`, `/robots.txt`, `/sitemap.xml`, `/ads.txt`, and `/api/posts` all returned `200`.
+- `/about` shows the new trust header/card shell: About the author, personal perspective, anonymized stories, and practical notes.
+- `/contact` shows the new contact expectation cards: good reasons to write, private by default, and no emergency channel.
+- `/privacy` shows the new privacy summary cards: what you provide, ads and affiliates, and your choices.
+- `/disclaimer` shows the new disclosure summary cards: no extra cost, clear labels, and reader trust first.
+- `/resources` shows the new resource-use cards: general examples, review before use, and built from practice.
+- Browser console on `/about` returned no console messages and no JavaScript errors.
+- `/api/posts` returned 43 published posts.
+- Live content audit found `0` published posts under 700 words and `0` published posts missing internal blog links.
+
+Note: the admin-managed About body still contains older employer-size wording. The source-code fallback was cleaned in commit `14bf07b`, but the live custom About content would need a separate approved Admin content update if Louie wants that sentence generalized too.
+
+No migration was required.
