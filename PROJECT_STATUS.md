@@ -404,3 +404,39 @@ Verification after production update:
 - All 9 public pages returned `200`.
 - All 9 public pages contained their expected target `/blog/...` internal link.
 - No public employer references, placeholder image labels, or `---CONTENT---` markers were found on the updated public pages.
+
+### Internal-link cleanup batch 3 application on 2026-08-15
+
+Louie approved applying the third internal-link cleanup package.
+
+Package:
+
+```text
+plans/internal-link-package-2026-08-15-batch-3.json
+plans/internal-link-package-2026-08-15-batch-3.md
+```
+
+Original post backup saved outside the repo:
+
+```text
+D:/Factory/super_blog-archives/internal-link-batch-3-originals-2026-08-15T01-29-27-410Z.json
+```
+
+Updated live posts:
+
+- `what-is-a-notice-of-entry-noe-and-what-it-isnt`
+- `getting-back-in-shape-after-accident-fitness-routine`
+- `tenant-escalating-issues-to-management-skipping-work-order-process`
+- `why-harassing-building-staff-has-to-stop`
+- `what-its-like-to-be-a-superintendent-for-subsidized-housing`
+- `back-from-knee-injury-5k-run-goal`
+- `how-pest-problems-start-and-spread-in-your-home`
+- `tenant-representatives-advocacy-vs-disruption`
+- `subsidized-vs-private-apartment-superintendent-differences`
+
+Verification after production update:
+
+- Live API content matched the approved package for all 9 posts.
+- All 9 public pages returned `200`.
+- All 9 public pages contained their expected target `/blog/...` internal link.
+- No public employer references, placeholder image labels, or `---CONTENT---` markers were found on the updated public pages.
