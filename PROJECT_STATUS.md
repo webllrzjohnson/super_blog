@@ -511,3 +511,27 @@ Future generated-post standard:
 
 - `lib/generated-post-quality.ts` now enforces `MIN_GENERATED_WORDS = 700`.
 - `lib/generated-post-quality.test.ts` covers the 700-word minimum so a 699-word generated post is blocked as too thin.
+
+### Post-deploy verification on 2026-08-15
+
+Louie manually triggered Coolify deployment after commit `de56743 feat: enforce 700 word generated post minimum`.
+
+Verified production at `https://www.maplehub.cloud` after deployment:
+
+- `/` returned `200`.
+- `/blog` returned `200`.
+- `/about` returned `200`.
+- `/contact` returned `200`.
+- `/privacy` returned `200`.
+- `/disclaimer` returned `200`.
+- `/robots.txt` returned `200`.
+- `/sitemap.xml` returned `200`.
+- `/ads.txt` returned `200` with the Google publisher record.
+- `/api/posts` returned `200` with 43 published posts.
+- Follow-up live API audit found `0` published posts under 700 words.
+- Follow-up live API audit found `0` published posts missing internal blog links.
+- Expanded posts still verified at 773 and 786 words.
+- Browser check of `heat-wave-chaos-in-the-building` showed the approved added paragraphs rendered publicly.
+- Browser console check returned no console messages and no JavaScript errors.
+
+No migration was required.
