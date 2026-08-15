@@ -608,3 +608,22 @@ Verification:
 - Local production server was stopped after verification.
 
 Deployment note: this visual polish requires the usual manual Coolify deploy before production reflects it.
+
+### Homepage/blog polish post-deploy verification on 2026-08-15
+
+Louie manually triggered Coolify deployment for commit `79e64b4 feat: polish homepage and blog discovery`.
+
+Verified production at `https://www.maplehub.cloud` after deployment:
+
+- `/` returned `200` and shows the new homepage trust/context cards: real field notes, readable depth, and related reading.
+- `/` shows the new author-card context note about building work, tech, training, recovery, and time away from the noise.
+- `/` shows the updated recent-posts context line.
+- `/blog` returned `200` and shows the new topic lane links: building operations, superintendent life, running/recovery, and garbage/shared spaces.
+- `/blog` shows the new blog context cards: 43 published notes, built around real work, and browse/search.
+- `/about`, `/contact`, `/privacy`, `/disclaimer`, `/resources`, `/robots.txt`, `/sitemap.xml`, `/ads.txt`, and `/api/posts` all returned `200`.
+- `/api/posts` returned 43 published posts.
+- Live content audit found `0` published posts under 700 words.
+- Live content audit found `0` published posts missing internal blog links.
+- Browser console checks on `/` and `/blog` returned no console messages and no JavaScript errors.
+
+No migration was required.
