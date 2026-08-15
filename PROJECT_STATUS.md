@@ -368,3 +368,39 @@ Verification after production update:
 - All 9 public pages returned `200`.
 - All 9 public pages contained their expected target `/blog/...` internal link.
 - No public employer references, placeholder image labels, or `---CONTENT---` markers were found on the updated public pages.
+
+### Internal-link cleanup batch 2 application on 2026-08-15
+
+Louie approved applying the second internal-link cleanup package.
+
+Package:
+
+```text
+plans/internal-link-package-2026-08-15-batch-2.json
+plans/internal-link-package-2026-08-15-batch-2.md
+```
+
+Original post backup saved outside the repo:
+
+```text
+D:/Factory/super_blog-archives/internal-link-batch-2-originals-2026-08-15T01-21-37-949Z.json
+```
+
+Updated live posts:
+
+- `nursing-a-knee-injury-week-two-update-superintendent`
+- `not-all-heroes-wear-capes-superintendent-subsidized-housing-toronto`
+- `hidden-cost-of-illegal-garbage-disposal`
+- `customer-service-building-superintendent-why-it-matters`
+- `failed-g-driving-test-twice-motivation-lane-change-tips`
+- `honesty-builds-trust-character-building-superintendent`
+- `why-your-underground-parking-garage-is-not-a-storage-unit`
+- `first-acupuncture-treatment-running-injury-knee-recovery`
+- `the-fine-line-between-compassion-and-burnout-in-working-as-a-building-superintendent`
+
+Verification after production update:
+
+- Live API content matched the approved package for all 9 posts.
+- All 9 public pages returned `200`.
+- All 9 public pages contained their expected target `/blog/...` internal link.
+- No public employer references, placeholder image labels, or `---CONTENT---` markers were found on the updated public pages.
