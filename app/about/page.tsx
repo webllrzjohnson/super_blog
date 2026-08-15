@@ -1,48 +1,48 @@
-import type { Metadata } from 'next'
-import Image from 'next/image'
-import Link from 'next/link'
-import ReactMarkdown from 'react-markdown'
-import { defaultAuthor } from '@/lib/posts'
-import { getSetting } from '@/lib/settings'
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import { defaultAuthor } from "@/lib/posts";
+import { getSetting } from "@/lib/settings";
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
 
 export const metadata: Metadata = {
-  title: 'About',
-  description: 'Learn more about me, what I write about, and how to connect.',
+  title: "About",
+  description: "Learn more about me, what I write about, and how to connect.",
   alternates: {
     canonical: `${BASE_URL}/about`,
   },
-}
+};
 
 export default async function AboutPage() {
   const [pages, links] = await Promise.all([
-    getSetting('pages'),
-    getSetting('links'),
-  ])
-  const customAbout = pages.about?.trim()
+    getSetting("pages"),
+    getSetting("links"),
+  ]);
+  const customAbout = pages.about?.trim();
 
   const socialLinks = [
-    links?.github ? { name: 'GitHub', href: links.github } : null,
-    links?.linkedin ? { name: 'LinkedIn', href: links.linkedin } : null,
-    links?.twitter ? { name: 'Twitter/X', href: links.twitter } : null,
+    links?.github ? { name: "GitHub", href: links.github } : null,
+    links?.linkedin ? { name: "LinkedIn", href: links.linkedin } : null,
+    links?.twitter ? { name: "Twitter/X", href: links.twitter } : null,
     links?.contactEmail
-      ? { name: 'Email', href: `mailto:${links.contactEmail}` }
+      ? { name: "Email", href: `mailto:${links.contactEmail}` }
       : null,
-  ].filter((item): item is { name: string; href: string } => item !== null)
+  ].filter((item): item is { name: string; href: string } => item !== null);
 
   const sameAsUrls = socialLinks
-    .filter((l) => !l.href.startsWith('mailto:'))
-    .map((l) => l.href)
+    .filter((l) => !l.href.startsWith("mailto:"))
+    .map((l) => l.href);
 
   const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
+    "@context": "https://schema.org",
+    "@type": "Person",
     name: defaultAuthor.name,
     description: defaultAuthor.bio,
-    url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'}/about`,
+    url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"}/about`,
     sameAs: sameAsUrls,
-  }
+  };
 
   return (
     <>
@@ -51,15 +51,43 @@ export default async function AboutPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="max-w-3xl mx-auto px-6 py-12 md:py-20">
-        <header className="mb-12">
-          <h1 className="text-3xl font-semibold text-foreground mb-4">
+      <div className="mx-auto max-w-4xl px-6 py-12 md:py-20">
+        <header className="surface-card mb-10 p-6 md:p-8">
+          <p className="eyebrow mb-3">About the author</p>
+          <h1 className="text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl">
             About me
           </h1>
+          <p className="mt-4 max-w-2xl leading-7 text-muted-foreground">
+            The Super&apos;s Logbook is a personal site about building
+            operations, coding on the side, running, food, and the parts of life
+            that happen after the work phone quiets down.
+          </p>
         </header>
 
+        <section className="mb-10 grid gap-3 text-sm text-muted-foreground sm:grid-cols-3">
+          {[
+            [
+              "Personal perspective",
+              "Posts are written from lived experience, not official policy.",
+            ],
+            [
+              "Anonymized stories",
+              "Resident, staff, and workplace details are kept generalized.",
+            ],
+            [
+              "Practical notes",
+              "The goal is useful reflection, not legal, HR, or technical advice.",
+            ],
+          ].map(([label, detail]) => (
+            <div key={label} className="surface-card p-4">
+              <p className="font-semibold text-foreground">{label}</p>
+              <p className="mt-1 leading-6">{detail}</p>
+            </div>
+          ))}
+        </section>
+
         {customAbout ? (
-          <div className="prose prose-neutral dark:prose-invert max-w-none">
+          <div className="prose prose-neutral dark:prose-invert max-w-none rounded-3xl border border-border/60 bg-card/65 p-6 shadow-sm md:p-8">
             <ReactMarkdown>{customAbout}</ReactMarkdown>
           </div>
         ) : (
@@ -78,21 +106,50 @@ export default async function AboutPage() {
               </div>
               <div className="space-y-4">
                 <p className="text-lg text-foreground leading-relaxed">
-                  Hey there! I&apos;m Lester—a software engineer by trade, a building superintendent by day, and a perpetual tinkerer at heart.
+                  Hey there! I&apos;m Lester—a software engineer by trade, a
+                  building superintendent by day, and a perpetual tinkerer at
+                  heart.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
-                  I spent years as a full-stack developer building web apps and mobile apps, debugging production issues at odd hours, and living that keyboard life. Then I made what most people would call a wild career pivot: I became a Senior Building Superintendent at one of the largest subsidized housing companies in North America. Different world, same problem-solving mindset. Just swap the IDE for a set of tools and the standup meetings for a tenant buzzing your office about a flooded unit on a Monday morning.
+                  I spent years as a full-stack developer building web apps and
+                  mobile apps, debugging production issues at odd hours, and
+                  living that keyboard life. Then I made what most people would
+                  call a wild career pivot into building operations. Different
+                  world, same problem-solving mindset. Just swap the IDE for a
+                  set of tools and the standup meetings for a tenant buzzing
+                  your office about a flooded unit on a Monday morning.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
-                  Engineering never really left me though. I still write code, just not full-time anymore. These days I build with AI as my co-pilot, automating workflows, creating tools, and exploring what&apos;s possible when you combine years of dev experience with modern AI capabilities. It keeps the brain sharp and honestly, it&apos;s some of the most fun I&apos;ve had coding in years.</p>
-                <p className="text-muted-foreground leading-relaxed">
-                  Outside of work, life is good and full. My wife and I love exploring the city, trying new restaurants, hunting down hidden gems, and cooking our way through cuisines we&apos;ve never attempted before. Weekends often involve something bubbling on the stove or a fresh loaf of bread cooling on the counter. Baking in particular is my kind of therapy: precise, patient, and deeply satisfying when it works.
+                  Engineering never really left me though. I still write code,
+                  just not full-time anymore. These days I build with AI as my
+                  co-pilot, automating workflows, creating tools, and exploring
+                  what&apos;s possible when you combine years of dev experience
+                  with modern AI capabilities. It keeps the brain sharp and
+                  honestly, it&apos;s some of the most fun I&apos;ve had coding
+                  in years.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
-                  We also love to travel. There&apos;s something about being somewhere completely new, navigating a foreign menu, getting genuinely lost, figuring things out on the fly, that feels a lot like learning to code. Uncomfortable at first, exhilarating once you find your footing.
+                  Outside of work, life is good and full. My wife and I love
+                  exploring the city, trying new restaurants, hunting down
+                  hidden gems, and cooking our way through cuisines we&apos;ve
+                  never attempted before. Weekends often involve something
+                  bubbling on the stove or a fresh loaf of bread cooling on the
+                  counter. Baking in particular is my kind of therapy: precise,
+                  patient, and deeply satisfying when it works.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
-                  This blog is where I bring it all together: the career lessons, the building stories, the AI experiments, the food finds, the travel moments. I don&apos;t have everything figured out, but I&apos;m paying attention and I write about what I notice. Maybe some of it will be useful to you too.
+                  We also love to travel. There&apos;s something about being
+                  somewhere completely new, navigating a foreign menu, getting
+                  genuinely lost, figuring things out on the fly, that feels a
+                  lot like learning to code. Uncomfortable at first,
+                  exhilarating once you find your footing.
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  This blog is where I bring it all together: the career
+                  lessons, the building stories, the AI experiments, the food
+                  finds, the travel moments. I don&apos;t have everything
+                  figured out, but I&apos;m paying attention and I write about
+                  what I notice. Maybe some of it will be useful to you too.
                 </p>
               </div>
             </div>
@@ -103,18 +160,33 @@ export default async function AboutPage() {
                 What I write about
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
-                <p>
-                  This blog is my space to think out loud. I write about:
-                </p>
+                <p>This blog is my space to think out loud. I write about:</p>
                 <ul className="list-disc list-inside space-y-2 ml-2">
-                  <li><strong className="text-foreground">Work</strong> — career pivots, building management, AI-assisted development, and bridging the physical and digital worlds</li>
-                  <li><strong className="text-foreground">Life</strong> — productivity, habits, learning new skills, and navigating unconventional career paths</li>
-                  <li><strong className="text-foreground">Hobbies</strong> — coding experiments, automation projects, and whatever technical rabbit holes I&apos;m exploring</li>
-                  <li><strong className="text-foreground">Experience</strong> — lessons from managing people and properties, the realities of career transitions, and finding your own path</li>
+                  <li>
+                    <strong className="text-foreground">Work</strong> — career
+                    pivots, building management, AI-assisted development, and
+                    bridging the physical and digital worlds
+                  </li>
+                  <li>
+                    <strong className="text-foreground">Life</strong> —
+                    productivity, habits, learning new skills, and navigating
+                    unconventional career paths
+                  </li>
+                  <li>
+                    <strong className="text-foreground">Hobbies</strong> —
+                    coding experiments, automation projects, and whatever
+                    technical rabbit holes I&apos;m exploring
+                  </li>
+                  <li>
+                    <strong className="text-foreground">Experience</strong> —
+                    lessons from managing people and properties, the realities
+                    of career transitions, and finding your own path
+                  </li>
                 </ul>
                 <p>
-                  I don&apos;t claim to have all the answers. I&apos;m just sharing what I&apos;m figuring out,
-                  in case it helps someone else who&apos;s figuring out the same things.
+                  I don&apos;t claim to have all the answers. I&apos;m just
+                  sharing what I&apos;m figuring out, in case it helps someone
+                  else who&apos;s figuring out the same things.
                 </p>
               </div>
             </section>
@@ -126,22 +198,32 @@ export default async function AboutPage() {
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
                 <p>
-                  I love hearing from readers. Whether you want to say hi, share feedback, or just chat about something I wrote,
-                  feel free to reach out.
+                  I love hearing from readers. Whether you want to say hi, share
+                  feedback, or just chat about something I wrote, feel free to
+                  reach out.
                 </p>
                 <div className="flex flex-wrap gap-6">
                   {socialLinks.map((link) => (
                     <a
                       key={link.name}
                       href={link.href}
-                      target={link.href.startsWith('mailto:') ? undefined : '_blank'}
-                      rel={link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+                      target={
+                        link.href.startsWith("mailto:") ? undefined : "_blank"
+                      }
+                      rel={
+                        link.href.startsWith("mailto:")
+                          ? undefined
+                          : "noopener noreferrer"
+                      }
                       className="hover:text-foreground transition-colors"
                     >
                       {link.name}
                     </a>
                   ))}
-                  <Link href="/contact" className="hover:text-foreground transition-colors">
+                  <Link
+                    href="/contact"
+                    className="hover:text-foreground transition-colors"
+                  >
                     Contact form
                   </Link>
                 </div>
@@ -155,7 +237,8 @@ export default async function AboutPage() {
                   Want updates?
                 </h2>
                 <p className="text-muted-foreground mb-4">
-                  Subscribe to my newsletter and I&apos;ll send you occasional emails when I publish something new.
+                  Subscribe to my newsletter and I&apos;ll send you occasional
+                  emails when I publish something new.
                 </p>
                 <Link
                   href="/"
@@ -169,5 +252,5 @@ export default async function AboutPage() {
         )}
       </div>
     </>
-  )
+  );
 }

@@ -627,3 +627,39 @@ Verified production at `https://www.maplehub.cloud` after deployment:
 - Browser console checks on `/` and `/blog` returned no console messages and no JavaScript errors.
 
 No migration was required.
+
+### Trust-page polish on 2026-08-15
+
+Completed a low-risk AdSense/trust-page polish pass.
+
+Changed files:
+
+- `app/about/page.tsx`
+- `app/contact/page.tsx`
+- `app/privacy/page.tsx`
+- `app/disclaimer/page.tsx`
+- `app/resources/page.tsx`
+
+What changed:
+
+- Added clearer trust/context headers and summary cards across About, Contact, Privacy, Disclaimer, and Resources.
+- Added About-page cues for personal perspective, anonymized stories, and practical-not-advice framing.
+- Removed an overly specific fallback About-page employer-size reference from source copy.
+- Added Contact-page expectations around appropriate messages, privacy of submissions, and non-emergency use.
+- Added Privacy-page at-a-glance cards for user-provided data, ads/affiliate handling, and reader choices; updated the visible policy update date for this copy/layout pass.
+- Added Disclaimer-page cards for no-extra-cost affiliate links, clear labels, and reader trust first.
+- Added Resources-page cards clarifying templates are general examples, require review before use, and support organized follow-up.
+
+Verification:
+
+- `npm run test` passed: 26 files, 139 tests.
+- `npm run lint` passed.
+- `npm run build` passed.
+- Local production server smoke check used port 3001 because an old node process was occupying port 3000.
+- Local `/about` was visually checked in-browser and rendered cleanly.
+- Local `/contact`, `/privacy`, `/disclaimer`, and `/resources` returned `200` and included the new trust markers.
+- Browser console returned no console messages and no JavaScript errors.
+- Temporary local verification server on port 3001 was stopped.
+- Leftover Node process occupying port 3000 was identified and stopped with `taskkill.exe`.
+
+Deployment note: this trust-page polish requires the usual manual Coolify deploy before production reflects it. No migration is required.
