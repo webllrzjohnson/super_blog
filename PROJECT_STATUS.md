@@ -848,3 +848,27 @@ Rollback guidance:
 - To keep the cel-shaded reference-image style but undo excerpt-driven/general-subject behavior, compare against the archive from step 2.
 - To keep excerpt-driven behavior but undo only the metaphor guardrails, compare against the archive from step 3.
 - Do not regenerate or replace existing production images without Louie's explicit approval.
+
+### Waste-equipment image prompt references on 2026-08-15
+
+Louie provided three waste-equipment visual references and approved updating the blog image-generation prompt to use them when posts mention bins, compactors, chutes, or related garbage scenes.
+
+What changed:
+
+- Updated `DEFAULT_IMAGE_PROMPT_TEMPLATE` in `lib/generate-post-image-prompt.ts` with waste-scene guidance that chooses equipment from the excerpt and avoids mixing setups.
+- Added compactor-room guidance for Louie's actual indoor setup: three chute-fed compactors side by side, green organic on the left, black garbage in the middle, blue recycling on the right, with large rectangular rolling receiver bins, industrial chute feeds above, exposed pipes/conduit, control panels, warning labels, casters, and maintenance-room lighting.
+- Added townhouse/external guidance: large scuffed metal rolling dumpsters outdoors on pavement near fencing, with rectangular steel bodies, black hinged lids, small caster wheels, worn paint, rust/scuffs, white stenciled numbers, and side lifting pockets.
+- Added dirty garbage chute guidance: small apartment chute alcove with beige walls, gray tile floor, wall-mounted stainless-steel chute door, posted warning notice, white plastic bags with orange drawstrings, cardboard packaging, cans, loose recyclables, and clutter around the base of the chute.
+- Added tests covering all three waste-scene references and the instruction to avoid generic curbside bins, exaggerated landfill piles, dumpsters inside compactor rooms, and chute-fed compactors outdoors unless the excerpt explicitly says so.
+- Updated live Admin AI setting `ai.imagePromptTemplate` immediately.
+- Archived previous live Admin AI image prompt setting outside the repo at `D:/Factory/super_blog-archives/ai-image-prompt-template-before-waste-equipment-refs-2026-08-15T13-54-23-668Z.json`.
+
+Verification:
+
+- Live Admin prompt contains compactor-room, townhouse/external dumpster, and dirty chute-alcove guidance.
+- Temporary Admin API script was removed after use.
+- `npm run test` passed: 27 files, 145 tests.
+- `npm run lint` passed.
+- `npm run build` passed.
+
+Deployment note: the live Admin setting is already updated; Coolify deploy is recommended so the deployed source fallback also matches the repo.

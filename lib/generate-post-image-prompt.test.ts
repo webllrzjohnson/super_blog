@@ -22,6 +22,22 @@ describe("generate post image prompt", () => {
       "Do not literalize metaphors",
     );
     expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain("carrying a child");
+    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain(
+      "For waste-related stories",
+    );
+    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain(
+      "green organic on the left",
+    );
+    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain(
+      "black garbage in the middle",
+    );
+    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain(
+      "blue recycling on the right",
+    );
+    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain("townhouse bins");
+    expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain(
+      "stainless-steel chute door",
+    );
     expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).toContain("no glossy 3D render");
     expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).not.toContain("Studio Ghibli");
     expect(DEFAULT_IMAGE_PROMPT_TEMPLATE).not.toContain("Makoto Shinkai");
@@ -59,6 +75,58 @@ describe("generate post image prompt", () => {
     );
     expect(prompt).toContain("carrying a child");
     expect(prompt).toContain("running with someone");
+
+    vi.restoreAllMocks();
+  });
+
+  it("describes Louie's actual compactor room when waste excerpts mention compactors", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+
+    const prompt = buildPostImagePrompt(
+      "The compactor room backed up again and I had to check the garbage, recycling, and organic compactors before calling staff.",
+    );
+
+    expect(prompt).toContain(
+      "three chute-fed compactors lined up side by side",
+    );
+    expect(prompt).toContain("green organic on the left");
+    expect(prompt).toContain("black garbage in the middle");
+    expect(prompt).toContain("blue recycling on the right");
+    expect(prompt).toContain("industrial steel chute feeds above");
+    expect(prompt).toContain("Avoid generic curbside bins");
+
+    vi.restoreAllMocks();
+  });
+
+  it("distinguishes outdoor townhouse dumpsters from indoor compactor equipment", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+
+    const prompt = buildPostImagePrompt(
+      "A townhouse resident left garbage beside the external bins near the rear service area.",
+    );
+
+    expect(prompt).toContain("large scuffed metal rolling dumpsters outdoors");
+    expect(prompt).toContain("black hinged lids");
+    expect(prompt).toContain("small caster wheels");
+    expect(prompt).toContain("chute-fed compactors outdoors");
+
+    vi.restoreAllMocks();
+  });
+
+  it("describes dirty garbage chute alcoves when tenants leave bags on the floor", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+
+    const prompt = buildPostImagePrompt(
+      "Tenant garbage bags and cardboard were left on the floor beside the chute instead of being taken downstairs.",
+    );
+
+    expect(prompt).toContain("small apartment chute alcove");
+    expect(prompt).toContain("wall-mounted stainless-steel chute door");
+    expect(prompt).toContain("white plastic bags with orange drawstrings");
+    expect(prompt).toContain(
+      "cardboard packaging, cans, small loose recyclables",
+    );
+    expect(prompt).toContain("exaggerated landfill piles");
 
     vi.restoreAllMocks();
   });
