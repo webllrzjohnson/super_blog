@@ -39,6 +39,9 @@ describe("public utility route integrity", () => {
     const randomRoute = await source("app/blog/random/route.ts");
     expect(randomRoute).toMatch(/export const dynamic = ["']force-dynamic["']/);
     expect(randomRoute).toContain("NextResponse.redirect");
+    expect(randomRoute).toContain("NEXT_PUBLIC_SITE_URL");
+    expect(randomRoute).toContain("https://www.maplehub.cloud");
+    expect(randomRoute).not.toContain("new URL(destination, request.url)");
   });
 
   it("builds the human sitemap from published database posts", async () => {
