@@ -14,8 +14,10 @@ export async function proxy(request: NextRequest) {
     .toLowerCase();
 
   if (requestHost === "maplehub.cloud") {
-    const url = request.nextUrl.clone();
-    url.hostname = "www.maplehub.cloud";
+    const url = new URL(
+      `${request.nextUrl.pathname}${request.nextUrl.search}`,
+      "https://www.maplehub.cloud",
+    );
     return NextResponse.redirect(url, { status: 308 });
   }
 

@@ -70,7 +70,9 @@ describe("public utility route integrity", () => {
     expect(proxy).toMatch(/request\.headers\.get\(["']x-forwarded-host["']\)/);
     expect(proxy).toMatch(/request\.headers\.get\(["']host["']\)/);
     expect(proxy).toMatch(/requestHost === ["']maplehub\.cloud["']/);
-    expect(proxy).toMatch(/url\.hostname = ["']www\.maplehub\.cloud["']/);
+    expect(proxy).toContain("https://www.maplehub.cloud");
+    expect(proxy).toContain("request.nextUrl.pathname");
+    expect(proxy).toContain("request.nextUrl.search");
     expect(proxy).toContain("status: 308");
     expect(proxy).toMatch(/matcher:\s*\[\s*['"]\/\(\(\?!/);
   });
