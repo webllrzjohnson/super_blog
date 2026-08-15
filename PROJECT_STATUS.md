@@ -762,3 +762,21 @@ Verification:
 - `npm run build` passed.
 
 Deployment note: the live Admin setting is already updated; Coolify deploy is recommended so the deployed source fallback also matches the repo.
+
+### Excerpt-driven image prompt post-deploy verification on 2026-08-15
+
+Louie manually triggered Coolify deployment for commit `754bab6 feat: make blog image prompts excerpt driven`.
+
+Verified production at `https://www.maplehub.cloud` after deployment:
+
+- `/`, `/blog`, `/about`, `/contact`, `/privacy`, `/disclaimer`, `/resources`, `/robots.txt`, `/sitemap.xml`, `/ads.txt`, and `/api/posts` all returned `200`.
+- `/api/posts` returned 43 published posts.
+- Live content audit found `0` published posts under 700 words and `0` published posts missing internal blog links.
+- Live Admin AI image prompt setting contains the excerpt/source-of-truth guidance.
+- Live Admin AI image prompt setting contains Louie's visible character guidance, including light-brown skin and a rugged black sports watch similar to a Garmin Epix Pro.
+- Live Admin AI image prompt setting contains `Do not force a building`.
+- Live Admin AI image prompt setting no longer contains the forced `Toronto apartment building or townhouse setting` phrase.
+- Live Admin AI image prompt setting no longer contains the previous named style references.
+- Browser console on `/` returned no console messages and no JavaScript errors.
+
+No migration was required.
