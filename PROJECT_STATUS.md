@@ -553,3 +553,27 @@ Verification:
 - The previous Next.js `middleware` deprecation warning no longer appears in the build output.
 
 Deployment note: this code change requires the usual manual Coolify deploy before the production runtime uses `proxy.ts` instead of `middleware.ts`.
+
+### Proxy migration post-deploy verification on 2026-08-15
+
+Louie manually triggered Coolify deployment after commit `2acecbd fix: migrate middleware to proxy convention`.
+
+Verified production at `https://www.maplehub.cloud` after deployment:
+
+- `/` returned `200`.
+- `/blog` returned `200` and rendered in the browser.
+- `/about` returned `200`.
+- `/contact` returned `200`.
+- `/privacy` returned `200`.
+- `/disclaimer` returned `200`.
+- `/robots.txt` returned `200`.
+- `/sitemap.xml` returned `200`.
+- `/ads.txt` returned `200`.
+- `/api/posts` returned `200` with 43 published posts.
+- Live content audit found `0` published posts under 700 words.
+- Live content audit found `0` published posts missing internal blog links.
+- Live content audit found no public employer references, duplicate markdown H1s, or placeholder markers.
+- Browser console on `/blog` returned no console messages and no JavaScript errors.
+- Unauthenticated `/admin/posts` redirected to `/admin`, confirming the proxy guard is active.
+
+No migration was required.
