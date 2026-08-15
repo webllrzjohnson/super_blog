@@ -736,3 +736,29 @@ Verification:
 - `npm run build` passed.
 
 Deployment note: the live Admin setting is already updated; deploy is only needed to make the source-code fallback/tested default live in the deployed app image.
+
+### Universal excerpt-driven image prompt update on 2026-08-15
+
+Louie clarified that the reference image style should apply across all story types, not only building/work posts, and that featured-image generation should prefer the post excerpt as the best short scene description.
+
+What changed:
+
+- Revised `DEFAULT_IMAGE_PROMPT_TEMPLATE` to use the topic/excerpt as the source of truth for setting and activity.
+- Removed hard-coded building-operation scene bias from the image prompt default.
+- Kept the cinematic cel-shaded editorial illustration style, thick ink outlines, subtle film grain, lived-in detail, and realistic animated personal-essay feel.
+- Added Louie's recurring visible character traits for images where the main character appears: light-brown skin, clean-shaven head, beard, about 6 feet tall, medium build, practical activity-appropriate clothing, and a rugged black sports watch similar to a Garmin Epix Pro.
+- Updated generated-post image creation so full AI post generation now creates the image after text generation and uses `excerpt || title || topic` as the image source.
+- Manual editor image generation already used `excerpt || title`, and continues to do so.
+- Updated the live Admin AI image prompt template immediately.
+- Archived the previous live Admin image prompt setting outside the repo at `D:/Factory/super_blog-archives/ai-image-prompt-template-before-universal-excerpt-2026-08-15T08-50-19-339Z.json`.
+
+Verification:
+
+- Live Admin setting contains `source of truth`, the character-trait guidance, and `Do not force a building`.
+- Live Admin setting no longer contains the forced `Toronto apartment building or townhouse setting` phrase.
+- Temporary Admin API script was removed after use.
+- `npm run test` passed: 27 files, 141 tests.
+- `npm run lint` passed.
+- `npm run build` passed.
+
+Deployment note: the live Admin setting is already updated; Coolify deploy is recommended so the deployed source fallback also matches the repo.

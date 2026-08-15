@@ -1,21 +1,21 @@
 import { buildFeaturedImageAltTextFromTopic } from "@/lib/featured-image-alt";
 
 export const TORONTO_IMAGE_SETTINGS = [
-  "a residential side street with older apartment buildings",
-  "a downtown Toronto neighborhood skyline in the background, no specific landmarks",
-  "a quiet courtyard between government-subsidized apartment buildings",
-  "a Toronto streetscape near a subway entrance",
-  "a laneway behind a row of Toronto apartment buildings",
-  "a Toronto residential block in late afternoon light",
-  "a Toronto street during a changing season, distant city skyline",
-  "a Toronto apartment building exterior with a glimpse of the CN Tower in the far distance",
-  "the Beaches neighborhood in Toronto, boardwalk and lakeside apartment buildings",
+  "use the excerpt to choose the most accurate setting",
+  "an everyday Toronto or Ontario scene only if it fits the story",
+  "a quiet real-world location with believable lived-in details",
+  "a practical indoor or outdoor setting that matches the activity",
+  "a grounded personal-story scene with no generic stock-photo staging",
+  "a natural setting suggested by the excerpt, not a forced city backdrop",
+  "a work, home, travel, food, fitness, or outdoor setting only when the story supports it",
 ];
 
-export const DEFAULT_IMAGE_PROMPT_TEMPLATE = `{{topic}}. Toronto apartment building or townhouse setting, {{setting}}. Building superintendent's ground-level perspective. No speech bubbles. No text. No watermarks. No logos.
-Cinematic cel-shaded editorial illustration with detailed environmental storytelling, production-quality animation background feel, strong architectural perspective, believable stairs, doors, hallways, railings, service rooms, sidewalks, or building interiors.
-Use thick clean ink outlines, crisp linework, hand-painted background texture, subtle film grain, small scuffs and lived-in marks, warm daylight or practical interior light, deep but readable shadows, muted cream/green/gray building surfaces, and saturated accent objects such as blue doors, garbage bags, safety signs, tools, notices, boxes, or maintenance supplies.
-Compose the scene like a still from an animated building-operations story: grounded, realistic, slightly cinematic, human but not cute, detailed enough to feel specific, with no exaggerated fantasy, no glossy 3D render, no plastic vector look, no childish clip art, no distorted anatomy.`;
+export const DEFAULT_IMAGE_PROMPT_TEMPLATE = `Story source: {{topic}}. Setting guidance: {{setting}}. No speech bubbles. No text. No watermarks. No logos.
+Use the topic or excerpt as the source of truth for the setting and activity. The scene can be building work, camping, running, cooking, travel, family time, coding, errands, recovery, or any other everyday story. Do not force a building or maintenance setting unless the source text calls for it.
+Cinematic cel-shaded editorial illustration with detailed environmental storytelling, production-quality animation background feel, strong perspective, believable real-world spaces, and lived-in documentary detail.
+Use thick clean ink outlines, crisp linework, hand-painted background texture, subtle film grain, small scuffs and real-life objects, warm daylight or practical interior light, deep but readable shadows, muted natural surfaces, and a few saturated accent objects that fit the actual story.
+If the main character is visible, show a light-brown-skinned adult man with a clean-shaven head, a beard, about 6 feet tall, medium build, wearing practical activity-appropriate clothing and a rugged black sports watch similar to a Garmin Epix Pro. Keep him grounded and realistic, not heroic, not childish, not overly muscular, not fashion-model polished.
+Compose the scene like a still from an animated personal essay: realistic, slightly cinematic, human, specific, and story-rich, with no exaggerated fantasy, no glossy 3D render, no plastic vector look, no childish clip art, no distorted anatomy.`;
 
 function applyTemplate(
   template: string,
