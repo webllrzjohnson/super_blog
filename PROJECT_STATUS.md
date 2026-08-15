@@ -577,3 +577,34 @@ Verified production at `https://www.maplehub.cloud` after deployment:
 - Unauthenticated `/admin/posts` redirected to `/admin`, confirming the proxy guard is active.
 
 No migration was required.
+
+### Homepage/blog product polish on 2026-08-15
+
+Completed a low-risk visual/product polish pass after the proxy deployment.
+
+Changed files:
+
+- `app/page.tsx`
+- `app/blog/page.tsx`
+- `components/sidebar.tsx`
+
+What changed:
+
+- Added homepage trust/context cards explaining real field notes, readable depth, and related reading.
+- Added a homepage author-card note that clarifies the site covers building work, tech, training, recovery, and time away from the noise.
+- Added a short recent-posts context line so the homepage feels more guided.
+- Made newsletter copy more specific to field notes, training stories, and building lessons.
+- Added blog-index topic lane links for building operations, superintendent life, running/recovery, and garbage/shared spaces.
+- Added blog-index context cards for post count, real-work coverage, and browse/search behavior.
+- Strengthened sidebar trust copy around anonymous practical notes from the building floor.
+
+Verification:
+
+- `npm run test` passed: 26 files, 139 tests.
+- `npm run lint` passed.
+- `npm run build` passed.
+- Local production server smoke check passed for `/` and `/blog`.
+- Browser console check returned no console messages and no JavaScript errors.
+- Local production server was stopped after verification.
+
+Deployment note: this visual polish requires the usual manual Coolify deploy before production reflects it.

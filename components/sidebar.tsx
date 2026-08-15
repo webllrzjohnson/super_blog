@@ -1,23 +1,27 @@
-import Link from 'next/link'
-import Image from 'next/image'
-import { NewsletterForm } from '@/components/newsletter-form'
-import type { PostListItem } from '@/lib/types'
+import Link from "next/link";
+import Image from "next/image";
+import { NewsletterForm } from "@/components/newsletter-form";
+import type { PostListItem } from "@/lib/types";
 
 interface SidebarProps {
-  recentPosts?: PostListItem[]
-  tags?: string[]
-  avatarUrl?: string
-  shortBio?: string
-  displayName?: string
+  recentPosts?: PostListItem[];
+  tags?: string[];
+  avatarUrl?: string;
+  shortBio?: string;
+  displayName?: string;
 }
 
-export function Sidebar({ recentPosts = [], tags = [], avatarUrl, shortBio, displayName }: SidebarProps) {
-
-  const visibleTags = tags.slice(0, 20)
+export function Sidebar({
+  recentPosts = [],
+  tags = [],
+  avatarUrl,
+  shortBio,
+  displayName,
+}: SidebarProps) {
+  const visibleTags = tags.slice(0, 20);
 
   return (
     <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
-
       {/* About */}
       <div className="surface-card p-5">
         <h3 className="eyebrow mb-4">About</h3>
@@ -35,12 +39,22 @@ export function Sidebar({ recentPosts = [], tags = [], avatarUrl, shortBio, disp
               <span className="text-xs font-medium text-primary">LJ</span>
             )}
           </div>
-          <span className="text-sm font-medium text-foreground">{displayName || 'Lester J.'}</span>
+          <span className="text-sm font-medium text-foreground">
+            {displayName || "Lester J."}
+          </span>
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          {shortBio || 'Building superintendent in Toronto, coding on the side. I write about building management, running, food, and everyday life.'}
+          {shortBio ||
+            "Building superintendent in Toronto, coding on the side. I write about building operations, running, food, and everyday life."}
         </p>
-        <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-2 inline-block">
+        <div className="mt-4 rounded-2xl bg-secondary/45 p-3 text-xs leading-5 text-muted-foreground">
+          Practical notes from the building floor, kept anonymous and written
+          for readers who like the real details.
+        </div>
+        <Link
+          href="/about"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-2 inline-block"
+        >
           More about me →
         </Link>
       </div>
@@ -48,7 +62,10 @@ export function Sidebar({ recentPosts = [], tags = [], avatarUrl, shortBio, disp
       {/* Newsletter */}
       <div className="surface-card p-5">
         <h3 className="eyebrow mb-2">Newsletter</h3>
-        <p className="text-sm text-muted-foreground mb-4">New posts in your inbox.</p>
+        <p className="text-sm text-muted-foreground mb-4">
+          Quiet updates when a new field note, training story, or building
+          lesson goes up.
+        </p>
         <NewsletterForm />
       </div>
 
@@ -60,7 +77,9 @@ export function Sidebar({ recentPosts = [], tags = [], avatarUrl, shortBio, disp
             <ul className="space-y-3">
               {recentPosts.map((post) => (
                 <li key={post.id} className="flex gap-2 items-start">
-                  <span className="text-muted-foreground/40 mt-0.5 text-xs">→</span>
+                  <span className="text-muted-foreground/40 mt-0.5 text-xs">
+                    →
+                  </span>
                   <Link
                     href={`/blog/${post.slug}`}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors leading-snug"
@@ -91,14 +110,16 @@ export function Sidebar({ recentPosts = [], tags = [], avatarUrl, shortBio, disp
               ))}
             </div>
             {tags.length > 20 && (
-              <Link href="/blog/tags" className="text-xs text-muted-foreground hover:text-foreground transition-colors mt-3 inline-block">
+              <Link
+                href="/blog/tags"
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors mt-3 inline-block"
+              >
                 View all {tags.length} tags →
               </Link>
             )}
           </div>
         </>
       )}
-
     </aside>
-  )
+  );
 }

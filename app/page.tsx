@@ -1,32 +1,32 @@
-import type { Metadata } from 'next'
-import Link from 'next/link'
-import Image from 'next/image'
-import { PostCard } from '@/components/post-card'
-import { NewsletterForm } from '@/components/newsletter-form'
-import { getPostSummariesFromDb } from '@/lib/db-posts'
-import { getPublishedPosts } from '@/lib/posts'
-import { getSettings } from '@/lib/settings'
-import { getSafeImageAltText } from '@/lib/image-alt'
+import type { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
+import { PostCard } from "@/components/post-card";
+import { NewsletterForm } from "@/components/newsletter-form";
+import { getPostSummariesFromDb } from "@/lib/db-posts";
+import { getPublishedPosts } from "@/lib/posts";
+import { getSettings } from "@/lib/settings";
+import { getSafeImageAltText } from "@/lib/image-alt";
 
 /** Must be a literal for Next.js segment config (see POSTS_CACHE_REVALIDATE_SECONDS). */
-export const revalidate = 120
+export const revalidate = 120;
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
 
 export const metadata: Metadata = {
   alternates: {
     canonical: BASE_URL,
   },
-}
+};
 
 export default async function HomePage() {
   const [allPosts, settings] = await Promise.all([
     getPostSummariesFromDb(),
     getSettings(),
-  ])
-  const posts = getPublishedPosts(allPosts)
-  const [featured, ...recentPosts] = posts.slice(0, 5)
-  const avatarUrl = settings.branding.avatarUrl
+  ]);
+  const posts = getPublishedPosts(allPosts);
+  const [featured, ...recentPosts] = posts.slice(0, 5);
+  const avatarUrl = settings.branding.avatarUrl;
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12 md:py-20">
@@ -34,13 +34,15 @@ export default async function HomePage() {
         <div className="max-w-3xl">
           <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-border/60 bg-card/70 px-3 py-1 text-xs text-muted-foreground shadow-sm">
             <span className="h-2 w-2 rounded-full bg-primary" aria-hidden />
-            {settings.branding.roleLocation || 'Building superintendent · Toronto, ON'}
+            {settings.branding.roleLocation ||
+              "Building superintendent · Toronto, ON"}
           </div>
           <h1 className="max-w-3xl text-4xl font-semibold tracking-[-0.04em] text-foreground sm:text-5xl md:text-6xl md:leading-[0.98]">
             Field notes from building work, code, and life in Toronto.
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
-            {settings.branding.shortBio || 'Software engineer turned building superintendent, still coding on the side. I write about building management, AI experiments, running, food, and life in Toronto.'}
+            {settings.branding.shortBio ||
+              "Software engineer turned building superintendent, still coding on the side. I write about building management, AI experiments, running, food, and life in Toronto."}
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -55,6 +57,30 @@ export default async function HomePage() {
             >
               About me
             </Link>
+          </div>
+          <div className="mt-8 grid gap-3 text-sm text-muted-foreground sm:grid-cols-3">
+            {[
+              [
+                "Real field notes",
+                "Building work, resident issues, and practical follow-up.",
+              ],
+              [
+                "Readable depth",
+                "Posts are written as complete notes, not quick scraps.",
+              ],
+              [
+                "Related reading",
+                "Every published post points to another useful story.",
+              ],
+            ].map(([label, detail]) => (
+              <div
+                key={label}
+                className="rounded-2xl border border-border/60 bg-card/55 p-4 shadow-sm"
+              >
+                <p className="font-semibold text-foreground">{label}</p>
+                <p className="mt-1 leading-6">{detail}</p>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -77,22 +103,29 @@ export default async function HomePage() {
             </div>
             <div>
               <p className="text-sm font-medium text-foreground">
-                {settings.branding.displayName || 'Lester J.'}
+                {settings.branding.displayName || "Lester J."}
               </p>
-              <p className="text-sm text-muted-foreground">{posts.length}+ posts published</p>
+              <p className="text-sm text-muted-foreground">
+                {posts.length}+ posts published
+              </p>
             </div>
           </div>
           <div className="mt-6 grid grid-cols-3 gap-3 text-center">
             {[
-              ['Work', 'field notes'],
-              ['Tech', 'AI + code'],
-              ['Life', 'Toronto'],
+              ["Work", "field notes"],
+              ["Tech", "AI + code"],
+              ["Life", "Toronto"],
             ].map(([label, detail]) => (
               <div key={label} className="rounded-xl bg-secondary/45 px-3 py-4">
                 <p className="text-sm font-semibold text-foreground">{label}</p>
                 <p className="text-xs text-muted-foreground">{detail}</p>
               </div>
             ))}
+          </div>
+          <div className="mt-4 rounded-2xl border border-border/60 bg-background/55 p-4 text-sm leading-6 text-muted-foreground">
+            Written from the day-to-day work of keeping a building running, with
+            side notes on tech, training, recovery, and taking time away from
+            the noise.
           </div>
         </div>
       </section>
@@ -113,11 +146,14 @@ export default async function HomePage() {
                 </div>
                 <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-muted-foreground">
                   <time dateTime={featured.publishedAt}>
-                    {new Date(featured.publishedAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
+                    {new Date(featured.publishedAt).toLocaleDateString(
+                      "en-US",
+                      {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      },
+                    )}
                   </time>
                   <span aria-hidden>·</span>
                   <span>{featured.readTime} min read</span>
@@ -129,7 +165,10 @@ export default async function HomePage() {
                 <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-muted md:aspect-auto">
                   <Image
                     src={featured.featuredImage}
-                    alt={getSafeImageAltText(featured.featuredImageAlt, featured.title)}
+                    alt={getSafeImageAltText(
+                      featured.featuredImageAlt,
+                      featured.title,
+                    )}
                     width={520}
                     height={390}
                     priority
@@ -146,7 +185,13 @@ export default async function HomePage() {
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="eyebrow mb-2">Latest notes</p>
-            <h2 className="text-2xl font-semibold tracking-[-0.02em] text-foreground">Recent posts</h2>
+            <h2 className="text-2xl font-semibold tracking-[-0.02em] text-foreground">
+              Recent posts
+            </h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
+              Start with the latest stories, or browse by work, life, running,
+              and practical building lessons.
+            </p>
           </div>
           <Link
             href="/blog/random"
@@ -178,10 +223,11 @@ export default async function HomePage() {
           Stay in the loop
         </h2>
         <p className="mb-6 mt-2 text-sm leading-6 text-muted-foreground">
-          New posts in your inbox. No spam, unsubscribe anytime.
+          A quiet email when there is a new field note, training story, or
+          useful building lesson. No spam, unsubscribe anytime.
         </p>
         <NewsletterForm />
       </section>
     </div>
-  )
+  );
 }
