@@ -931,3 +931,25 @@ Verification:
 - `npm run build` passed.
 - Live Admin prompt verified safe until deploy: no `{{wasteDetails}}` placeholder and still has all-in-one waste guidance.
 - Temporary Admin scripts were removed after use.
+
+### Conditional waste prompt post-deploy activation on 2026-08-15
+
+Louie manually deployed commit `cda7501 feat: use conditional waste image prompt blocks` through Coolify.
+
+Post-deploy verification:
+
+- Production route smoke check passed for `/`, `/blog`, `/about`, `/contact`, `/privacy`, `/disclaimer`, `/resources`, `/robots.txt`, `/sitemap.xml`, `/ads.txt`, and `/api/posts`; all returned `200`.
+- `/api/posts` returned 43 published posts.
+- Live content audit found `0` published posts under 700 words and `0` published posts missing internal blog links.
+- Targeted conditional image prompt tests passed: `lib/generate-post-image-prompt.test.ts` reported 7 passing tests.
+- Browser console on `/` returned no JavaScript errors or console messages.
+
+Live Admin setting activation:
+
+- After deploy, live Admin `ai.imagePromptTemplate` was switched from the temporary all-in-one waste guidance to the new conditional base template containing `{{wasteDetails}}`.
+- Live Admin prompt now keeps the base style/metaphor/character guidance while omitting the all-in-one waste descriptions.
+- Conditional waste equipment descriptions are now selected by deployed source code through `selectWastePromptBlock(topic)`.
+- Archived the prior all-in-one live Admin image prompt at `D:/Factory/super_blog-archives/ai-image-prompt-template-all-in-one-before-conditional-live-2026-08-15T15-19-10-716Z.json`.
+- Temporary Admin update script was removed after use.
+
+No migration was required.
