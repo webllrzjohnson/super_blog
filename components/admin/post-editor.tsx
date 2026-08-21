@@ -12,10 +12,7 @@ import {
   evaluatePublishChecklist,
   RECOMMENDED_EXCERPT_LENGTH,
 } from "@/lib/editorial-checklist";
-import {
-  evaluateEditorReadiness,
-  type EditorWorkflowState,
-} from "@/lib/editor-readiness";
+import { evaluateEditorReadiness } from "@/lib/editor-readiness";
 import {
   insertAroundSelection,
   insertImageMarkdown,
@@ -31,13 +28,8 @@ import {
   Upload,
   Sparkles,
   Link2,
-  Wand2,
 } from "lucide-react";
-import {
-  buildInternalLinkSuggestions,
-  type DraftAssistantAction,
-  type DraftAssistantSuggestion,
-} from "@/lib/editor-assistant";
+import { buildInternalLinkSuggestions } from "@/lib/editor-assistant";
 import { buildFeaturedImageAltText } from "@/lib/featured-image-alt";
 import { isPlaceholderImageAltText } from "@/lib/image-alt";
 import { toast } from "sonner";
@@ -128,14 +120,8 @@ function PublishChecklistPanel({ formData }: { formData: Post }) {
   );
 }
 
-function EditorReadinessPanel({
-  formData,
-  workflow,
-}: {
-  formData: Post;
-  workflow: EditorWorkflowState;
-}) {
-  const readiness = evaluateEditorReadiness(formData, workflow);
+function EditorReadinessPanel({ formData }: { formData: Post }) {
+  const readiness = evaluateEditorReadiness(formData);
 
   return (
     <div
@@ -152,8 +138,7 @@ function EditorReadinessPanel({
         </p>
       </div>
       <p className="text-xs text-muted-foreground">
-        Live workflow guide for this editor session. It helps you see what still
-        needs a final pass before publishing.
+        Quick manual checks for the post before publishing.
       </p>
       <ul className="grid gap-2 text-sm sm:grid-cols-2">
         {readiness.items.map((item) => (
@@ -190,19 +175,9 @@ export function PostEditor({
   onCancel,
 }: PostEditorProps) {
   const [formData, setFormData] = useState<Post>(post);
-  const [generatingImage, setGeneratingImage] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [tagsInput, setTagsInput] = useState(post.tags.join(", "));
   const [uploading, setUploading] = useState(false);
-  const [assistantLoading, setAssistantLoading] =
-    useState<DraftAssistantAction | null>(null);
-  const [assistantSuggestion, setAssistantSuggestion] = useState<{
-    action: DraftAssistantAction;
-    suggestion: DraftAssistantSuggestion;
-    providerLabel?: string;
-    providerAttempts?: string[];
-  } | null>(null);
-  const [editorWorkflow, setEditorWorkflow] = useState<EditorWorkflowState>({});
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [lastAutoSavedAt, setLastAutoSavedAt] = useState<Date | null>(null);
   const [scheduleInput, setScheduleInput] = useState(
@@ -237,8 +212,6 @@ export function PostEditor({
     setTagsInput(post.tags.join(", "));
     setShowPreview(false);
     setScheduleInput(toDateTimeLocalValue(post.publishedAt));
-    setAssistantSuggestion(null);
-    setEditorWorkflow({});
     setLastAutoSavedAt(null);
     initialSnapshotRef.current = JSON.stringify(post);
   }, [post]);
@@ -375,42 +348,6 @@ export function PostEditor({
     }
   };
 
-  const handleGenerateImage = async () => {
-    const topic = formData.excerpt.trim() || formData.title.trim();
-    if (!topic) {
-      toast.error(
-        "Add a title or excerpt first so the AI knows what to illustrate.",
-      );
-      return;
-    }
-    setGeneratingImage(true);
-    try {
-      const res = await fetch("/api/generate-post-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ topic }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Image generation failed");
-      }
-      const { url, alt } = await res.json();
-      setFormData((prev) => ({
-        ...prev,
-        featuredImage: url,
-        featuredImageAlt: alt?.trim() || buildFeaturedImageAltText(prev),
-      }));
-      toast.success("Image generated and set as featured image");
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Failed to generate image",
-      );
-    } finally {
-      setGeneratingImage(false);
-    }
-  };
-
   const openContentImagePicker = () => {
     const ta = contentTextareaRef.current;
     if (ta) {
@@ -463,82 +400,6 @@ export function PostEditor({
     }
   };
 
-  const runAssistant = async (action: DraftAssistantAction) => {
-    setAssistantLoading(action);
-    setAssistantSuggestion(null);
-    try {
-      const res = await fetch("/api/improve-post", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ action, post: formData }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(data.error || "Assistant request failed");
-      }
-      setAssistantSuggestion({
-        action,
-        suggestion: data.suggestion ?? { notes: [] },
-        providerLabel: data.providerLabel,
-        providerAttempts: data.providerAttempts,
-      });
-      if (action === "promotion" && data.suggestion?.promotionCopy) {
-        setEditorWorkflow((prev) => ({
-          ...prev,
-          promotionCopyGenerated: true,
-        }));
-      }
-      toast.success(
-        `Assistant suggestion ready${data.providerLabel ? ` via ${data.providerLabel}` : ""}`,
-      );
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Assistant request failed",
-      );
-    } finally {
-      setAssistantLoading(null);
-    }
-  };
-
-  const applyAssistantSuggestion = () => {
-    if (!assistantSuggestion) return;
-    const { action, suggestion } = assistantSuggestion;
-    setFormData((prev) => {
-      const next = { ...prev };
-      if ((action === "title" || action === "tone") && suggestion.title) {
-        next.title = suggestion.title;
-        next.slug = generateSlug(suggestion.title);
-      }
-      if ((action === "excerpt" || action === "tone") && suggestion.excerpt) {
-        next.excerpt = suggestion.excerpt;
-      }
-      if ((action === "tags" || action === "tone") && suggestion.tags?.length) {
-        next.tags = suggestion.tags;
-        setTagsInput(suggestion.tags.join(", "));
-      }
-      if (
-        (action === "grammar" || action === "humanize") &&
-        suggestion.contentPatch
-      ) {
-        next.content = suggestion.contentPatch;
-      }
-      if (action === "intro" && suggestion.contentPatch) {
-        const parts = prev.content.trim().split(/\n\s*\n/);
-        parts[0] = suggestion.contentPatch;
-        next.content = parts.join("\n\n");
-      }
-      return next;
-    });
-    if (action === "grammar") {
-      setEditorWorkflow((prev) => ({ ...prev, grammarChecked: true }));
-    }
-    if (action === "humanize") {
-      setEditorWorkflow((prev) => ({ ...prev, humanized: true }));
-    }
-    toast.success("Assistant suggestion applied");
-  };
-
   const insertInternalLink = (markdown: string) => {
     const ta = contentTextareaRef.current;
     const selection = ta
@@ -547,15 +408,6 @@ export function PostEditor({
     const value = ta?.value ?? formData.content;
     applyMarkdownEdit(insertSnippet(value, selection, ` ${markdown}`));
     toast.success("Internal link inserted");
-  };
-
-  const copyPromotionText = async (label: string, value: string) => {
-    try {
-      await navigator.clipboard.writeText(value);
-      toast.success(`${label} copied`);
-    } catch {
-      toast.error(`Could not copy ${label.toLowerCase()}`);
-    }
   };
 
   const handleScheduleInputChange = (value: string) => {
@@ -681,20 +533,6 @@ export function PostEditor({
     allPosts,
     4,
   );
-  const assistantActions: Array<{
-    action: DraftAssistantAction;
-    label: string;
-  }> = [
-    { action: "title", label: "Improve title" },
-    { action: "excerpt", label: "Improve excerpt" },
-    { action: "tags", label: "Suggest tags" },
-    { action: "intro", label: "Rewrite intro" },
-    { action: "grammar", label: "Fix grammar" },
-    { action: "humanize", label: "Humanize draft" },
-    { action: "promotion", label: "Promotion copy" },
-    { action: "tone", label: "Check tone" },
-  ];
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -846,154 +684,6 @@ export function PostEditor({
             </p>
           </div>
 
-          <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-4">
-            <div>
-              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                <Wand2 className="h-4 w-4" />
-                Draft improvement assistant
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Uses your configured provider order to suggest title, excerpt,
-                tags, intro, grammar, tone, humanized draft, and promotion copy
-                improvements.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {assistantActions.map(({ action, label }) => (
-                <Button
-                  key={action}
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={assistantLoading !== null || !formData.title.trim()}
-                  onClick={() => runAssistant(action)}
-                >
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  {assistantLoading === action ? "Thinking..." : label}
-                </Button>
-              ))}
-            </div>
-            {assistantSuggestion && (
-              <div className="rounded-md border border-border bg-background p-3 text-sm">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-medium text-foreground">
-                    Suggestion
-                    {assistantSuggestion.providerLabel
-                      ? ` from ${assistantSuggestion.providerLabel}`
-                      : ""}
-                  </p>
-                  {assistantSuggestion.action !== "promotion" && (
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={applyAssistantSuggestion}
-                    >
-                      Apply suggestion
-                    </Button>
-                  )}
-                </div>
-                <div className="mt-3 space-y-2 text-muted-foreground">
-                  {assistantSuggestion.suggestion.title && (
-                    <p>
-                      <strong>Title:</strong>{" "}
-                      {assistantSuggestion.suggestion.title}
-                    </p>
-                  )}
-                  {assistantSuggestion.suggestion.excerpt && (
-                    <p>
-                      <strong>Excerpt:</strong>{" "}
-                      {assistantSuggestion.suggestion.excerpt}
-                    </p>
-                  )}
-                  {assistantSuggestion.suggestion.tags?.length ? (
-                    <p>
-                      <strong>Tags:</strong>{" "}
-                      {assistantSuggestion.suggestion.tags.join(", ")}
-                    </p>
-                  ) : null}
-                  {assistantSuggestion.suggestion.contentPatch && (
-                    <div>
-                      <strong>
-                        {assistantSuggestion.action === "grammar" ||
-                        assistantSuggestion.action === "humanize"
-                          ? "Rewritten body:"
-                          : "Intro:"}
-                      </strong>{" "}
-                      <p className="mt-1 max-h-48 overflow-auto whitespace-pre-wrap rounded border border-border bg-muted/30 p-2 text-xs">
-                        {assistantSuggestion.suggestion.contentPatch}
-                      </p>
-                    </div>
-                  )}
-                  {assistantSuggestion.suggestion.promotionCopy && (
-                    <div className="space-y-3">
-                      {(
-                        [
-                          [
-                            "Telegram",
-                            assistantSuggestion.suggestion.promotionCopy
-                              .telegram,
-                          ],
-                          [
-                            "Social",
-                            assistantSuggestion.suggestion.promotionCopy.social,
-                          ],
-                          [
-                            "Newsletter",
-                            assistantSuggestion.suggestion.promotionCopy
-                              .newsletter,
-                          ],
-                          [
-                            "Hashtags",
-                            assistantSuggestion.suggestion.promotionCopy.hashtags?.join(
-                              " ",
-                            ),
-                          ],
-                        ] as const
-                      ).map(([label, value]) =>
-                        value ? (
-                          <div
-                            key={label}
-                            className="rounded border border-border bg-muted/30 p-3"
-                          >
-                            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                              <strong className="text-foreground">
-                                {label}
-                              </strong>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => copyPromotionText(label, value)}
-                              >
-                                Copy
-                              </Button>
-                            </div>
-                            <p className="whitespace-pre-wrap text-xs">
-                              {value}
-                            </p>
-                          </div>
-                        ) : null,
-                      )}
-                    </div>
-                  )}
-                  {assistantSuggestion.suggestion.notes.length > 0 && (
-                    <ul className="list-disc pl-5">
-                      {assistantSuggestion.suggestion.notes.map((note) => (
-                        <li key={note}>{note}</li>
-                      ))}
-                    </ul>
-                  )}
-                  {assistantSuggestion.providerAttempts?.length ? (
-                    <p className="text-xs">
-                      Attempts:{" "}
-                      {assistantSuggestion.providerAttempts.join(" → ")}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-            )}
-          </div>
-
           <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
             <div className="flex items-center gap-2 text-sm font-medium text-foreground">
               <Link2 className="h-4 w-4" />
@@ -1062,17 +752,6 @@ export function PostEditor({
                 <ImagePlus className="h-4 w-4 mr-2" />
                 {uploading ? "Uploading..." : "Upload"}
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={uploading || generatingImage}
-                onClick={handleGenerateImage}
-                aria-label="Generate featured image with AI"
-              >
-                <Sparkles className="h-4 w-4 mr-2" />
-                {generatingImage ? "Generating..." : "Generate"}
-              </Button>
             </div>
             {formData.featuredImage && (
               <>
@@ -1108,8 +787,8 @@ export function PostEditor({
                     className="text-xs text-muted-foreground"
                   >
                     Required before publish when a hero image is set (see
-                    checklist). Uploads and generated images auto-fill this when
-                    empty.
+                    checklist). Uploads auto-fill this when empty, and you can
+                    adjust it before publishing.
                   </p>
                 </div>
                 {/* eslint-disable-next-line @next/next/no-img-element -- Admin preview supports arbitrary uploaded/external image URLs. */}
@@ -1183,7 +862,7 @@ Separate paragraphs with blank lines"
             />
           </div>
 
-          <EditorReadinessPanel formData={formData} workflow={editorWorkflow} />
+          <EditorReadinessPanel formData={formData} />
 
           <PublishChecklistPanel formData={formData} />
         </div>

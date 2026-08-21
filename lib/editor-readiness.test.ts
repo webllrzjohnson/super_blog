@@ -28,31 +28,20 @@ function post(overrides: Partial<Post> = {}): Post {
 }
 
 describe("evaluateEditorReadiness", () => {
-  it("marks a finished post as ready when session workflow actions are complete", () => {
-    const result = evaluateEditorReadiness(post(), {
-      grammarChecked: true,
-      humanized: true,
-      promotionCopyGenerated: true,
-    });
+  it("marks a finished post as ready when manual publishing checks pass", () => {
+    const result = evaluateEditorReadiness(post());
 
     expect(result.ready).toBe(true);
     expect(result.completedCount).toBe(result.totalCount);
     expect(result.items.every((item) => item.status === "complete")).toBe(true);
   });
 
-  it("reports missing workflow actions separately from content-derived checks", () => {
-    const result = evaluateEditorReadiness(post(), {
-      grammarChecked: false,
-      humanized: false,
-      promotionCopyGenerated: false,
-    });
+  it("uses only content-derived checks now that redundant assistant buttons are hidden", () => {
+    const result = evaluateEditorReadiness(post());
 
-    expect(result.ready).toBe(false);
-    expect(result.missingLabels).toEqual([
-      "Grammar checked",
-      "Humanize pass completed",
-      "Promotion copy generated",
-    ]);
+    expect(result.missingLabels).not.toContain("Grammar checked");
+    expect(result.missingLabels).not.toContain("Humanize pass completed");
+    expect(result.missingLabels).not.toContain("Promotion copy generated");
   });
 
   it("flags missing content requirements using the current draft state", () => {
@@ -64,11 +53,6 @@ describe("evaluateEditorReadiness", () => {
         featuredImageAlt: "",
         content: `${"A draft paragraph with enough substance for the editor readiness panel. ".repeat(4)}No internal blog links yet.`,
       }),
-      {
-        grammarChecked: true,
-        humanized: true,
-        promotionCopyGenerated: true,
-      },
     );
 
     expect(result.ready).toBe(false);
@@ -83,11 +67,6 @@ describe("evaluateEditorReadiness", () => {
   it("treats placeholder featured image alt text as missing", () => {
     const result = evaluateEditorReadiness(
       post({ featuredImageAlt: "Describe this image" }),
-      {
-        grammarChecked: true,
-        humanized: true,
-        promotionCopyGenerated: true,
-      },
     );
 
     expect(result.missingLabels).toContain("Featured image alt text added");

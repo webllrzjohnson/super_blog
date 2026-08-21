@@ -87,7 +87,9 @@ describe("public site identity and current monetization copy", () => {
     expect(disclaimerSource).toContain("approved, or rejected");
     expect(disclaimerSource).not.toMatch(/comments may be[^.]*edited/i);
     expect(disclaimerSource).not.toMatch(/comments may be[^.]*removed/i);
-    expect(moderationSource).toContain("z.enum(['approve', 'reject'])");
+    expect(moderationSource).toMatch(
+      /z\.enum\(\[["']approve["'], ["']reject["']\]\)/,
+    );
   });
 
   it("keeps analytics conditional and ad placements disabled by default", async () => {
@@ -97,7 +99,9 @@ describe("public site identity and current monetization copy", () => {
       readFile(path.join(process.cwd(), "components/google-ad.tsx"), "utf8"),
     ]);
 
-    expect(layoutSource).toContain("NEXT_PUBLIC_ENABLE_ANALYTICS === 'true'");
+    expect(layoutSource).toMatch(
+      /NEXT_PUBLIC_ENABLE_ANALYTICS === ["']true["']/,
+    );
     expect(settingsSource).toContain("slots: []");
     expect(googleAdSource).toContain("!slot?.enabled");
   });
@@ -108,7 +112,7 @@ describe("public site identity and current monetization copy", () => {
       readFile(path.join(process.cwd(), "app/api/newsletter/route.ts"), "utf8"),
     ]);
 
-    expect(contactSource).toContain("from 'resend'");
-    expect(newsletterSource).toContain("from 'resend'");
+    expect(contactSource).toMatch(/from ["']resend["']/);
+    expect(newsletterSource).toMatch(/from ["']resend["']/);
   });
 });

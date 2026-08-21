@@ -3,12 +3,6 @@ import { isPlaceholderImageAltText } from "@/lib/image-alt";
 
 export type EditorReadinessStatus = "complete" | "missing";
 
-export type EditorWorkflowState = {
-  grammarChecked?: boolean;
-  humanized?: boolean;
-  promotionCopyGenerated?: boolean;
-};
-
 export type EditorReadinessItem = {
   id: string;
   label: string;
@@ -45,10 +39,7 @@ function item(
   };
 }
 
-export function evaluateEditorReadiness(
-  post: Post,
-  workflow: EditorWorkflowState = {},
-): EditorReadinessResult {
+export function evaluateEditorReadiness(post: Post): EditorReadinessResult {
   const title = post.title.trim();
   const excerpt = post.excerpt.trim();
   const content = post.content.trim();
@@ -94,24 +85,6 @@ export function evaluateEditorReadiness(
       "Internal link added",
       hasInternalBlogLink(content),
       "Link to at least one related blog post when possible.",
-    ),
-    item(
-      "grammar",
-      "Grammar checked",
-      Boolean(workflow.grammarChecked),
-      "Run Fix grammar in this editor session.",
-    ),
-    item(
-      "humanize",
-      "Humanize pass completed",
-      Boolean(workflow.humanized),
-      "Run Humanize draft in this editor session.",
-    ),
-    item(
-      "promotion",
-      "Promotion copy generated",
-      Boolean(workflow.promotionCopyGenerated),
-      "Generate promotion copy before or after publishing.",
     ),
   ];
 
