@@ -6,7 +6,8 @@ import { defaultAuthor } from "@/lib/posts";
 import { getSetting } from "@/lib/settings";
 import { SITE_NAME } from "@/lib/site-identity";
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.maplehub.cloud";
 
 export const metadata: Metadata = {
   title: "About",
@@ -41,7 +42,7 @@ export default async function AboutPage() {
     "@type": "Person",
     name: defaultAuthor.name,
     description: defaultAuthor.bio,
-    url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"}/about`,
+    url: `${BASE_URL}/about`,
     sameAs: sameAsUrls,
   };
 
@@ -59,9 +60,11 @@ export default async function AboutPage() {
             About me
           </h1>
           <p className="mt-4 max-w-2xl leading-7 text-muted-foreground">
-            {SITE_NAME} is a personal site about building operations, coding on
-            the side, running, food, and the parts of life that happen after the
-            work phone quiets down.
+            {SITE_NAME} is a personal site written by a Toronto building
+            superintendent with a software background. I share practical field
+            notes from building operations, resident communication, maintenance
+            follow up, tools I have tried, and the parts of life that happen
+            after the work phone quiets down.
           </p>
         </header>
 
@@ -69,15 +72,15 @@ export default async function AboutPage() {
           {[
             [
               "Personal perspective",
-              "Posts are written from lived experience, not official policy.",
+              "Posts come from lived experience, not official policy or employer statements.",
             ],
             [
-              "Anonymized stories",
-              "Resident, staff, and workplace details are kept generalized.",
+              "Privacy aware",
+              "Resident, staff, workplace, and property details are generalized.",
             ],
             [
               "Practical notes",
-              "The goal is useful reflection, not legal, HR, or technical advice.",
+              "The goal is useful reflection, not legal, HR, safety, or technical advice.",
             ],
           ].map(([label, detail]) => (
             <div key={label} className="surface-card p-4">
@@ -85,6 +88,26 @@ export default async function AboutPage() {
               <p className="mt-1 leading-6">{detail}</p>
             </div>
           ))}
+        </section>
+
+        <section className="mb-10 surface-card p-6 md:p-8">
+          <p className="eyebrow mb-2">What this site is for</p>
+          <h2 className="text-2xl font-semibold tracking-[-0.02em] text-foreground">
+            Useful notes from real building work
+          </h2>
+          <div className="mt-4 space-y-4 leading-7 text-muted-foreground">
+            <p>
+              The core of this site is building work: maintenance calls,
+              resident communication, shared spaces, notices, garbage rooms,
+              repairs, contractor follow up, and the judgement calls that do not
+              always fit neatly into a work order.
+            </p>
+            <p>
+              I also write about the tools, habits, hobbies, and recovery time
+              around that work. If I write about an item or tool, the angle is
+              what I tried and what I noticed, not what I want to sell.
+            </p>
+          </div>
         </section>
 
         {customAbout ? (
@@ -107,7 +130,7 @@ export default async function AboutPage() {
               </div>
               <div className="space-y-4">
                 <p className="text-lg text-foreground leading-relaxed">
-                  Hey there! I&apos;m Lester—a software engineer by trade, a
+                  Hey there! I&apos;m Lester, a software engineer by trade, a
                   building superintendent by day, and a perpetual tinkerer at
                   heart.
                 </p>
@@ -164,22 +187,22 @@ export default async function AboutPage() {
                 <p>This blog is my space to think out loud. I write about:</p>
                 <ul className="list-disc list-inside space-y-2 ml-2">
                   <li>
-                    <strong className="text-foreground">Work</strong> — career
+                    <strong className="text-foreground">Work</strong>: career
                     pivots, building management, AI-assisted development, and
                     bridging the physical and digital worlds
                   </li>
                   <li>
-                    <strong className="text-foreground">Life</strong> —
+                    <strong className="text-foreground">Life</strong>:
                     productivity, habits, learning new skills, and navigating
                     unconventional career paths
                   </li>
                   <li>
-                    <strong className="text-foreground">Hobbies</strong> —
+                    <strong className="text-foreground">Hobbies</strong>:
                     coding experiments, automation projects, and whatever
                     technical rabbit holes I&apos;m exploring
                   </li>
                   <li>
-                    <strong className="text-foreground">Experience</strong> —
+                    <strong className="text-foreground">Experience</strong>:
                     lessons from managing people and properties, the realities
                     of career transitions, and finding your own path
                   </li>

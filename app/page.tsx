@@ -12,7 +12,8 @@ import { formatPostDate } from "@/lib/post-date";
 /** Must be a literal for Next.js segment config (see POSTS_CACHE_REVALIDATE_SECONDS). */
 export const revalidate = 120;
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.maplehub.cloud";
 
 export const metadata: Metadata = {
   alternates: {
@@ -39,11 +40,11 @@ export default async function HomePage() {
               "Building superintendent · Toronto, ON"}
           </div>
           <h1 className="max-w-3xl text-4xl font-semibold tracking-[-0.04em] text-foreground sm:text-5xl md:text-6xl md:leading-[0.98]">
-            Field notes from building work, code, and life in Toronto.
+            Practical field notes from a Toronto building superintendent.
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
             {settings.branding.shortBio ||
-              "Software engineer turned building superintendent, still coding on the side. I write about building management, AI experiments, running, food, and life in Toronto."}
+              "I write from the day to day work of keeping a building running: maintenance calls, resident communication, shared space problems, practical follow up, and the life I come back to after the work phone quiets down."}
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -62,16 +63,16 @@ export default async function HomePage() {
           <div className="mt-8 grid gap-3 text-sm text-muted-foreground sm:grid-cols-3">
             {[
               [
-                "Real field notes",
-                "Building work, resident issues, and practical follow-up.",
+                "Building work",
+                "Maintenance calls, resident issues, notices, shared spaces, and practical follow up from the floor.",
               ],
               [
-                "Readable depth",
-                "Posts are written as complete notes, not quick scraps.",
+                "Firsthand notes",
+                "Stories are based on lived experience, with private details generalized.",
               ],
               [
-                "Related reading",
-                "Every published post points to another useful story.",
+                "Life after work",
+                "Running, food, camping, code, AI tools, and the things I have actually tried.",
               ],
             ].map(([label, detail]) => (
               <div
@@ -113,8 +114,8 @@ export default async function HomePage() {
           </div>
           <div className="mt-6 grid grid-cols-3 gap-3 text-center">
             {[
-              ["Work", "field notes"],
-              ["Tech", "AI + code"],
+              ["Work", "building notes"],
+              ["Tools", "tried and used"],
               ["Life", "Toronto"],
             ].map(([label, detail]) => (
               <div key={label} className="rounded-xl bg-secondary/45 px-3 py-4">
@@ -124,9 +125,9 @@ export default async function HomePage() {
             ))}
           </div>
           <div className="mt-4 rounded-2xl border border-border/60 bg-background/55 p-4 text-sm leading-6 text-muted-foreground">
-            Written from the day-to-day work of keeping a building running, with
-            side notes on tech, training, recovery, and taking time away from
-            the noise.
+            Written from the day to day work of keeping a building running, with
+            honest notes on tools, training, recovery, code, and taking time
+            away from the noise.
           </div>
         </div>
       </section>
@@ -183,8 +184,8 @@ export default async function HomePage() {
               Recent posts
             </h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-              Start with the latest stories, or browse by work, life, running,
-              and practical building lessons.
+              Start with the building notes, then branch into running, food,
+              camping, code, tools, and practical lessons from daily life.
             </p>
           </div>
           <Link
@@ -217,8 +218,8 @@ export default async function HomePage() {
           Stay in the loop
         </h2>
         <p className="mb-6 mt-2 text-sm leading-6 text-muted-foreground">
-          A quiet email when there is a new field note, training story, or
-          useful building lesson. No spam, unsubscribe anytime.
+          A quiet email when there is a new field note, tool note, training
+          story, or useful building lesson. No spam, unsubscribe anytime.
         </p>
         <NewsletterForm />
       </section>
