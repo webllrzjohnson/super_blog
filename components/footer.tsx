@@ -1,51 +1,88 @@
-import Link from 'next/link'
-import type { LinksSettings } from '@/lib/settings'
-import { SITE_NAME } from '@/lib/site-identity'
+import Link from "next/link";
+import type { LinksSettings } from "@/lib/settings";
+import { SITE_NAME } from "@/lib/site-identity";
 
 interface FooterProps {
-  links?: LinksSettings
-  siteName?: string
+  links?: LinksSettings;
+  siteName?: string;
 }
 
 export function Footer({ links, siteName = SITE_NAME }: FooterProps) {
   const socialLinks = [
-    links?.github ? { href: links.github, label: 'GitHub' } : null,
-    links?.linkedin ? { href: links.linkedin, label: 'LinkedIn' } : null,
-    links?.twitter ? { href: links.twitter, label: 'Twitter/X' } : null,
+    links?.github ? { href: links.github, label: "GitHub" } : null,
+    links?.linkedin ? { href: links.linkedin, label: "LinkedIn" } : null,
+    links?.twitter ? { href: links.twitter, label: "Twitter/X" } : null,
     links?.contactEmail
-      ? { href: `mailto:${links.contactEmail}`, label: 'Email' }
+      ? { href: `mailto:${links.contactEmail}`, label: "Email" }
       : null,
-  ].filter((item): item is { href: string; label: string } => item !== null)
+  ].filter((item): item is { href: string; label: string } => item !== null);
 
   return (
     <footer className="border-t border-border/60 mt-12">
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-            <Link href="/blog" className="hover:text-foreground transition-colors">Blog</Link>
-            <Link href="/blog/tags" className="hover:text-foreground transition-colors">Tags</Link>
-            <Link href="/resources" className="hover:text-foreground transition-colors">Resources</Link>
-            <Link href="/about" className="hover:text-foreground transition-colors">About</Link>
-            <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
-            <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-            <Link href="/disclaimer" className="hover:text-foreground transition-colors">Disclaimer</Link>
-            <a href="/feed" className="hover:text-foreground transition-colors">RSS</a>
+            <Link
+              href="/blog"
+              className="hover:text-foreground transition-colors"
+            >
+              Blog
+            </Link>
+            <Link
+              href="/blog/tags"
+              className="hover:text-foreground transition-colors"
+            >
+              Tags
+            </Link>
+            <Link
+              href="/resources"
+              className="hover:text-foreground transition-colors"
+            >
+              Resources
+            </Link>
+            <Link
+              href="/about"
+              className="hover:text-foreground transition-colors"
+            >
+              About
+            </Link>
+            <Link
+              href="/contact"
+              className="hover:text-foreground transition-colors"
+            >
+              Contact
+            </Link>
+            <Link
+              href="/privacy"
+              className="hover:text-foreground transition-colors"
+            >
+              Privacy
+            </Link>
+            <Link
+              href="/disclaimer"
+              className="hover:text-foreground transition-colors"
+            >
+              Disclaimer
+            </Link>
+            <a href="/feed" className="hover:text-foreground transition-colors">
+              RSS
+            </a>
           </div>
           {socialLinks.length > 0 && (
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
               {socialLinks.map((link) => {
-                const isEmail = link.href.startsWith('mailto:')
+                const isEmail = link.href.startsWith("mailto:");
                 return (
                   <a
                     key={link.label}
                     href={link.href}
-                    target={isEmail ? undefined : '_blank'}
-                    rel={isEmail ? undefined : 'noopener noreferrer'}
+                    target={isEmail ? undefined : "_blank"}
+                    rel={isEmail ? undefined : "noopener noreferrer"}
                     className="hover:text-foreground transition-colors"
                   >
                     {link.label}
                   </a>
-                )
+                );
               })}
             </div>
           )}
@@ -55,5 +92,5 @@ export function Footer({ links, siteName = SITE_NAME }: FooterProps) {
         </p>
       </div>
     </footer>
-  )
+  );
 }

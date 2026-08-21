@@ -1,24 +1,27 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { Bookmark } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { useBookmarks } from '@/components/bookmarks-provider'
+import { useEffect, useState } from "react";
+import { Bookmark } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useBookmarks } from "@/components/bookmarks-provider";
 
 interface PostBookmarkButtonProps {
-  slug: string
+  slug: string;
   /** Larger tap target on post header */
-  variant?: 'default' | 'icon'
+  variant?: "default" | "icon";
 }
 
-export function PostBookmarkButton({ slug, variant = 'default' }: PostBookmarkButtonProps) {
-  const [mounted, setMounted] = useState(false)
-  const { hydrated, isBookmarked, toggleBookmark } = useBookmarks()
+export function PostBookmarkButton({
+  slug,
+  variant = "default",
+}: PostBookmarkButtonProps) {
+  const [mounted, setMounted] = useState(false);
+  const { hydrated, isBookmarked, toggleBookmark } = useBookmarks();
   useEffect(() => {
     queueMicrotask(() => {
-      setMounted(true)
-    })
-  }, [])
+      setMounted(true);
+    });
+  }, []);
 
   if (!mounted) {
     return (
@@ -28,13 +31,13 @@ export function PostBookmarkButton({ slug, variant = 'default' }: PostBookmarkBu
       >
         Bookmark
       </span>
-    )
+    );
   }
 
-  const saved = hydrated && isBookmarked(slug)
-  const pending = !hydrated
+  const saved = hydrated && isBookmarked(slug);
+  const pending = !hydrated;
 
-  if (variant === 'icon') {
+  if (variant === "icon") {
     return (
       <Button
         type="button"
@@ -44,15 +47,21 @@ export function PostBookmarkButton({ slug, variant = 'default' }: PostBookmarkBu
         disabled={pending}
         aria-busy={pending || undefined}
         aria-pressed={!pending && saved ? true : undefined}
-        aria-label={pending ? 'Loading bookmark state' : saved ? 'Remove bookmark' : 'Bookmark this post'}
+        aria-label={
+          pending
+            ? "Loading bookmark state"
+            : saved
+              ? "Remove bookmark"
+              : "Bookmark this post"
+        }
         onClick={() => {
-          if (pending) return
-          toggleBookmark(slug)
+          if (pending) return;
+          toggleBookmark(slug);
         }}
       >
-        <Bookmark className={`h-5 w-5 ${saved ? 'fill-current' : ''}`} />
+        <Bookmark className={`h-5 w-5 ${saved ? "fill-current" : ""}`} />
       </Button>
-    )
+    );
   }
 
   return (
@@ -64,15 +73,20 @@ export function PostBookmarkButton({ slug, variant = 'default' }: PostBookmarkBu
       disabled={pending}
       aria-busy={pending || undefined}
       aria-pressed={!pending && saved ? true : undefined}
-      aria-label={pending ? 'Loading bookmark state' : saved ? 'Remove bookmark' : 'Bookmark this post'}
+      aria-label={
+        pending
+          ? "Loading bookmark state"
+          : saved
+            ? "Remove bookmark"
+            : "Bookmark this post"
+      }
       onClick={() => {
-        if (pending) return
-        toggleBookmark(slug)
+        if (pending) return;
+        toggleBookmark(slug);
       }}
     >
-      <Bookmark className={`h-4 w-4 ${saved ? 'fill-current' : ''}`} />
-      {!pending && saved ? 'Saved' : 'Bookmark'}
+      <Bookmark className={`h-4 w-4 ${saved ? "fill-current" : ""}`} />
+      {!pending && saved ? "Saved" : "Bookmark"}
     </Button>
-  )
+  );
 }
-

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata } from "next";
 import {
   Source_Serif_4,
   Inter,
@@ -11,120 +11,123 @@ import {
   Libre_Baskerville,
   Newsreader,
   IBM_Plex_Sans,
-} from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
-import { ThemeProvider } from '@/components/theme-provider'
-import { SiteWrapper } from '@/components/site-wrapper'
-import { Toaster } from '@/components/ui/sonner'
-import { getSettings } from '@/lib/settings'
-import './globals.css'
-import { colorPresets } from '@/lib/theme-presets'
+} from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { ThemeProvider } from "@/components/theme-provider";
+import { SiteWrapper } from "@/components/site-wrapper";
+import { Toaster } from "@/components/ui/sonner";
+import { getSettings } from "@/lib/settings";
+import "./globals.css";
+import { colorPresets } from "@/lib/theme-presets";
 import {
   buildAdSenseScriptSrc,
   getAdSenseAccountMetadata,
   normalizeAdSenseClientId,
-} from '@/lib/adsense'
-import { AUTHOR_NAME, SITE_NAME } from '@/lib/site-identity'
+} from "@/lib/adsense";
+import { AUTHOR_NAME, SITE_NAME } from "@/lib/site-identity";
 
 const sourceSerif = Source_Serif_4({
-  subsets: ['latin'],
-  variable: '--font-serif',
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
   preload: true,
-})
+});
 
 const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-sans',
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
   preload: true,
-})
+});
 
 const merriweather = Merriweather({
-  subsets: ['latin'],
-  variable: '--font-serif',
-  weight: ['400', '700'],
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-serif",
+  weight: ["400", "700"],
+  display: "swap",
   preload: false,
-})
+});
 
 const lato = Lato({
-  subsets: ['latin'],
-  variable: '--font-sans',
-  weight: ['400', '700'],
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-sans",
+  weight: ["400", "700"],
+  display: "swap",
   preload: false,
-})
+});
 
 const playfairDisplay = Playfair_Display({
-  subsets: ['latin'],
-  variable: '--font-serif',
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
   preload: false,
-})
+});
 
 const roboto = Roboto({
-  subsets: ['latin'],
-  variable: '--font-sans',
-  weight: ['400', '500', '700'],
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-sans",
+  weight: ["400", "500", "700"],
+  display: "swap",
   preload: false,
-})
+});
 
 const lora = Lora({
-  subsets: ['latin'],
-  variable: '--font-serif',
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
   preload: false,
-})
+});
 
 const nunito = Nunito({
-  subsets: ['latin'],
-  variable: '--font-sans',
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
   preload: false,
-})
+});
 
 const libreBaskerville = Libre_Baskerville({
-  subsets: ['latin'],
-  variable: '--font-serif',
-  weight: ['400', '700'],
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-serif",
+  weight: ["400", "700"],
+  display: "swap",
   preload: false,
-})
+});
 
 const newsreader = Newsreader({
-  subsets: ['latin'],
-  variable: '--font-serif',
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
   preload: false,
-})
+});
 
 const ibmPlexSans = IBM_Plex_Sans({
-  subsets: ['latin'],
-  variable: '--font-sans',
-  weight: ['400', '500', '600'],
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-sans",
+  weight: ["400", "500", "600"],
+  display: "swap",
   preload: false,
-})
+});
 
 const fontPairClasses = {
-  'inter-source-serif': `${inter.variable} ${sourceSerif.variable}`,
-  'inter-merriweather': `${inter.variable} ${merriweather.variable}`,
-  'lato-playfair': `${lato.variable} ${playfairDisplay.variable}`,
-  'roboto-lora': `${roboto.variable} ${lora.variable}`,
-  'nunito-libre-baskerville': `${nunito.variable} ${libreBaskerville.variable}`,
-  'plex-newsreader': `${ibmPlexSans.variable} ${newsreader.variable}`,
-} as const
+  "inter-source-serif": `${inter.variable} ${sourceSerif.variable}`,
+  "inter-merriweather": `${inter.variable} ${merriweather.variable}`,
+  "lato-playfair": `${lato.variable} ${playfairDisplay.variable}`,
+  "roboto-lora": `${roboto.variable} ${lora.variable}`,
+  "nunito-libre-baskerville": `${nunito.variable} ${libreBaskerville.variable}`,
+  "plex-newsreader": `${ibmPlexSans.variable} ${newsreader.variable}`,
+} as const;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSettings()
-  const adsenseClientId = normalizeAdSenseClientId(settings.ads.clientId)
-  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || settings.branding.siteName || SITE_NAME
+  const settings = await getSettings();
+  const adsenseClientId = normalizeAdSenseClientId(settings.ads.clientId);
+  const siteName =
+    process.env.NEXT_PUBLIC_SITE_NAME ||
+    settings.branding.siteName ||
+    SITE_NAME;
   const description =
-    'A building superintendent in Toronto writing about property management, AI experiments, running, food, and everyday life.'
+    "A building superintendent in Toronto writing about property management, AI experiments, running, food, and everyday life.";
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
 
   return {
     title: {
@@ -132,19 +135,19 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${siteName}`,
     },
     description,
-    keywords: ['blog', 'personal', 'work', 'life', 'hobbies', 'experiences'],
+    keywords: ["blog", "personal", "work", "life", "hobbies", "experiences"],
     authors: [{ name: AUTHOR_NAME, url: `${siteUrl}/about` }],
     creator: AUTHOR_NAME,
     openGraph: {
-      type: 'website',
-      locale: 'en_CA',
+      type: "website",
+      locale: "en_CA",
       url: siteUrl,
       siteName,
       title: `${siteName} - Personal Blog`,
       description,
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: `${siteName} - Personal Blog`,
       description,
     },
@@ -160,26 +163,26 @@ export async function generateMetadata(): Promise<Metadata> {
           apple: settings.branding.faviconUrl,
         }
       : undefined,
-  }
+  };
 }
 
 export default async function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
-  const settings = await getSettings()
-  const adsenseClientId = normalizeAdSenseClientId(settings.ads.clientId)
-  const adsenseScriptSrc = buildAdSenseScriptSrc(adsenseClientId)
+  const settings = await getSettings();
+  const adsenseClientId = normalizeAdSenseClientId(settings.ads.clientId);
+  const adsenseScriptSrc = buildAdSenseScriptSrc(adsenseClientId);
   const fontPairClass =
     fontPairClasses[
       settings.appearance.fontPair as keyof typeof fontPairClasses
-    ] ?? fontPairClasses['inter-source-serif']
+    ] ?? fontPairClasses["inter-source-serif"];
   const preset =
     colorPresets[
       settings.appearance.colorPreset as keyof typeof colorPresets
-    ] ?? colorPresets['warm-terracotta']
-  const { light, dark } = preset
+    ] ?? colorPresets["warm-terracotta"];
+  const { light, dark } = preset;
 
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
@@ -252,8 +255,10 @@ export default async function RootLayout({
           </SiteWrapper>
           <Toaster />
         </ThemeProvider>
-        {process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true' ? <Analytics /> : null}
+        {process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true" ? (
+          <Analytics />
+        ) : null}
       </body>
     </html>
-  )
+  );
 }

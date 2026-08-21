@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   createContext,
@@ -9,154 +9,163 @@ import {
   useRef,
   useState,
   type ReactNode,
-} from 'react'
+} from "react";
 import {
   BOOKMARKS_STORAGE_KEY,
   parseBookmarkSlugs,
   serializeBookmarkSlugs,
-} from '@/lib/bookmarks'
-import { isBookmarkSyncClientConfigured, mergeBookmarkSlugs } from '@/lib/bookmarks-sync'
+} from "@/lib/bookmarks";
+import {
+  isBookmarkSyncClientConfigured,
+  mergeBookmarkSlugs,
+} from "@/lib/bookmarks-sync";
 import {
   getOrCreateVisitorDeviceId,
   VISITOR_DEVICE_HEADER,
-} from '@/lib/visitor-device-id'
+} from "@/lib/visitor-device-id";
 
 type BookmarksContextValue = {
   /** Slugs in bookmark order (oldest → newest). */
-  slugs: string[]
-  hydrated: boolean
-  syncEnabled: boolean
-  toggleBookmark: (slug: string) => void
-  isBookmarked: (slug: string) => boolean
-  removeBookmark: (slug: string) => void
-}
+  slugs: string[];
+  hydrated: boolean;
+  syncEnabled: boolean;
+  toggleBookmark: (slug: string) => void;
+  isBookmarked: (slug: string) => boolean;
+  removeBookmark: (slug: string) => void;
+};
 
-const BookmarksContext = createContext<BookmarksContextValue | null>(null)
+const BookmarksContext = createContext<BookmarksContextValue | null>(null);
 
-const SYNC_DEBOUNCE_MS = 800
+const SYNC_DEBOUNCE_MS = 800;
 
 export function BookmarksProvider({ children }: { children: ReactNode }) {
-  const [slugs, setSlugs] = useState<string[]>([])
-  const [hydrated, setHydrated] = useState(false)
-  const [syncEnabled, setSyncEnabled] = useState(false)
-  const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [slugs, setSlugs] = useState<string[]>([]);
+  const [hydrated, setHydrated] = useState(false);
+  const [syncEnabled, setSyncEnabled] = useState(false);
+  const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const pushToServer = useCallback(async (next: string[]) => {
-    if (!isBookmarkSyncClientConfigured()) return
-    const vid = getOrCreateVisitorDeviceId()
-    if (!vid) return
+    if (!isBookmarkSyncClientConfigured()) return;
+    const vid = getOrCreateVisitorDeviceId();
+    if (!vid) return;
     try {
-      await fetch('/api/bookmarks/sync', {
-        method: 'PUT',
+      await fetch("/api/bookmarks/sync", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           [VISITOR_DEVICE_HEADER]: vid,
         },
         body: JSON.stringify({ slugs: next }),
-      })
+      });
     } catch {
       // best-effort
     }
-  }, [])
+  }, []);
 
   const scheduleSync = useCallback(
     (next: string[]) => {
-      if (!isBookmarkSyncClientConfigured() || !syncEnabled) return
-      if (syncTimerRef.current) clearTimeout(syncTimerRef.current)
+      if (!isBookmarkSyncClientConfigured() || !syncEnabled) return;
+      if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
       syncTimerRef.current = setTimeout(() => {
-        syncTimerRef.current = null
-        void pushToServer(next)
-      }, SYNC_DEBOUNCE_MS)
+        syncTimerRef.current = null;
+        void pushToServer(next);
+      }, SYNC_DEBOUNCE_MS);
     },
-    [pushToServer, syncEnabled]
-  )
+    [pushToServer, syncEnabled],
+  );
 
   useEffect(() => {
     const raw =
-      typeof window !== 'undefined'
+      typeof window !== "undefined"
         ? window.localStorage.getItem(BOOKMARKS_STORAGE_KEY)
-        : null
-    const local = parseBookmarkSlugs(raw)
+        : null;
+    const local = parseBookmarkSlugs(raw);
     queueMicrotask(() => {
-      setSlugs(local)
-      setHydrated(true)
-    })
+      setSlugs(local);
+      setHydrated(true);
+    });
 
     if (!isBookmarkSyncClientConfigured()) {
-      return
+      return;
     }
 
-    const vid = getOrCreateVisitorDeviceId()
-    if (!vid) return
+    const vid = getOrCreateVisitorDeviceId();
+    if (!vid) return;
 
-    let cancelled = false
+    let cancelled = false;
     const runSync = () => {
       void (async () => {
         try {
-          const res = await fetch('/api/bookmarks/sync', {
+          const res = await fetch("/api/bookmarks/sync", {
             headers: { [VISITOR_DEVICE_HEADER]: vid },
-          })
-          if (!res.ok || cancelled) return
-          const data = (await res.json()) as { enabled?: boolean; slugs?: string[] }
+          });
+          if (!res.ok || cancelled) return;
+          const data = (await res.json()) as {
+            enabled?: boolean;
+            slugs?: string[];
+          };
           if (!data.enabled) {
-            if (!cancelled) setSyncEnabled(false)
-            return
+            if (!cancelled) setSyncEnabled(false);
+            return;
           }
-          if (cancelled) return
-          setSyncEnabled(true)
-          setSlugs((prev) => mergeBookmarkSlugs(prev, data.slugs ?? []))
+          if (cancelled) return;
+          setSyncEnabled(true);
+          setSlugs((prev) => mergeBookmarkSlugs(prev, data.slugs ?? []));
         } catch {
-          if (!cancelled) setSyncEnabled(false)
+          if (!cancelled) setSyncEnabled(false);
         }
-      })()
-    }
+      })();
+    };
 
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      const idleId = window.requestIdleCallback(runSync, { timeout: 3000 })
+    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(runSync, { timeout: 3000 });
       return () => {
-        cancelled = true
-        window.cancelIdleCallback(idleId)
-      }
+        cancelled = true;
+        window.cancelIdleCallback(idleId);
+      };
     }
 
-    const timeoutId = setTimeout(runSync, 1500)
+    const timeoutId = setTimeout(runSync, 1500);
     return () => {
-      cancelled = true
-      clearTimeout(timeoutId)
-    }
-  }, [])
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, []);
 
   useEffect(() => {
-    if (!hydrated || typeof window === 'undefined') return
-    window.localStorage.setItem(BOOKMARKS_STORAGE_KEY, serializeBookmarkSlugs(slugs))
-  }, [slugs, hydrated])
+    if (!hydrated || typeof window === "undefined") return;
+    window.localStorage.setItem(
+      BOOKMARKS_STORAGE_KEY,
+      serializeBookmarkSlugs(slugs),
+    );
+  }, [slugs, hydrated]);
 
   useEffect(() => {
-    if (!hydrated || !syncEnabled) return
-    scheduleSync(slugs)
-  }, [slugs, hydrated, syncEnabled, scheduleSync])
+    if (!hydrated || !syncEnabled) return;
+    scheduleSync(slugs);
+  }, [slugs, hydrated, syncEnabled, scheduleSync]);
 
   const toggleBookmark = useCallback((slug: string) => {
-    const s = slug.trim()
-    if (!s) return
+    const s = slug.trim();
+    if (!s) return;
     setSlugs((prev) => {
       if (prev.includes(s)) {
-        return prev.filter((x) => x !== s)
+        return prev.filter((x) => x !== s);
       }
-      return [...prev, s]
-    })
-  }, [])
+      return [...prev, s];
+    });
+  }, []);
 
   const removeBookmark = useCallback((slug: string) => {
-    const s = slug.trim()
-    if (!s) return
-    setSlugs((prev) => prev.filter((x) => x !== s))
-  }, [])
+    const s = slug.trim();
+    if (!s) return;
+    setSlugs((prev) => prev.filter((x) => x !== s));
+  }, []);
 
   const isBookmarked = useCallback(
     (slug: string) => slugs.includes(slug.trim()),
-    [slugs]
-  )
+    [slugs],
+  );
 
   const value = useMemo(
     () => ({
@@ -167,18 +176,27 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       isBookmarked,
       removeBookmark,
     }),
-    [slugs, hydrated, syncEnabled, toggleBookmark, isBookmarked, removeBookmark]
-  )
+    [
+      slugs,
+      hydrated,
+      syncEnabled,
+      toggleBookmark,
+      isBookmarked,
+      removeBookmark,
+    ],
+  );
 
   return (
-    <BookmarksContext.Provider value={value}>{children}</BookmarksContext.Provider>
-  )
+    <BookmarksContext.Provider value={value}>
+      {children}
+    </BookmarksContext.Provider>
+  );
 }
 
 export function useBookmarks(): BookmarksContextValue {
-  const ctx = useContext(BookmarksContext)
+  const ctx = useContext(BookmarksContext);
   if (!ctx) {
-    throw new Error('useBookmarks must be used within BookmarksProvider')
+    throw new Error("useBookmarks must be used within BookmarksProvider");
   }
-  return ctx
+  return ctx;
 }

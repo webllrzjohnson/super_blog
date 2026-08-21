@@ -1,80 +1,82 @@
-import { mkdir, writeFile } from 'fs/promises'
-import path from 'path'
-import { publicUploadUrl, resolveUploadDir } from '@/lib/upload-storage'
+import { mkdir, writeFile } from "fs/promises";
+import path from "path";
+import { publicUploadUrl, resolveUploadDir } from "@/lib/upload-storage";
 
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
 const ALLOWED_IMAGE_TYPES = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/gif',
-])
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+]);
 
 type SaveUploadedImageOptions = {
-  requestOrigin?: string
-  forwardedHost?: string | null
-  forwardedProto?: string | null
-}
+  requestOrigin?: string;
+  forwardedHost?: string | null;
+  forwardedProto?: string | null;
+};
 
 function getExtension(file: File): string {
-  const fromName = file.name.split('.').pop()?.toLowerCase()
-  if (fromName) return fromName
+  const fromName = file.name.split(".").pop()?.toLowerCase();
+  if (fromName) return fromName;
   switch (file.type) {
-    case 'image/jpeg':
-      return 'jpg'
-    case 'image/png':
-      return 'png'
-    case 'image/webp':
-      return 'webp'
-    case 'image/gif':
-      return 'gif'
+    case "image/jpeg":
+      return "jpg";
+    case "image/png":
+      return "png";
+    case "image/webp":
+      return "webp";
+    case "image/gif":
+      return "gif";
     default:
-      return 'bin'
+      return "bin";
   }
 }
 
-export async function saveUploadedImageFile(file: File): Promise<{ url: string; filename: string }> {
+export async function saveUploadedImageFile(
+  file: File,
+): Promise<{ url: string; filename: string }> {
   if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
-    throw new Error('Unsupported file type')
+    throw new Error("Unsupported file type");
   }
   if (file.size > MAX_FILE_SIZE_BYTES) {
-    throw new Error('File too large (max 5MB)')
+    throw new Error("File too large (max 5MB)");
   }
 
-  const ext = getExtension(file)
-  const filename = `${Date.now()}-${crypto.randomUUID()}.${ext}`
-  const uploadDir = resolveUploadDir()
-  const fullPath = path.join(uploadDir, filename)
+  const ext = getExtension(file);
+  const filename = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
+  const uploadDir = resolveUploadDir();
+  const fullPath = path.join(uploadDir, filename);
 
-  await mkdir(uploadDir, { recursive: true })
-  const buffer = Buffer.from(await file.arrayBuffer())
-  await writeFile(fullPath, buffer)
+  await mkdir(uploadDir, { recursive: true });
+  const buffer = Buffer.from(await file.arrayBuffer());
+  await writeFile(fullPath, buffer);
 
-  return { url: publicUploadUrl(filename), filename }
+  return { url: publicUploadUrl(filename), filename };
 }
 
 export async function saveUploadedImageBuffer(
   buffer: Buffer,
   mimeType: string,
-  prefix = 'generated',
-  options: SaveUploadedImageOptions | string = {}
+  prefix = "generated",
+  options: SaveUploadedImageOptions | string = {},
 ): Promise<{ url: string; filename: string }> {
   const ext =
-    mimeType === 'image/png'
-      ? 'png'
-      : mimeType === 'image/webp'
-        ? 'webp'
-        : mimeType === 'image/jpeg'
-          ? 'jpg'
-          : 'png'
+    mimeType === "image/png"
+      ? "png"
+      : mimeType === "image/webp"
+        ? "webp"
+        : mimeType === "image/jpeg"
+          ? "jpg"
+          : "png";
 
-  const filename = `${prefix}_${Date.now()}-${crypto.randomUUID()}.${ext}`
-  const uploadDir = resolveUploadDir()
-  const fullPath = path.join(uploadDir, filename)
+  const filename = `${prefix}_${Date.now()}-${crypto.randomUUID()}.${ext}`;
+  const uploadDir = resolveUploadDir();
+  const fullPath = path.join(uploadDir, filename);
 
-  await mkdir(uploadDir, { recursive: true })
-  await writeFile(fullPath, buffer)
+  await mkdir(uploadDir, { recursive: true });
+  await writeFile(fullPath, buffer);
 
-  return { url: publicUploadUrl(filename, options), filename }
+  return { url: publicUploadUrl(filename, options), filename };
 }

@@ -1,42 +1,48 @@
-'use client'
+"use client";
 
-import { useMemo, useState } from 'react'
-import { toast } from 'sonner'
-import type { AdsSettings, AdSlotSetting } from '@/lib/settings'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import type { AdsSettings, AdSlotSetting } from "@/lib/settings";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   AD_POSITIONS,
   normalizeAdSenseClientId,
   normalizeAdSenseSlotId,
   type AdPosition,
-} from '@/lib/adsense'
+} from "@/lib/adsense";
 
 interface SettingsAdsProps {
-  initialValue?: AdsSettings
+  initialValue?: AdsSettings;
 }
 
 function buildSlotMap(slots: AdSlotSetting[]): Record<string, AdSlotSetting> {
-  return Object.fromEntries(slots.map((slot) => [slot.position, slot]))
+  return Object.fromEntries(slots.map((slot) => [slot.position, slot]));
 }
 
 export function SettingsAds({ initialValue }: SettingsAdsProps) {
   const initialSlots = useMemo(() => {
-    const slotMap = buildSlotMap(initialValue?.slots ?? [])
+    const slotMap = buildSlotMap(initialValue?.slots ?? []);
 
     return AD_POSITIONS.map((position) => ({
-      slotId: slotMap[position]?.slotId ?? '',
+      slotId: slotMap[position]?.slotId ?? "",
       position,
       enabled: slotMap[position]?.enabled ?? false,
-    }))
-  }, [initialValue])
+    }));
+  }, [initialValue]);
 
-  const [clientId, setClientId] = useState(initialValue?.clientId ?? '')
-  const [slots, setSlots] = useState<AdSlotSetting[]>(initialSlots)
-  const [isSaving, setIsSaving] = useState(false)
+  const [clientId, setClientId] = useState(initialValue?.clientId ?? "");
+  const [slots, setSlots] = useState<AdSlotSetting[]>(initialSlots);
+  const [isSaving, setIsSaving] = useState(false);
 
   const updateSlot = (position: AdPosition, patch: Partial<AdSlotSetting>) => {
     setSlots((current) =>
@@ -46,76 +52,80 @@ export function SettingsAds({ initialValue }: SettingsAdsProps) {
               ...slot,
               ...patch,
             }
-          : slot
-      )
-    )
-  }
+          : slot,
+      ),
+    );
+  };
 
   const handleSave = async () => {
-    setIsSaving(true)
+    setIsSaving(true);
 
     try {
-      const normalizedClientId = clientId.trim()
+      const normalizedClientId = clientId.trim();
       if (normalizedClientId && !normalizeAdSenseClientId(normalizedClientId)) {
-        throw new Error('Use a valid AdSense client ID in the format ca-pub- followed by 16 digits')
+        throw new Error(
+          "Use a valid AdSense client ID in the format ca-pub- followed by 16 digits",
+        );
       }
       const normalizedSlots = slots.map((slot) => ({
         ...slot,
         slotId: slot.slotId.trim(),
-      }))
+      }));
 
       const invalidEnabledSlot = normalizedSlots.find(
-        (slot) => slot.enabled && !slot.slotId
-      )
+        (slot) => slot.enabled && !slot.slotId,
+      );
 
       if (invalidEnabledSlot) {
-        throw new Error(`Provide a slot ID for ${invalidEnabledSlot.position}`)
+        throw new Error(`Provide a slot ID for ${invalidEnabledSlot.position}`);
       }
 
       const invalidSlot = normalizedSlots.find(
-        (slot) => slot.slotId && !normalizeAdSenseSlotId(slot.slotId)
-      )
+        (slot) => slot.slotId && !normalizeAdSenseSlotId(slot.slotId),
+      );
 
       if (invalidSlot) {
-        throw new Error(`Use a 10-digit slot ID for ${invalidSlot.position}`)
+        throw new Error(`Use a 10-digit slot ID for ${invalidSlot.position}`);
       }
 
-      const response = await fetch('/api/settings', {
-        method: 'POST',
+      const response = await fetch("/api/settings", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({
-          key: 'ads',
+          key: "ads",
           value: {
             clientId: normalizedClientId,
             slots: normalizedSlots,
           },
         }),
-      })
+      });
 
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}))
-        throw new Error(data.error || 'Failed to save ads settings')
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to save ads settings");
       }
 
-      toast.success('Ads settings saved')
+      toast.success("Ads settings saved");
     } catch (error) {
-      toast.error('Failed to save ads settings', {
-        description: error instanceof Error ? error.message : 'Unknown error',
-      })
+      toast.error("Failed to save ads settings", {
+        description: error instanceof Error ? error.message : "Unknown error",
+      });
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Ads</CardTitle>
         <CardDescription>
-          Add the AdSense client ID after Google issues it. The site then publishes the verification meta tag and ads.txt record automatically; ad placements remain disabled until you add slot IDs and enable them.
+          Add the AdSense client ID after Google issues it. The site then
+          publishes the verification meta tag and ads.txt record automatically;
+          ad placements remain disabled until you add slot IDs and enable them.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -131,17 +141,23 @@ export function SettingsAds({ initialValue }: SettingsAdsProps) {
 
         <div className="space-y-4">
           {slots.map((slot) => (
-            <div key={slot.position} className="rounded-lg border p-4 space-y-4">
+            <div
+              key={slot.position}
+              className="rounded-lg border p-4 space-y-4"
+            >
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="font-medium">{slot.position}</p>
                   <p className="text-sm text-muted-foreground">
-                    Enable this placement and provide the AdSense slot ID to render ads here.
+                    Enable this placement and provide the AdSense slot ID to
+                    render ads here.
                   </p>
                 </div>
                 <Switch
                   checked={slot.enabled}
-                  onCheckedChange={(checked) => updateSlot(slot.position, { enabled: checked })}
+                  onCheckedChange={(checked) =>
+                    updateSlot(slot.position, { enabled: checked })
+                  }
                   aria-label={`Enable ${slot.position}`}
                 />
               </div>
@@ -163,10 +179,10 @@ export function SettingsAds({ initialValue }: SettingsAdsProps) {
 
         <div className="flex justify-end">
           <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? 'Saving...' : 'Save ads'}
+            {isSaving ? "Saving..." : "Save ads"}
           </Button>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

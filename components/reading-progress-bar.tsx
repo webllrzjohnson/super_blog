@@ -1,22 +1,23 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 
 export function ReadingProgressBar() {
-  const [progress, setProgress] = useState(0)
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = document.documentElement
-      const scrollable = scrollHeight - clientHeight
-      const value = scrollable > 0 ? (scrollTop / scrollable) * 100 : 0
-      setProgress(Math.min(value, 100))
-    }
+      const { scrollTop, scrollHeight, clientHeight } =
+        document.documentElement;
+      const scrollable = scrollHeight - clientHeight;
+      const value = scrollable > 0 ? (scrollTop / scrollable) * 100 : 0;
+      setProgress(Math.min(value, 100));
+    };
 
-    handleScroll()
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <div
@@ -31,5 +32,5 @@ export function ReadingProgressBar() {
         style={{ width: `${progress}%` }}
       />
     </div>
-  )
+  );
 }

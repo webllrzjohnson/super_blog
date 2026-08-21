@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import type { RefObject } from 'react'
-import { Button } from '@/components/ui/button'
+import type { RefObject } from "react";
+import { Button } from "@/components/ui/button";
 import {
   insertAroundSelection,
   insertImageMarkdown,
@@ -10,7 +10,7 @@ import {
   prefixSelectedLines,
   prefixSelectedLinesOrdered,
   type TextSelection,
-} from '@/lib/markdown-content-helpers'
+} from "@/lib/markdown-content-helpers";
 import {
   Bold,
   Code,
@@ -22,22 +22,22 @@ import {
   ListOrdered,
   Minus,
   TextQuote,
-} from 'lucide-react'
+} from "lucide-react";
 
 export type MarkdownEditResult = {
-  text: string
-  selStart: number
-  selEnd: number
-}
+  text: string;
+  selStart: number;
+  selEnd: number;
+};
 
 type MarkdownContentToolbarProps = {
-  textareaRef: RefObject<HTMLTextAreaElement | null>
-  disabled?: boolean
-  onEdit: (result: MarkdownEditResult) => void
-}
+  textareaRef: RefObject<HTMLTextAreaElement | null>;
+  disabled?: boolean;
+  onEdit: (result: MarkdownEditResult) => void;
+};
 
 function readSelection(ta: HTMLTextAreaElement): TextSelection {
-  return { start: ta.selectionStart, end: ta.selectionEnd }
+  return { start: ta.selectionStart, end: ta.selectionEnd };
 }
 
 export function MarkdownContentToolbar({
@@ -47,14 +47,14 @@ export function MarkdownContentToolbar({
 }: MarkdownContentToolbarProps) {
   const run = (
     fn: (value: string, sel: TextSelection) => MarkdownEditResult,
-    focus: () => void
+    focus: () => void,
   ) => {
-    const ta = textareaRef.current
-    if (!ta || disabled) return
-    focus()
-    const r = fn(ta.value, readSelection(ta))
-    onEdit(r)
-  }
+    const ta = textareaRef.current;
+    if (!ta || disabled) return;
+    focus();
+    const r = fn(ta.value, readSelection(ta));
+    onEdit(r);
+  };
 
   return (
     <div
@@ -73,8 +73,8 @@ export function MarkdownContentToolbar({
         onMouseDown={(e) => e.preventDefault()}
         onClick={() =>
           run(
-            (v, s) => insertAroundSelection(v, s, '**', '**', 'bold'),
-            () => textareaRef.current?.focus()
+            (v, s) => insertAroundSelection(v, s, "**", "**", "bold"),
+            () => textareaRef.current?.focus(),
           )
         }
       >
@@ -91,8 +91,8 @@ export function MarkdownContentToolbar({
         onMouseDown={(e) => e.preventDefault()}
         onClick={() =>
           run(
-            (v, s) => insertAroundSelection(v, s, '*', '*', 'italic'),
-            () => textareaRef.current?.focus()
+            (v, s) => insertAroundSelection(v, s, "*", "*", "italic"),
+            () => textareaRef.current?.focus(),
           )
         }
       >
@@ -109,8 +109,8 @@ export function MarkdownContentToolbar({
         onMouseDown={(e) => e.preventDefault()}
         onClick={() =>
           run(
-            (v, s) => insertAroundSelection(v, s, '`', '`', 'code'),
-            () => textareaRef.current?.focus()
+            (v, s) => insertAroundSelection(v, s, "`", "`", "code"),
+            () => textareaRef.current?.focus(),
           )
         }
       >
@@ -158,8 +158,8 @@ export function MarkdownContentToolbar({
         onMouseDown={(e) => e.preventDefault()}
         onClick={() =>
           run(
-            (v, s) => prefixSelectedLines(v, s, '## '),
-            () => textareaRef.current?.focus()
+            (v, s) => prefixSelectedLines(v, s, "## "),
+            () => textareaRef.current?.focus(),
           )
         }
       >
@@ -176,8 +176,8 @@ export function MarkdownContentToolbar({
         onMouseDown={(e) => e.preventDefault()}
         onClick={() =>
           run(
-            (v, s) => prefixSelectedLines(v, s, '- '),
-            () => textareaRef.current?.focus()
+            (v, s) => prefixSelectedLines(v, s, "- "),
+            () => textareaRef.current?.focus(),
           )
         }
       >
@@ -209,8 +209,8 @@ export function MarkdownContentToolbar({
         onMouseDown={(e) => e.preventDefault()}
         onClick={() =>
           run(
-            (v, s) => prefixSelectedLines(v, s, '> '),
-            () => textareaRef.current?.focus()
+            (v, s) => prefixSelectedLines(v, s, "> "),
+            () => textareaRef.current?.focus(),
           )
         }
       >
@@ -227,13 +227,13 @@ export function MarkdownContentToolbar({
         onMouseDown={(e) => e.preventDefault()}
         onClick={() =>
           run(
-            (v, s) => insertSnippet(v, s, '\n\n---\n\n'),
-            () => textareaRef.current?.focus()
+            (v, s) => insertSnippet(v, s, "\n\n---\n\n"),
+            () => textareaRef.current?.focus(),
           )
         }
       >
         <Minus className="h-4 w-4" />
       </Button>
     </div>
-  )
+  );
 }

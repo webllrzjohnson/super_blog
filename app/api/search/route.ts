@@ -1,17 +1,17 @@
-import { NextResponse } from 'next/server'
-import sql from '@/lib/db'
-import { hasDatabaseConfig } from '@/lib/db-config'
+import { NextResponse } from "next/server";
+import sql from "@/lib/db";
+import { hasDatabaseConfig } from "@/lib/db-config";
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const q = searchParams.get('q')?.trim()
+  const { searchParams } = new URL(request.url);
+  const q = searchParams.get("q")?.trim();
 
   if (!q || q.length < 2) {
-    return NextResponse.json({ results: [] })
+    return NextResponse.json({ results: [] });
   }
 
   if (!hasDatabaseConfig()) {
-    return NextResponse.json({ results: [] })
+    return NextResponse.json({ results: [] });
   }
 
   try {
@@ -37,10 +37,10 @@ export async function GET(request: Request) {
             @@ plainto_tsquery('english', ${q})
       ORDER BY rank DESC
       LIMIT 20
-    `
-    return NextResponse.json({ results: rows })
+    `;
+    return NextResponse.json({ results: rows });
   } catch (err) {
-    console.error('Search error:', err)
-    return NextResponse.json({ error: 'Search failed' }, { status: 500 })
+    console.error("Search error:", err);
+    return NextResponse.json({ error: "Search failed" }, { status: 500 });
   }
 }

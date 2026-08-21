@@ -1,37 +1,37 @@
-import { withSentryConfig } from '@sentry/nextjs'
+import { withSentryConfig } from "@sentry/nextjs";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ['postgres'],
+  serverExternalPackages: ["postgres"],
   async redirects() {
     return [
       {
-        source: '/blog/respecting-shared-space-update',
-        destination: '/blog/respecting-shared-space',
+        source: "/blog/respecting-shared-space-update",
+        destination: "/blog/respecting-shared-space",
         permanent: true,
       },
-    ]
+    ];
   },
   async rewrites() {
-    return [{ source: '/rss.xml', destination: '/feed' }]
+    return [{ source: "/rss.xml", destination: "/feed" }];
   },
   images: {
-    formats: ['image/avif', 'image/webp'],
+    formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 86400,
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: '**',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "**",
+        pathname: "/**",
       },
       {
-        protocol: 'http',
-        hostname: 'localhost',
-        pathname: '/**',
+        protocol: "http",
+        hostname: "localhost",
+        pathname: "/**",
       },
     ],
   },
-}
+};
 
 export default withSentryConfig(nextConfig, {
   silent: !process.env.CI,
@@ -43,4 +43,4 @@ export default withSentryConfig(nextConfig, {
         widenClientFileUpload: true,
       }
     : {}),
-})
+});

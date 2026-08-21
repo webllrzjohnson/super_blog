@@ -1,85 +1,91 @@
-'use client'
+"use client";
 
-import { useCallback, useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { toast } from 'sonner'
+import { useCallback, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 type Row = {
-  id: string
-  post_id: string
-  author_name: string
-  body: string
-  status: string
-  created_at: string
-}
+  id: string;
+  post_id: string;
+  author_name: string;
+  body: string;
+  status: string;
+  created_at: string;
+};
 
 export function AdminCommentsModeration() {
-  const [configured, setConfigured] = useState(true)
-  const [comments, setComments] = useState<Row[]>([])
-  const [loading, setLoading] = useState(true)
-  const [busyId, setBusyId] = useState<string | null>(null)
+  const [configured, setConfigured] = useState(true);
+  const [comments, setComments] = useState<Row[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await fetch('/api/comments/moderate?status=pending', {
-        credentials: 'include',
-      })
+      const res = await fetch("/api/comments/moderate?status=pending", {
+        credentials: "include",
+      });
       if (!res.ok) {
-        throw new Error('Failed to load queue')
+        throw new Error("Failed to load queue");
       }
-      const data = (await res.json()) as { configured?: boolean; comments?: Row[] }
+      const data = (await res.json()) as {
+        configured?: boolean;
+        comments?: Row[];
+      };
       if (data.configured === false) {
-        setConfigured(false)
-        setComments([])
-        return
+        setConfigured(false);
+        setComments([]);
+        return;
       }
-      setConfigured(true)
-      setComments(Array.isArray(data.comments) ? data.comments : [])
+      setConfigured(true);
+      setComments(Array.isArray(data.comments) ? data.comments : []);
     } catch {
-      toast.error('Could not load comment queue')
-      setComments([])
+      toast.error("Could not load comment queue");
+      setComments([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    void load()
-  }, [load])
+    void load();
+  }, [load]);
 
-  const act = async (id: string, action: 'approve' | 'reject') => {
-    setBusyId(id)
+  const act = async (id: string, action: "approve" | "reject") => {
+    setBusyId(id);
     try {
-      const res = await fetch('/api/comments/moderate', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+      const res = await fetch("/api/comments/moderate", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ id, action }),
-      })
+      });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.error || 'Update failed')
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "Update failed");
       }
-      setComments((prev) => prev.filter((c) => c.id !== id))
-      toast.success(action === 'approve' ? 'Comment approved' : 'Comment rejected')
+      setComments((prev) => prev.filter((c) => c.id !== id));
+      toast.success(
+        action === "approve" ? "Comment approved" : "Comment rejected",
+      );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Update failed')
+      toast.error(err instanceof Error ? err.message : "Update failed");
     } finally {
-      setBusyId(null)
+      setBusyId(null);
     }
-  }
+  };
 
   if (loading) {
-    return <p className="text-sm text-muted-foreground">Loading…</p>
+    return <p className="text-sm text-muted-foreground">Loading…</p>;
   }
 
   if (!configured) {
     return (
       <p className="text-sm text-amber-700 dark:text-amber-500">
-        Comments need a configured Postgres database with the comments migration applied.
+        Comments need a configured Postgres database with the comments migration
+        applied.
       </p>
-    )
+    );
   }
 
   if (comments.length === 0) {
@@ -87,7 +93,7 @@ export function AdminCommentsModeration() {
       <p className="text-sm text-muted-foreground">
         No pending comments. New submissions will appear here.
       </p>
-    )
+    );
   }
 
   return (
@@ -104,12 +110,14 @@ export function AdminCommentsModeration() {
             </time>
           </div>
           <p className="font-medium text-foreground">{c.author_name}</p>
-          <p className="text-sm whitespace-pre-wrap text-foreground/90">{c.body}</p>
+          <p className="text-sm whitespace-pre-wrap text-foreground/90">
+            {c.body}
+          </p>
           <div className="flex gap-2 pt-2">
             <Button
               size="sm"
               disabled={busyId === c.id}
-              onClick={() => void act(c.id, 'approve')}
+              onClick={() => void act(c.id, "approve")}
             >
               Approve
             </Button>
@@ -117,7 +125,7 @@ export function AdminCommentsModeration() {
               size="sm"
               variant="outline"
               disabled={busyId === c.id}
-              onClick={() => void act(c.id, 'reject')}
+              onClick={() => void act(c.id, "reject")}
             >
               Reject
             </Button>
@@ -125,5 +133,5 @@ export function AdminCommentsModeration() {
         </li>
       ))}
     </ul>
-  )
+  );
 }

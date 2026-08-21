@@ -1,79 +1,85 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 export function ContactForm() {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: '',
-    honeypot: '', // Honeypot field for spam protection
-  })
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+    name: "",
+    email: "",
+    message: "",
+    honeypot: "", // Honeypot field for spam protection
+  });
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // Honeypot check - if this field is filled, it's likely a bot
     if (formData.honeypot) {
-      console.log('Bot detected')
-      return
+      console.log("Bot detected");
+      return;
     }
 
-    setStatus('loading')
+    setStatus("loading");
 
     try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
           message: formData.message,
           honeypot: formData.honeypot,
         }),
-      })
+      });
 
       if (res.ok) {
-        setStatus('success')
-        setFormData({ name: '', email: '', message: '', honeypot: '' })
+        setStatus("success");
+        setFormData({ name: "", email: "", message: "", honeypot: "" });
       } else {
-        setStatus('error')
+        setStatus("error");
       }
     } catch {
-      setStatus('error')
+      setStatus("error");
     }
-  }
+  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-  if (status === 'success') {
+  if (status === "success") {
     return (
       <div
         className="p-6 bg-secondary rounded-lg"
         role="status"
         aria-live="polite"
       >
-        <h2 className="text-lg font-semibold text-foreground mb-2">Message sent!</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-2">
+          Message sent!
+        </h2>
         <p className="text-muted-foreground">
           Thanks for reaching out. I&apos;ll get back to you as soon as I can.
         </p>
         <Button
           variant="outline"
           className="mt-4"
-          onClick={() => setStatus('idle')}
+          onClick={() => setStatus("idle")}
         >
           Send another message
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -87,7 +93,7 @@ export function ContactForm() {
           value={formData.name}
           onChange={handleChange}
           required
-          disabled={status === 'loading'}
+          disabled={status === "loading"}
           placeholder="Your name"
         />
       </div>
@@ -101,7 +107,7 @@ export function ContactForm() {
           value={formData.email}
           onChange={handleChange}
           required
-          disabled={status === 'loading'}
+          disabled={status === "loading"}
           placeholder="your@email.com"
         />
       </div>
@@ -114,7 +120,7 @@ export function ContactForm() {
           value={formData.message}
           onChange={handleChange}
           required
-          disabled={status === 'loading'}
+          disabled={status === "loading"}
           placeholder="What's on your mind?"
           rows={6}
         />
@@ -134,15 +140,15 @@ export function ContactForm() {
         />
       </div>
 
-      {status === 'error' && (
+      {status === "error" && (
         <p className="text-sm text-destructive" role="alert">
           Something went wrong. Please try again.
         </p>
       )}
 
-      <Button type="submit" disabled={status === 'loading'}>
-        {status === 'loading' ? 'Sending...' : 'Send message'}
+      <Button type="submit" disabled={status === "loading"}>
+        {status === "loading" ? "Sending..." : "Send message"}
       </Button>
     </form>
-  )
+  );
 }

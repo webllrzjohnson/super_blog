@@ -1,5 +1,5 @@
 export default function Loading() {
-  return null
+  return null;
 }
 /*
 export default function Loading() {

@@ -1,15 +1,15 @@
-import { NextResponse } from 'next/server'
-import { headers } from 'next/headers'
-import { Resend } from 'resend'
-import { compare, hash } from 'bcryptjs'
-import { z } from 'zod'
-import { getSetting, upsertSetting } from '@/lib/settings'
-import { isAdminSession } from '@/lib/auth-session'
-import { revalidateSettingsCache } from '@/lib/revalidate-cache'
+import { NextResponse } from "next/server";
+import { headers } from "next/headers";
+import { Resend } from "resend";
+import { compare, hash } from "bcryptjs";
+import { z } from "zod";
+import { getSetting, upsertSetting } from "@/lib/settings";
+import { isAdminSession } from "@/lib/auth-session";
+import { revalidateSettingsCache } from "@/lib/revalidate-cache";
 
 async function checkAdmin(): Promise<boolean> {
-  const headersList = await headers()
-  return isAdminSession(headersList.get('cookie'))
+  const headersList = await headers();
+  return isAdminSession(headersList.get("cookie"));
 }
 
 const schema = z
@@ -19,64 +19,68 @@ const schema = z
     confirmPassword: z.string().min(8),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'New passwords do not match',
-    path: ['confirmPassword'],
-  })
+    message: "New passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export async function POST(request: Request) {
-  const isAdmin = await checkAdmin()
+  const isAdmin = await checkAdmin();
   if (!isAdmin) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await request.json()
-  const parsed = schema.safeParse(body)
+  const body = await request.json();
+  const parsed = schema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json(
-      { error: 'Invalid request', details: parsed.error.flatten() },
-      { status: 400 }
-    )
+      { error: "Invalid request", details: parsed.error.flatten() },
+      { status: 400 },
+    );
   }
 
-  const storedHash = await getSetting('admin_password_hash')
-  const envPassword = process.env.ADMIN_PASSWORD
+  const storedHash = await getSetting("admin_password_hash");
+  const envPassword = process.env.ADMIN_PASSWORD;
 
   if (!storedHash && !envPassword) {
     return NextResponse.json(
-      { error: 'Admin auth not configured. Set ADMIN_PASSWORD in .env.local' },
-      { status: 500 }
-    )
+      { error: "Admin auth not configured. Set ADMIN_PASSWORD in .env.local" },
+      { status: 500 },
+    );
   }
 
   const currentPasswordMatches = storedHash
     ? await compare(parsed.data.currentPassword, storedHash)
-    : parsed.data.currentPassword === envPassword
+    : parsed.data.currentPassword === envPassword;
 
   if (!currentPasswordMatches) {
-    return NextResponse.json({ error: 'Current password is incorrect' }, { status: 401 })
+    return NextResponse.json(
+      { error: "Current password is incorrect" },
+      { status: 401 },
+    );
   }
 
-  const newPasswordHash = await hash(parsed.data.newPassword, 10)
+  const newPasswordHash = await hash(parsed.data.newPassword, 10);
   try {
-    await upsertSetting('admin_password_hash', newPasswordHash)
+    await upsertSetting("admin_password_hash", newPasswordHash);
   } catch {
     return NextResponse.json(
-      { error: 'Failed to update password' },
-      { status: 500 }
-    )
+      { error: "Failed to update password" },
+      { status: 500 },
+    );
   }
 
-  revalidateSettingsCache()
+  revalidateSettingsCache();
 
-  const apiKey = process.env.RESEND_API_KEY
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
-  const toEmail = process.env.CONTACT_EMAIL || process.env.RESEND_FROM_EMAIL
+  const apiKey = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+  const toEmail = process.env.CONTACT_EMAIL || process.env.RESEND_FROM_EMAIL;
 
   if (apiKey && toEmail) {
     try {
-      const resend = new Resend(apiKey)
-      const siteName = process.env.NEXT_PUBLIC_SITE_URL?.replace(/^https?:\/\//, '') || 'Blog'
+      const resend = new Resend(apiKey);
+      const siteName =
+        process.env.NEXT_PUBLIC_SITE_URL?.replace(/^https?:\/\//, "") || "Blog";
 
       await resend.emails.send({
         from: fromEmail,
@@ -86,11 +90,11 @@ export async function POST(request: Request) {
           <p>The admin password was updated successfully.</p>
           <p><strong>Time:</strong> ${new Date().toISOString()}</p>
         `,
-      })
+      });
     } catch (emailError) {
-      console.error('Password change email error:', emailError)
+      console.error("Password change email error:", emailError);
     }
   }
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ success: true });
 }

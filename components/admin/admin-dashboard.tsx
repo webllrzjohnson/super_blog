@@ -1,220 +1,223 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { PostList } from '@/components/admin/post-list'
-import { PostEditor } from '@/components/admin/post-editor'
-import { SettingsLinks } from '@/components/admin/settings-links'
-import { SettingsAppearance } from '@/components/admin/settings-appearance'
-import { SettingsAds } from '@/components/admin/settings-ads'
-import { SettingsPages } from '@/components/admin/settings-pages'
-import { SettingsAi } from '@/components/admin/settings-ai'
-import { SettingsAccount } from '@/components/admin/settings-account'
-import { AdminOutboundStats } from '@/components/admin/admin-outbound-stats'
-import { AdminCommentsModeration } from '@/components/admin/admin-comments-moderation'
-import { AdminOverview } from '@/components/admin/admin-overview'
-import { AdminContentIdeas } from '@/components/admin/admin-content-ideas'
-import { AdminContentQuality } from '@/components/admin/admin-content-quality'
-import { AdminResourceFiles } from '@/components/admin/admin-resource-files'
-import { getPosts, savePost, deletePost, generateId } from '@/lib/store'
-import { defaultAuthor, calculateReadTime } from '@/lib/posts'
-import type { Post } from '@/lib/types'
-import type { ContentIdea } from '@/lib/content-ideas'
-import type { SettingsMap } from '@/lib/settings'
-import { LogOut, Plus, Home } from 'lucide-react'
-import { toast } from 'sonner'
-import { GeneratePostModal } from '@/components/admin/generate-post-modal'
-import { Sparkles } from 'lucide-react' // already imported via lucide
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PostList } from "@/components/admin/post-list";
+import { PostEditor } from "@/components/admin/post-editor";
+import { SettingsLinks } from "@/components/admin/settings-links";
+import { SettingsAppearance } from "@/components/admin/settings-appearance";
+import { SettingsAds } from "@/components/admin/settings-ads";
+import { SettingsPages } from "@/components/admin/settings-pages";
+import { SettingsAi } from "@/components/admin/settings-ai";
+import { SettingsAccount } from "@/components/admin/settings-account";
+import { AdminOutboundStats } from "@/components/admin/admin-outbound-stats";
+import { AdminCommentsModeration } from "@/components/admin/admin-comments-moderation";
+import { AdminOverview } from "@/components/admin/admin-overview";
+import { AdminContentIdeas } from "@/components/admin/admin-content-ideas";
+import { AdminContentQuality } from "@/components/admin/admin-content-quality";
+import { AdminResourceFiles } from "@/components/admin/admin-resource-files";
+import { getPosts, savePost, deletePost, generateId } from "@/lib/store";
+import { defaultAuthor, calculateReadTime } from "@/lib/posts";
+import type { Post } from "@/lib/types";
+import type { ContentIdea } from "@/lib/content-ideas";
+import type { SettingsMap } from "@/lib/settings";
+import { LogOut, Plus, Home } from "lucide-react";
+import { toast } from "sonner";
+import { GeneratePostModal } from "@/components/admin/generate-post-modal";
+import { Sparkles } from "lucide-react"; // already imported via lucide
 
 interface AdminDashboardProps {
-  onLogout: () => void
+  onLogout: () => void;
 }
 
 export function AdminDashboard({ onLogout }: AdminDashboardProps) {
-  const [posts, setPosts] = useState<Post[]>([])
-  const [settings, setSettings] = useState<SettingsMap | null>(null)
-  const [editingPost, setEditingPost] = useState<Post | null>(null)
-  const [isCreating, setIsCreating] = useState(false)
-  const [activeTab, setActiveTab] = useState('overview')
-  const [loading, setLoading] = useState(true)
-  const [pendingComments, setPendingComments] = useState<number | null>(null)
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [settings, setSettings] = useState<SettingsMap | null>(null);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [loading, setLoading] = useState(true);
+  const [pendingComments, setPendingComments] = useState<number | null>(null);
   const [generateSeed, setGenerateSeed] = useState<{
-    topic: string
-    context: string
-    schedule: string
-  } | null>(null)
-  const [generatingFromIdea, setGeneratingFromIdea] = useState<ContentIdea | null>(null)
+    topic: string;
+    context: string;
+    schedule: string;
+  } | null>(null);
+  const [generatingFromIdea, setGeneratingFromIdea] =
+    useState<ContentIdea | null>(null);
 
   // Add to state
-  const [showGenerateModal, setShowGenerateModal] = useState(false)
-  
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
+
   const upsertLocalPost = (savedPost: Post) => {
     setPosts((prev) => {
-      const existingIndex = prev.findIndex((post) => post.id === savedPost.id)
+      const existingIndex = prev.findIndex((post) => post.id === savedPost.id);
       if (existingIndex === -1) {
-        return [savedPost, ...prev]
+        return [savedPost, ...prev];
       }
 
-      const next = [...prev]
-      next[existingIndex] = savedPost
-      return next
-    })
-  }
+      const next = [...prev];
+      next[existingIndex] = savedPost;
+      return next;
+    });
+  };
 
   const openGenerateModal = () => {
-    setGenerateSeed(null)
-    setGeneratingFromIdea(null)
-    setShowGenerateModal(true)
-  }
+    setGenerateSeed(null);
+    setGeneratingFromIdea(null);
+    setShowGenerateModal(true);
+  };
 
   const handleGenerateFromIdea = (
     seed: { topic: string; context: string; schedule: string },
-    idea: ContentIdea
+    idea: ContentIdea,
   ) => {
-    setGenerateSeed(seed)
-    setGeneratingFromIdea(idea)
-    setShowGenerateModal(true)
-  }
+    setGenerateSeed(seed);
+    setGeneratingFromIdea(idea);
+    setShowGenerateModal(true);
+  };
 
   const handleGeneratedPost = async (savedPost: Post) => {
-    upsertLocalPost(savedPost)
-    if (!generatingFromIdea) return
+    upsertLocalPost(savedPost);
+    if (!generatingFromIdea) return;
 
     try {
       await fetch(`/api/content-ideas/${generatingFromIdea.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           title: generatingFromIdea.title,
           notes: generatingFromIdea.notes,
           category: generatingFromIdea.category,
           priority: generatingFromIdea.priority,
-          status: 'generated',
+          status: "generated",
           targetPublishAt: generatingFromIdea.targetPublishAt ?? null,
           generatedPostId: savedPost.id,
         }),
-      })
+      });
     } catch {
       // Non-blocking; the draft has already been saved.
     }
-  }
+  };
 
   useEffect(() => {
     Promise.all([
       getPosts().then(setPosts),
-      fetch('/api/settings', { credentials: 'include' })
+      fetch("/api/settings", { credentials: "include" })
         .then(async (response) => {
           if (!response.ok) {
-            const data = await response.json().catch(() => ({}))
-            throw new Error(data.error || 'Failed to load settings')
+            const data = await response.json().catch(() => ({}));
+            throw new Error(data.error || "Failed to load settings");
           }
 
-          return response.json()
+          return response.json();
         })
         .then(setSettings),
-      fetch('/api/comments/moderate?status=pending', { credentials: 'include' })
+      fetch("/api/comments/moderate?status=pending", { credentials: "include" })
         .then(async (response) => {
-          if (!response.ok) return null
-          return response.json()
+          if (!response.ok) return null;
+          return response.json();
         })
         .then((data) => {
-          setPendingComments(Array.isArray(data?.comments) ? data.comments.length : null)
+          setPendingComments(
+            Array.isArray(data?.comments) ? data.comments.length : null,
+          );
         }),
     ])
       .catch((err) => {
-        toast.error('Failed to load dashboard', {
-          description: err instanceof Error ? err.message : 'Unknown error',
-        })
+        toast.error("Failed to load dashboard", {
+          description: err instanceof Error ? err.message : "Unknown error",
+        });
       })
-      .finally(() => setLoading(false))
-  }, [])
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleCreateNew = () => {
     const newPost: Post = {
       id: generateId(),
-      title: '',
-      slug: '',
-      excerpt: '',
-      content: '',
-      category: 'Life',
+      title: "",
+      slug: "",
+      excerpt: "",
+      content: "",
+      category: "Life",
       tags: [],
       author: defaultAuthor,
       publishedAt: new Date().toISOString(),
       readTime: 1,
-      status: 'draft',
-    }
-    setActiveTab('posts')
-    setEditingPost(newPost)
-    setIsCreating(true)
-  }
+      status: "draft",
+    };
+    setActiveTab("posts");
+    setEditingPost(newPost);
+    setIsCreating(true);
+  };
 
   const handleEdit = (post: Post) => {
-    setActiveTab('posts')
-    setEditingPost(post)
-    setIsCreating(false)
-  }
+    setActiveTab("posts");
+    setEditingPost(post);
+    setIsCreating(false);
+  };
 
   const handleSave = async (post: Post) => {
     const updatedPost = {
       ...post,
       readTime: calculateReadTime(post.content),
-      updatedAt: new Date().toISOString().split('T')[0],
-    }
+      updatedAt: new Date().toISOString().split("T")[0],
+    };
     try {
-      const saved = await savePost(updatedPost)
-      upsertLocalPost(saved)
-      setEditingPost(null)
-      setIsCreating(false)
-      toast.success('Post saved successfully')
+      const saved = await savePost(updatedPost);
+      upsertLocalPost(saved);
+      setEditingPost(null);
+      setIsCreating(false);
+      toast.success("Post saved successfully");
     } catch (err) {
-      toast.error('Failed to save', {
-        description: err instanceof Error ? err.message : 'Unknown error',
-      })
+      toast.error("Failed to save", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      });
     }
-  }
+  };
 
   const handleAutoSave = async (post: Post) => {
     const updatedPost = {
       ...post,
       readTime: calculateReadTime(post.content),
-      updatedAt: new Date().toISOString().split('T')[0],
-    }
+      updatedAt: new Date().toISOString().split("T")[0],
+    };
 
     try {
-      const saved = await savePost(updatedPost)
-      upsertLocalPost(saved)
+      const saved = await savePost(updatedPost);
+      upsertLocalPost(saved);
     } catch {
       // Autosave is best-effort; explicit saves still show full errors.
     }
-  }
+  };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this post?')) return
+    if (!confirm("Are you sure you want to delete this post?")) return;
     try {
-      await deletePost(id)
-      setPosts(await getPosts())
-      toast.success('Post deleted')
+      await deletePost(id);
+      setPosts(await getPosts());
+      toast.success("Post deleted");
     } catch (err) {
-      toast.error('Failed to delete', {
-        description: err instanceof Error ? err.message : 'Unknown error',
-      })
+      toast.error("Failed to delete", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      });
     }
-  }
+  };
 
   const handleCancel = () => {
-    setEditingPost(null)
-    setIsCreating(false)
-  }
+    setEditingPost(null);
+    setIsCreating(false);
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-muted-foreground">Loading dashboard...</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -222,7 +225,9 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       <header className="border-b border-border">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <h1 className="text-xl font-semibold text-foreground">Admin Dashboard</h1>
+            <h1 className="text-xl font-semibold text-foreground">
+              Admin Dashboard
+            </h1>
             <Link
               href="/"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
@@ -232,7 +237,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
             </Link>
           </div>
           <div className="flex items-center gap-4">
-            {activeTab === 'posts' && !editingPost && (
+            {activeTab === "posts" && !editingPost && (
               <>
                 <Button variant="outline" size="sm" onClick={openGenerateModal}>
                   <Sparkles className="h-4 w-4 mr-2" />
@@ -358,5 +363,5 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
         />
       )}
     </div>
-  )
+  );
 }

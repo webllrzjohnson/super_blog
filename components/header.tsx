@@ -1,34 +1,34 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { Menu, X, Moon, Sun, Search } from 'lucide-react'
-import { useTheme } from '@/components/theme-provider'
-import type { BrandingSettings } from '@/lib/settings'
-import { SITE_NAME } from '@/lib/site-identity'
-
+import React, { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Menu, X, Moon, Sun, Search } from "lucide-react";
+import { useTheme } from "@/components/theme-provider";
+import type { BrandingSettings } from "@/lib/settings";
+import { SITE_NAME } from "@/lib/site-identity";
 
 const navItems = [
-  { label: 'Home', href: '/' },
-  { label: 'Blog', href: '/blog' },
-  { label: 'Resources', href: '/resources' },
-  { label: 'About', href: '/about' },
-]
+  { label: "Home", href: "/" },
+  { label: "Blog", href: "/blog" },
+  { label: "Resources", href: "/resources" },
+  { label: "About", href: "/about" },
+];
 
 interface HeaderProps {
-  branding?: BrandingSettings
+  branding?: BrandingSettings;
 }
 
 export function Header({ branding }: HeaderProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || branding?.siteName || SITE_NAME
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const siteName =
+    process.env.NEXT_PUBLIC_SITE_NAME || branding?.siteName || SITE_NAME;
 
   React.useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-sm border-b border-border/60">
@@ -64,20 +64,20 @@ export function Header({ branding }: HeaderProps) {
             </div>
 
             <Link
-                href="/search"
-                className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                aria-label="Search posts"
-              >
-                <Search className="h-4 w-4" />
+              href="/search"
+              className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              aria-label="Search posts"
+            >
+              <Search className="h-4 w-4" />
             </Link>
 
             <button
               type="button"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               aria-label="Toggle theme"
             >
-              {mounted && theme === 'dark' ? (
+              {mounted && theme === "dark" ? (
                 <Sun className="h-4 w-4" />
               ) : (
                 <Moon className="h-4 w-4" />
@@ -89,14 +89,18 @@ export function Header({ branding }: HeaderProps) {
               className="md:hidden p-2 text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Toggle menu"
             >
-              {isMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+              {isMenuOpen ? (
+                <X className="h-4 w-4" />
+              ) : (
+                <Menu className="h-4 w-4" />
+              )}
             </button>
           </div>
         </div>
 
         <div
           id="mobile-nav-menu"
-          className={`md:hidden pt-3 pb-2 border-t border-border/60 mt-3 ${!isMenuOpen ? 'hidden' : ''}`}
+          className={`md:hidden pt-3 pb-2 border-t border-border/60 mt-3 ${!isMenuOpen ? "hidden" : ""}`}
         >
           <div className="flex flex-col gap-3">
             {navItems.map((item) => (
@@ -113,5 +117,5 @@ export function Header({ branding }: HeaderProps) {
         </div>
       </nav>
     </header>
-  )
+  );
 }

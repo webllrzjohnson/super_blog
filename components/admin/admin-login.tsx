@@ -1,49 +1,49 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { toast } from 'sonner'
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 interface AdminLoginProps {
-  onLogin: (success: boolean) => void
+  onLogin: (success: boolean) => void;
 }
 
 export function AdminLogin({ onLogin }: AdminLoginProps) {
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
-        credentials: 'include',
-      })
+        credentials: "include",
+      });
 
-      const data = await res.json().catch(() => ({}))
+      const data = await res.json().catch(() => ({}));
 
       if (res.ok && data.success) {
-        onLogin(true)
+        onLogin(true);
       } else {
-        setError(data.error || 'Incorrect password')
-        setPassword('')
+        setError(data.error || "Incorrect password");
+        setPassword("");
       }
     } catch {
-      setError('Something went wrong. Please try again.')
-      toast.error('Could not reach the server')
+      setError("Something went wrong. Please try again.");
+      toast.error("Could not reach the server");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 relative">
@@ -54,7 +54,9 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
         ← Home
       </Link>
       <main className="w-full max-w-sm">
-        <h1 className="text-2xl font-semibold text-foreground mb-2">Admin Login</h1>
+        <h1 className="text-2xl font-semibold text-foreground mb-2">
+          Admin Login
+        </h1>
         <p className="text-muted-foreground mb-8">
           Enter your password to access the dashboard.
         </p>
@@ -67,20 +69,18 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
               type="password"
               value={password}
               onChange={(e) => {
-                setPassword(e.target.value)
-                setError('')
+                setPassword(e.target.value);
+                setError("");
               }}
               placeholder="Enter admin password"
               required
               disabled={loading}
             />
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
+            {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
 
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? "Logging in..." : "Login"}
           </Button>
         </form>
 
@@ -89,5 +89,5 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
         </p>
       </main>
     </div>
-  )
+  );
 }

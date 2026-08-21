@@ -1,8 +1,8 @@
-import { revalidatePath, revalidateTag } from 'next/cache'
-import { CACHE_TAG_POSTS, CACHE_TAG_SETTINGS } from '@/lib/cache-tags'
+import { revalidatePath, revalidateTag } from "next/cache";
+import { CACHE_TAG_POSTS, CACHE_TAG_SETTINGS } from "@/lib/cache-tags";
 
 /** Cache life profile for on-demand tag invalidation (Next.js 16). */
-const TAG_PROFILE = 'max' as const
+const TAG_PROFILE = "max" as const;
 /*
 export function revalidatePostsCache() {
   revalidateTag(CACHE_TAG_POSTS, TAG_PROFILE)
@@ -12,17 +12,17 @@ export function revalidatePostsCache() {
 }*/
 
 export function revalidatePostsCache() {
-  revalidateTag(CACHE_TAG_POSTS, TAG_PROFILE)
-  revalidatePath('/', 'layout')
-  revalidatePath('/blog', 'layout')
-  revalidatePath('/api/posts', 'layout')
+  revalidateTag(CACHE_TAG_POSTS, TAG_PROFILE);
+  revalidatePath("/", "layout");
+  revalidatePath("/blog", "layout");
+  revalidatePath("/api/posts", "layout");
 }
 
 export function revalidateSettingsCache() {
-  revalidateTag(CACHE_TAG_SETTINGS, TAG_PROFILE)
-  revalidatePath('/', 'layout')
-  revalidatePath('/ads.txt')
-  revalidatePath('/blog', 'layout')
-  revalidatePath('/about', 'layout')
-  revalidatePath('/bookmarks', 'layout')
+  revalidateTag(CACHE_TAG_SETTINGS, TAG_PROFILE);
+  revalidatePath("/", "layout");
+  revalidatePath("/ads.txt");
+  revalidatePath("/blog", "layout");
+  revalidatePath("/about", "layout");
+  revalidatePath("/bookmarks", "layout");
 }

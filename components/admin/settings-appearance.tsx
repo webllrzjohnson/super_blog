@@ -1,167 +1,176 @@
-'use client'
+"use client";
 
-import { useState, useRef } from 'react'
-import { toast } from 'sonner'
-import { ImagePlus } from 'lucide-react'
-import type { AppearanceSettings, BrandingSettings } from '@/lib/settings'
-import { AUTHOR_NAME, SITE_NAME } from '@/lib/site-identity'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { useState, useRef } from "react";
+import { toast } from "sonner";
+import { ImagePlus } from "lucide-react";
+import type { AppearanceSettings, BrandingSettings } from "@/lib/settings";
+import { AUTHOR_NAME, SITE_NAME } from "@/lib/site-identity";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 
 interface SettingsAppearanceProps {
-  initialBranding?: BrandingSettings
-  initialAppearance?: AppearanceSettings
+  initialBranding?: BrandingSettings;
+  initialAppearance?: AppearanceSettings;
 }
 
 const fontPairOptions = [
-  { value: 'inter-source-serif', label: 'Inter + Source Serif 4' },
-  { value: 'inter-merriweather', label: 'Inter + Merriweather' },
-  { value: 'lato-playfair', label: 'Lato + Playfair Display' },
-  { value: 'roboto-lora', label: 'Roboto + Lora' },
-  { value: 'nunito-libre-baskerville', label: 'Nunito + Libre Baskerville' },
-  { value: 'plex-newsreader', label: 'IBM Plex Sans + Newsreader' },
-]
+  { value: "inter-source-serif", label: "Inter + Source Serif 4" },
+  { value: "inter-merriweather", label: "Inter + Merriweather" },
+  { value: "lato-playfair", label: "Lato + Playfair Display" },
+  { value: "roboto-lora", label: "Roboto + Lora" },
+  { value: "nunito-libre-baskerville", label: "Nunito + Libre Baskerville" },
+  { value: "plex-newsreader", label: "IBM Plex Sans + Newsreader" },
+];
 
 const colorPresetOptions = [
-  { value: 'warm-terracotta', label: 'Warm Terracotta' },
-  { value: 'ocean-blue', label: 'Ocean Blue' },
-  { value: 'forest-green', label: 'Forest Green' },
-  { value: 'midnight-purple', label: 'Midnight Purple' },
-  { value: 'monochrome', label: 'Monochrome' },
-]
-
+  { value: "warm-terracotta", label: "Warm Terracotta" },
+  { value: "ocean-blue", label: "Ocean Blue" },
+  { value: "forest-green", label: "Forest Green" },
+  { value: "midnight-purple", label: "Midnight Purple" },
+  { value: "monochrome", label: "Monochrome" },
+];
 
 export function SettingsAppearance({
   initialBranding,
   initialAppearance,
 }: SettingsAppearanceProps) {
-
   const [branding, setBranding] = useState<BrandingSettings>({
     siteName: initialBranding?.siteName ?? SITE_NAME,
-    logoUrl: initialBranding?.logoUrl ?? '',
-    faviconUrl: initialBranding?.faviconUrl ?? '',
-    avatarUrl: initialBranding?.avatarUrl ?? '',
-    shortBio: initialBranding?.shortBio ?? '',
+    logoUrl: initialBranding?.logoUrl ?? "",
+    faviconUrl: initialBranding?.faviconUrl ?? "",
+    avatarUrl: initialBranding?.avatarUrl ?? "",
+    shortBio: initialBranding?.shortBio ?? "",
     displayName: initialBranding?.displayName ?? AUTHOR_NAME,
-    roleLocation: initialBranding?.roleLocation ?? 'Building superintendent · Toronto, ON',
+    roleLocation:
+      initialBranding?.roleLocation ?? "Building superintendent · Toronto, ON",
+  });
 
-  })
-
-  
-  
   const [appearance, setAppearance] = useState<AppearanceSettings>({
-    fontPair: initialAppearance?.fontPair ?? 'inter-source-serif',
-    colorPreset: initialAppearance?.colorPreset ?? 'warm-terracotta',
-    customPrimaryOklch: initialAppearance?.customPrimaryOklch ?? '',
-  })
-  const [isSaving, setIsSaving] = useState(false)
-  const [uploadingField, setUploadingField] = useState<'logoUrl' | 'faviconUrl' | 'avatarUrl' | null>(null)
-  const logoInputRef = useRef<HTMLInputElement>(null)
-  const faviconInputRef = useRef<HTMLInputElement>(null)
-  const avatarInputRef = useRef<HTMLInputElement>(null)
+    fontPair: initialAppearance?.fontPair ?? "inter-source-serif",
+    colorPreset: initialAppearance?.colorPreset ?? "warm-terracotta",
+    customPrimaryOklch: initialAppearance?.customPrimaryOklch ?? "",
+  });
+  const [isSaving, setIsSaving] = useState(false);
+  const [uploadingField, setUploadingField] = useState<
+    "logoUrl" | "faviconUrl" | "avatarUrl" | null
+  >(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const faviconInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const handleAssetUpload = async (
-    field: 'logoUrl' | 'faviconUrl' | 'avatarUrl',
-    file: File | undefined
+    field: "logoUrl" | "faviconUrl" | "avatarUrl",
+    file: File | undefined,
   ) => {
     if (!file) {
-      return
+      return;
     }
 
-    setUploadingField(field)
+    setUploadingField(field);
 
     try {
-      const formData = new FormData()
-      formData.append('file', file)
+      const formData = new FormData();
+      formData.append("file", file);
 
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        credentials: 'include',
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        credentials: "include",
         body: formData,
-      })
+      });
 
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}))
-        throw new Error(data.error || 'Failed to upload asset')
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to upload asset");
       }
 
-      const data = await response.json()
+      const data = await response.json();
       setBranding((current) => ({
         ...current,
         [field]: data.url,
-      }))
+      }));
 
       toast.success(
-        field === 'logoUrl' ? 'Logo uploaded' : 
-        field === 'faviconUrl' ? 'Favicon uploaded' : 
-        'Profile photo uploaded'
-      )
+        field === "logoUrl"
+          ? "Logo uploaded"
+          : field === "faviconUrl"
+            ? "Favicon uploaded"
+            : "Profile photo uploaded",
+      );
     } catch (error) {
-      toast.error('Failed to upload asset', {
-        description: error instanceof Error ? error.message : 'Unknown error',
-      })
+      toast.error("Failed to upload asset", {
+        description: error instanceof Error ? error.message : "Unknown error",
+      });
     } finally {
-      setUploadingField(null)
-      if (field === 'logoUrl') logoInputRef.current && (logoInputRef.current.value = '')
-        else if (field === 'faviconUrl') faviconInputRef.current && (faviconInputRef.current.value = '')
-        else if (field === 'avatarUrl') avatarInputRef.current && (avatarInputRef.current.value = '')
+      setUploadingField(null);
+      if (field === "logoUrl")
+        logoInputRef.current && (logoInputRef.current.value = "");
+      else if (field === "faviconUrl")
+        faviconInputRef.current && (faviconInputRef.current.value = "");
+      else if (field === "avatarUrl")
+        avatarInputRef.current && (avatarInputRef.current.value = "");
     }
-  }
+  };
 
   const handleSave = async () => {
-    setIsSaving(true)
+    setIsSaving(true);
 
     try {
       const requests = await Promise.all([
-        fetch('/api/settings', {
-          method: 'POST',
+        fetch("/api/settings", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          credentials: 'include',
+          credentials: "include",
           body: JSON.stringify({
-            key: 'branding',
+            key: "branding",
             value: branding,
           }),
         }),
-        fetch('/api/settings', {
-          method: 'POST',
+        fetch("/api/settings", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          credentials: 'include',
+          credentials: "include",
           body: JSON.stringify({
-            key: 'appearance',
+            key: "appearance",
             value: appearance,
           }),
         }),
-      ])
+      ]);
 
-      const failedResponse = requests.find((response) => !response.ok)
+      const failedResponse = requests.find((response) => !response.ok);
       if (failedResponse) {
-        const data = await failedResponse.json().catch(() => ({}))
-        throw new Error(data.error || 'Failed to save appearance settings')
+        const data = await failedResponse.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to save appearance settings");
       }
 
-      toast.success('Appearance settings saved')
+      toast.success("Appearance settings saved");
     } catch (error) {
-      toast.error('Failed to save appearance settings', {
-        description: error instanceof Error ? error.message : 'Unknown error',
-      })
+      toast.error("Failed to save appearance settings", {
+        description: error instanceof Error ? error.message : "Unknown error",
+      });
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   return (
     <Card>
@@ -192,7 +201,7 @@ export function SettingsAppearance({
             <Input
               id="logo-url"
               placeholder="Paste URL or upload below"
-              value={branding.logoUrl ?? ''}
+              value={branding.logoUrl ?? ""}
               onChange={(event) =>
                 setBranding((current) => ({
                   ...current,
@@ -207,18 +216,18 @@ export function SettingsAppearance({
               accept="image/*"
               className="hidden"
               onChange={(event) =>
-                handleAssetUpload('logoUrl', event.target.files?.[0])
+                handleAssetUpload("logoUrl", event.target.files?.[0])
               }
             />
             <Button
               type="button"
               variant="outline"
               size="sm"
-              disabled={uploadingField === 'logoUrl'}
+              disabled={uploadingField === "logoUrl"}
               onClick={() => logoInputRef.current?.click()}
             >
               <ImagePlus className="h-4 w-4 mr-2" />
-              {uploadingField === 'logoUrl' ? 'Uploading...' : 'Upload'}
+              {uploadingField === "logoUrl" ? "Uploading..." : "Upload"}
             </Button>
           </div>
           <p className="text-sm text-muted-foreground">
@@ -232,7 +241,7 @@ export function SettingsAppearance({
             <Input
               id="favicon-url"
               placeholder="Paste URL or upload below"
-              value={branding.faviconUrl ?? ''}
+              value={branding.faviconUrl ?? ""}
               onChange={(event) =>
                 setBranding((current) => ({
                   ...current,
@@ -247,18 +256,18 @@ export function SettingsAppearance({
               accept="image/*,.ico"
               className="hidden"
               onChange={(event) =>
-                handleAssetUpload('faviconUrl', event.target.files?.[0])
+                handleAssetUpload("faviconUrl", event.target.files?.[0])
               }
             />
             <Button
               type="button"
               variant="outline"
               size="sm"
-              disabled={uploadingField === 'faviconUrl'}
+              disabled={uploadingField === "faviconUrl"}
               onClick={() => faviconInputRef.current?.click()}
             >
               <ImagePlus className="h-4 w-4 mr-2" />
-              {uploadingField === 'faviconUrl' ? 'Uploading...' : 'Upload'}
+              {uploadingField === "faviconUrl" ? "Uploading..." : "Upload"}
             </Button>
           </div>
           <p className="text-sm text-muted-foreground">
@@ -272,8 +281,10 @@ export function SettingsAppearance({
             <Input
               id="avatar-url"
               placeholder="Paste URL or upload below"
-              value={branding.avatarUrl ?? ''}
-              onChange={(e) => setBranding((c) => ({ ...c, avatarUrl: e.target.value }))}
+              value={branding.avatarUrl ?? ""}
+              onChange={(e) =>
+                setBranding((c) => ({ ...c, avatarUrl: e.target.value }))
+              }
               className="flex-1"
             />
             <input
@@ -281,17 +292,19 @@ export function SettingsAppearance({
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) => handleAssetUpload('avatarUrl', e.target.files?.[0])}
+              onChange={(e) =>
+                handleAssetUpload("avatarUrl", e.target.files?.[0])
+              }
             />
             <Button
               type="button"
               variant="outline"
               size="sm"
-              disabled={uploadingField === 'avatarUrl'}
+              disabled={uploadingField === "avatarUrl"}
               onClick={() => avatarInputRef.current?.click()}
             >
               <ImagePlus className="h-4 w-4 mr-2" />
-              {uploadingField === 'avatarUrl' ? 'Uploading...' : 'Upload'}
+              {uploadingField === "avatarUrl" ? "Uploading..." : "Upload"}
             </Button>
           </div>
         </div>
@@ -301,8 +314,10 @@ export function SettingsAppearance({
           <Textarea
             id="short-bio"
             placeholder="A sentence or two about yourself, shown on the homepage and blog sidebar."
-            value={branding.shortBio ?? ''}
-            onChange={(e) => setBranding((c) => ({ ...c, shortBio: e.target.value }))}
+            value={branding.shortBio ?? ""}
+            onChange={(e) =>
+              setBranding((c) => ({ ...c, shortBio: e.target.value }))
+            }
             className="min-h-[100px]"
           />
           <p className="text-sm text-muted-foreground">
@@ -315,8 +330,10 @@ export function SettingsAppearance({
           <Input
             id="display-name"
             placeholder="Lester J."
-            value={branding.displayName ?? ''}
-            onChange={(e) => setBranding((c) => ({ ...c, displayName: e.target.value }))}
+            value={branding.displayName ?? ""}
+            onChange={(e) =>
+              setBranding((c) => ({ ...c, displayName: e.target.value }))
+            }
           />
           <p className="text-sm text-muted-foreground">
             Shown as the heading on the homepage hero.
@@ -328,8 +345,10 @@ export function SettingsAppearance({
           <Input
             id="role-location"
             placeholder="Building superintendent · Toronto, ON"
-            value={branding.roleLocation ?? ''}
-            onChange={(e) => setBranding((c) => ({ ...c, roleLocation: e.target.value }))}
+            value={branding.roleLocation ?? ""}
+            onChange={(e) =>
+              setBranding((c) => ({ ...c, roleLocation: e.target.value }))
+            }
           />
           <p className="text-sm text-muted-foreground">
             Shown above your name on the homepage hero.
@@ -389,7 +408,7 @@ export function SettingsAppearance({
           <Input
             id="custom-primary"
             placeholder="oklch(0.62 0.18 30)"
-            value={appearance.customPrimaryOklch ?? ''}
+            value={appearance.customPrimaryOklch ?? ""}
             onChange={(event) =>
               setAppearance((current) => ({
                 ...current,
@@ -401,10 +420,10 @@ export function SettingsAppearance({
 
         <div className="flex justify-end">
           <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? 'Saving...' : 'Save appearance'}
+            {isSaving ? "Saving..." : "Save appearance"}
           </Button>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

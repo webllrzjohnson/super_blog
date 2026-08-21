@@ -127,9 +127,10 @@ export default function DisclaimerPage() {
             Reader contributions
           </h2>
           <p className="leading-relaxed text-muted-foreground">
-            Comments represent the views of their authors. Comments may be reviewed,
-            approved, or rejected. Do not submit confidential, identifying, or
-            emergency information through comments or the contact form.
+            Comments represent the views of their authors. Comments may be
+            reviewed, approved, or rejected. Do not submit confidential,
+            identifying, or emergency information through comments or the
+            contact form.
           </p>
         </section>
 

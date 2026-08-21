@@ -1,39 +1,39 @@
 // Blog post types aligned with the posts table.
 
 export interface Post {
-  id: string
-  title: string
-  slug: string
-  excerpt: string
-  content: string
-  category: 'Life' | 'Work' | 'Hobbies' | 'Experience'
-  tags: string[]
-  featuredImage?: string
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  category: "Life" | "Work" | "Hobbies" | "Experience";
+  tags: string[];
+  featuredImage?: string;
   /** Accessibility / SEO description when `featuredImage` is set */
-  featuredImageAlt?: string
-  author: Author
-  publishedAt: string
-  updatedAt?: string
-  readTime: number
-  status: 'draft' | 'scheduled' | 'published'
+  featuredImageAlt?: string;
+  author: Author;
+  publishedAt: string;
+  updatedAt?: string;
+  readTime: number;
+  status: "draft" | "scheduled" | "published";
 }
 
 /** List/card views — omits heavy markdown body. */
-export type PostListItem = Omit<Post, 'content'>
+export type PostListItem = Omit<Post, "content">;
 
 export interface Author {
-  name: string
-  avatar?: string
-  bio?: string
+  name: string;
+  avatar?: string;
+  bio?: string;
 }
 
 export interface NavItem {
-  label: string
-  href: string
+  label: string;
+  href: string;
 }
 
 export interface SocialLink {
-  platform: string
-  url: string
-  icon: string
+  platform: string;
+  url: string;
+  icon: string;
 }

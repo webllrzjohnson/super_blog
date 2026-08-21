@@ -1,63 +1,63 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 /* Anthropic-inspired: editorial, warm, generous whitespace */
 :root {
   /* ── Colour System ─────────────────────────────────────────── */
-  --background: oklch(0.974 0.014 72);          /* warm cream page bg  */
-  --foreground: oklch(0.162 0.016 55);           /* deep warm charcoal  */
-  --card: oklch(0.990 0.006 72);                /* off-white surface   */
+  --background: oklch(0.974 0.014 72); /* warm cream page bg  */
+  --foreground: oklch(0.162 0.016 55); /* deep warm charcoal  */
+  --card: oklch(0.99 0.006 72); /* off-white surface   */
   --card-foreground: oklch(0.162 0.016 55);
-  --popover: oklch(0.990 0.006 72);
+  --popover: oklch(0.99 0.006 72);
   --popover-foreground: oklch(0.162 0.016 55);
-  --primary: oklch(0.622 0.138 44);             /* terracotta / clay   */
+  --primary: oklch(0.622 0.138 44); /* terracotta / clay   */
   --primary-foreground: oklch(0.995 0 0);
-  --secondary: oklch(0.930 0.022 76);           /* warm sand           */
+  --secondary: oklch(0.93 0.022 76); /* warm sand           */
   --secondary-foreground: oklch(0.162 0.016 55);
-  --muted: oklch(0.942 0.018 75);               /* muted warm gray     */
-  --muted-foreground: oklch(0.498 0.020 62);    /* warm medium gray    */
-  --accent: oklch(0.958 0.014 74);              /* light warm tint     */
+  --muted: oklch(0.942 0.018 75); /* muted warm gray     */
+  --muted-foreground: oklch(0.498 0.02 62); /* warm medium gray    */
+  --accent: oklch(0.958 0.014 74); /* light warm tint     */
   --accent-foreground: oklch(0.162 0.016 55);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.872 0.026 74);              /* warm taupe border   */
+  --border: oklch(0.872 0.026 74); /* warm taupe border   */
   --input: oklch(0.908 0.022 74);
-  --ring: oklch(0.622 0.138 44);                /* terracotta focus    */
+  --ring: oklch(0.622 0.138 44); /* terracotta focus    */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.375rem;                            /* subtle 6 px rounding */
+  --radius: 0.375rem; /* subtle 6 px rounding */
 
   /* Sidebar */
-  --sidebar: oklch(0.962 0.010 72);
+  --sidebar: oklch(0.962 0.01 72);
   --sidebar-foreground: oklch(0.162 0.016 55);
   --sidebar-primary: oklch(0.622 0.138 44);
   --sidebar-primary-foreground: oklch(0.995 0 0);
   --sidebar-accent: oklch(0.945 0.015 74);
   --sidebar-accent-foreground: oklch(0.162 0.016 55);
-  --sidebar-border: oklch(0.890 0.022 74);
+  --sidebar-border: oklch(0.89 0.022 74);
   --sidebar-ring: oklch(0.622 0.138 44);
 
   /* ── Typography Scale ──────────────────────────────────────── */
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
-  --font-size-base: 1.0625rem;                  /* 17 px body          */
+  --font-size-base: 1.0625rem; /* 17 px body          */
   --font-size-lg: 1.25rem;
   --font-size-xl: 1.5rem;
   --font-size-2xl: 1.875rem;
   --font-size-3xl: 2.25rem;
   --font-size-4xl: 3rem;
-  --font-size-5xl: 4.5rem;                      /* hero display        */
+  --font-size-5xl: 4.5rem; /* hero display        */
 
   /* Line heights */
-  --leading-tight: 1.05;                        /* large display heads */
-  --leading-snug: 1.2;                          /* h2–h3               */
-  --leading-normal: 1.5;                        /* h1                  */
-  --leading-relaxed: 1.7;                       /* body copy           */
+  --leading-tight: 1.05; /* large display heads */
+  --leading-snug: 1.2; /* h2–h3               */
+  --leading-normal: 1.5; /* h1                  */
+  --leading-relaxed: 1.7; /* body copy           */
 
   /* Letter spacing */
   --tracking-display: -0.03em;
@@ -71,52 +71,53 @@
   --weight-semibold: 600;
 
   /* ── Spacing & Layout ──────────────────────────────────────── */
-  --max-w-content: 75rem;                       /* 1 200 px            */
-  --max-w-prose: 45rem;                         /* 720 px              */
-  --section-y: 6rem;                            /* 96 px sections      */
-  --section-y-lg: 9rem;                         /* 144 px hero section */
-  --page-x: 1.5rem;                             /* 24 px horiz. pad   */
+  --max-w-content: 75rem; /* 1 200 px            */
+  --max-w-prose: 45rem; /* 720 px              */
+  --section-y: 6rem; /* 96 px sections      */
+  --section-y-lg: 9rem; /* 144 px hero section */
+  --page-x: 1.5rem; /* 24 px horiz. pad   */
 }
 
 .dark {
-  --background: oklch(0.130 0.016 52);          /* deep warm near-black */
-  --foreground: oklch(0.940 0.014 75);          /* warm cream text      */
+  --background: oklch(0.13 0.016 52); /* deep warm near-black */
+  --foreground: oklch(0.94 0.014 75); /* warm cream text      */
   --card: oklch(0.165 0.016 50);
-  --card-foreground: oklch(0.940 0.014 75);
+  --card-foreground: oklch(0.94 0.014 75);
   --popover: oklch(0.165 0.016 50);
-  --popover-foreground: oklch(0.940 0.014 75);
-  --primary: oklch(0.720 0.120 46);             /* lighter terracotta   */
-  --primary-foreground: oklch(0.130 0.016 52);
+  --popover-foreground: oklch(0.94 0.014 75);
+  --primary: oklch(0.72 0.12 46); /* lighter terracotta   */
+  --primary-foreground: oklch(0.13 0.016 52);
   --secondary: oklch(0.228 0.018 52);
-  --secondary-foreground: oklch(0.940 0.014 75);
+  --secondary-foreground: oklch(0.94 0.014 75);
   --muted: oklch(0.228 0.018 52);
-  --muted-foreground: oklch(0.630 0.016 60);
+  --muted-foreground: oklch(0.63 0.016 60);
   --accent: oklch(0.255 0.018 52);
-  --accent-foreground: oklch(0.940 0.014 75);
+  --accent-foreground: oklch(0.94 0.014 75);
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
   --border: oklch(0.278 0.018 50);
   --input: oklch(0.255 0.018 52);
-  --ring: oklch(0.630 0.016 60);
+  --ring: oklch(0.63 0.016 60);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
   --sidebar: oklch(0.148 0.016 52);
-  --sidebar-foreground: oklch(0.940 0.014 75);
-  --sidebar-primary: oklch(0.720 0.120 46);
+  --sidebar-foreground: oklch(0.94 0.014 75);
+  --sidebar-primary: oklch(0.72 0.12 46);
   --sidebar-primary-foreground: oklch(0.995 0 0);
   --sidebar-accent: oklch(0.228 0.018 52);
-  --sidebar-accent-foreground: oklch(0.940 0.014 75);
+  --sidebar-accent-foreground: oklch(0.94 0.014 75);
   --sidebar-border: oklch(0.278 0.018 50);
-  --sidebar-ring: oklch(0.630 0.016 60);
+  --sidebar-ring: oklch(0.63 0.016 60);
 }
 
 @theme inline {
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-serif), Georgia, serif;
-  --font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
+  --font-mono:
+    ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -164,8 +165,16 @@
     font-size: var(--font-size-base);
     line-height: var(--leading-relaxed);
     background:
-      radial-gradient(circle at top left, color-mix(in oklab, var(--primary) 12%, transparent), transparent 32rem),
-      linear-gradient(180deg, color-mix(in oklab, var(--secondary) 42%, var(--background)) 0%, var(--background) 28rem);
+      radial-gradient(
+        circle at top left,
+        color-mix(in oklab, var(--primary) 12%, transparent),
+        transparent 32rem
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--secondary) 42%, var(--background)) 0%,
+        var(--background) 28rem
+      );
   }
 }
 
@@ -192,9 +201,9 @@ html {
 }
 
 ::selection {
-  background-color: oklch(0.92 0.05 55);        /* warm terracotta tint */
+  background-color: oklch(0.92 0.05 55); /* warm terracotta tint */
 }
 
 .dark ::selection {
-  background-color: oklch(0.32 0.08 48);        /* dark terracotta tint */
+  background-color: oklch(0.32 0.08 48); /* dark terracotta tint */
 }

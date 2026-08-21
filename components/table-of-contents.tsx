@@ -1,36 +1,36 @@
-'use client'
+"use client";
 
-import { useMemo } from 'react'
+import { useMemo } from "react";
 
 interface TableOfContentsProps {
-  content: string
+  content: string;
 }
 
 export function TableOfContents({ content }: TableOfContentsProps) {
   const headings = useMemo(() => {
-    const regex = /^## (.+)$/gm
-    const matches: { text: string; id: string }[] = []
-    let match
+    const regex = /^## (.+)$/gm;
+    const matches: { text: string; id: string }[] = [];
+    let match;
 
     while ((match = regex.exec(content)) !== null) {
-      const text = match[1]
-      const id = text.toLowerCase().replace(/\s+/g, '-')
-      matches.push({ text, id })
+      const text = match[1];
+      const id = text.toLowerCase().replace(/\s+/g, "-");
+      matches.push({ text, id });
     }
 
-    return matches
-  }, [content])
+    return matches;
+  }, [content]);
 
   if (headings.length === 0) {
-    return null
+    return null;
   }
 
   const scrollToHeading = (id: string) => {
-    const element = document.getElementById(id)
+    const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  }
+  };
 
   return (
     <nav className="mb-8">
@@ -48,5 +48,5 @@ export function TableOfContents({ content }: TableOfContentsProps) {
         ))}
       </ul>
     </nav>
-  )
+  );
 }

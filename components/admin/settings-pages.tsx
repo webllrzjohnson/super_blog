@@ -1,69 +1,75 @@
-'use client'
+"use client";
 
-import { useMemo, useState } from 'react'
-import { toast } from 'sonner'
-import type { PagesSettings } from '@/lib/settings'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import type { PagesSettings } from "@/lib/settings";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 interface SettingsPagesProps {
-  initialValue?: PagesSettings
+  initialValue?: PagesSettings;
 }
 
 const pageLabels: Record<keyof PagesSettings, string> = {
-  about: 'About',
-  privacy: 'Privacy',
-  contact: 'Contact',
-  disclaimer: 'Disclaimer',
-}
+  about: "About",
+  privacy: "Privacy",
+  contact: "Contact",
+  disclaimer: "Disclaimer",
+};
 
 export function SettingsPages({ initialValue }: SettingsPagesProps) {
-  const [activePage, setActivePage] = useState<keyof PagesSettings>('about')
+  const [activePage, setActivePage] = useState<keyof PagesSettings>("about");
   const [formData, setFormData] = useState<PagesSettings>({
-    about: initialValue?.about ?? '',
-    privacy: initialValue?.privacy ?? '',
-    contact: initialValue?.contact ?? '',
-    disclaimer: initialValue?.disclaimer ?? '',
-  })
-  const [isSaving, setIsSaving] = useState(false)
+    about: initialValue?.about ?? "",
+    privacy: initialValue?.privacy ?? "",
+    contact: initialValue?.contact ?? "",
+    disclaimer: initialValue?.disclaimer ?? "",
+  });
+  const [isSaving, setIsSaving] = useState(false);
 
   const pageKeys = useMemo(
     () => Object.keys(pageLabels) as Array<keyof PagesSettings>,
-    []
-  )
+    [],
+  );
 
   const handleSave = async () => {
-    setIsSaving(true)
+    setIsSaving(true);
 
     try {
-      const response = await fetch('/api/settings', {
-        method: 'POST',
+      const response = await fetch("/api/settings", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({
-          key: 'pages',
+          key: "pages",
           value: formData,
         }),
-      })
+      });
 
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}))
-        throw new Error(data.error || 'Failed to save page settings')
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to save page settings");
       }
 
-      toast.success('Page content saved')
+      toast.success("Page content saved");
     } catch (error) {
-      toast.error('Failed to save page content', {
-        description: error instanceof Error ? error.message : 'Unknown error',
-      })
+      toast.error("Failed to save page content", {
+        description: error instanceof Error ? error.message : "Unknown error",
+      });
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   return (
     <Card>
@@ -81,10 +87,10 @@ export function SettingsPages({ initialValue }: SettingsPagesProps) {
               type="button"
               onClick={() => setActivePage(pageKey)}
               className={cn(
-                'rounded-md border px-3 py-2 text-sm transition-colors',
+                "rounded-md border px-3 py-2 text-sm transition-colors",
                 activePage === pageKey
-                  ? 'border-primary bg-primary text-primary-foreground'
-                  : 'border-border bg-background text-muted-foreground hover:text-foreground'
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-background text-muted-foreground hover:text-foreground",
               )}
             >
               {pageLabels[pageKey]}
@@ -93,9 +99,11 @@ export function SettingsPages({ initialValue }: SettingsPagesProps) {
         </div>
 
         <div className="space-y-2">
-          <p className="text-sm font-medium">{pageLabels[activePage]} content</p>
+          <p className="text-sm font-medium">
+            {pageLabels[activePage]} content
+          </p>
           <Textarea
-            value={formData[activePage] ?? ''}
+            value={formData[activePage] ?? ""}
             onChange={(event) =>
               setFormData((current) => ({
                 ...current,
@@ -112,10 +120,10 @@ export function SettingsPages({ initialValue }: SettingsPagesProps) {
 
         <div className="flex justify-end">
           <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? 'Saving...' : 'Save pages'}
+            {isSaving ? "Saving..." : "Save pages"}
           </Button>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

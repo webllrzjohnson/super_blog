@@ -59,9 +59,9 @@ export default async function AboutPage() {
             About me
           </h1>
           <p className="mt-4 max-w-2xl leading-7 text-muted-foreground">
-            {SITE_NAME} is a personal site about building
-            operations, coding on the side, running, food, and the parts of life
-            that happen after the work phone quiets down.
+            {SITE_NAME} is a personal site about building operations, coding on
+            the side, running, food, and the parts of life that happen after the
+            work phone quiets down.
           </p>
         </header>
 

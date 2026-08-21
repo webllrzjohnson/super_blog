@@ -3,14 +3,14 @@ import {
   DEFAULT_GROQ_SYSTEM_PROMPT,
   DEFAULT_GROQ_USER_MESSAGE_TEMPLATE,
   DEFAULT_USER_MESSAGE_TEMPLATE,
-} from '@/lib/generate-post-prompts'
-import { DEFAULT_IMAGE_PROMPT_TEMPLATE } from '@/lib/generate-post-image-prompt'
-import { DEFAULT_AI_PROVIDER_ORDER } from '@/lib/ai-providers'
+} from "@/lib/generate-post-prompts";
+import { DEFAULT_IMAGE_PROMPT_TEMPLATE } from "@/lib/generate-post-image-prompt";
+import { DEFAULT_AI_PROVIDER_ORDER } from "@/lib/ai-providers";
 
-export const DEFAULT_CLAUDE_MODEL = 'claude-sonnet-4-6'
-export const DEFAULT_OPENAI_TEXT_MODEL = 'gpt-4.1'
-export const DEFAULT_GROQ_MODEL = 'llama-3.3-70b-versatile'
-export const DEFAULT_IMAGE_MODEL = 'gpt-image-1'
+export const DEFAULT_CLAUDE_MODEL = "claude-sonnet-4-6";
+export const DEFAULT_OPENAI_TEXT_MODEL = "gpt-4.1";
+export const DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile";
+export const DEFAULT_IMAGE_MODEL = "gpt-image-1";
 
 export const defaultAiSettings = {
   providerOrder: DEFAULT_AI_PROVIDER_ORDER,
@@ -23,4 +23,4 @@ export const defaultAiSettings = {
   userMessageTemplate: DEFAULT_USER_MESSAGE_TEMPLATE,
   groqUserMessageTemplate: DEFAULT_GROQ_USER_MESSAGE_TEMPLATE,
   imagePromptTemplate: DEFAULT_IMAGE_PROMPT_TEMPLATE,
-} as const
+} as const;

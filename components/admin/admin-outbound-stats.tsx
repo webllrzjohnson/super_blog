@@ -1,51 +1,53 @@
-'use client'
+"use client";
 
-import { useCallback, useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import type { OutboundClickStatsSummary } from '@/lib/outbound-click-stats'
+import { useCallback, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import type { OutboundClickStatsSummary } from "@/lib/outbound-click-stats";
 
-type ApiOk = { configured: true; summary: OutboundClickStatsSummary }
-type ApiUnconfigured = { configured: false; message: string; summary: null }
-type ApiResponse = ApiOk | ApiUnconfigured
+type ApiOk = { configured: true; summary: OutboundClickStatsSummary };
+type ApiUnconfigured = { configured: false; message: string; summary: null };
+type ApiResponse = ApiOk | ApiUnconfigured;
 
 export function AdminOutboundStats() {
-  const [days, setDays] = useState(30)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [data, setData] = useState<ApiResponse | null>(null)
+  const [days, setDays] = useState(30);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<ApiResponse | null>(null);
 
   const load = useCallback(async (d: number) => {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
     try {
-      const res = await fetch(`/api/outbound-stats?days=${d}`, { credentials: 'include' })
+      const res = await fetch(`/api/outbound-stats?days=${d}`, {
+        credentials: "include",
+      });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.error || `Request failed (${res.status})`)
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `Request failed (${res.status})`);
       }
-      setData(await res.json())
+      setData(await res.json());
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load stats')
-      setData(null)
+      setError(err instanceof Error ? err.message : "Failed to load stats");
+      setData(null);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    void load(days)
-  }, [days, load])
+    void load(days);
+  }, [days, load]);
 
-  const summary = data?.configured ? data.summary : null
+  const summary = data?.configured ? data.summary : null;
 
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
         <h2 className="text-lg font-semibold text-foreground">Link clicks</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Outbound and affiliate link clicks from post bodies (beacon). Totals are capped
-          by the newest 12,000 events in the selected window.
+          Outbound and affiliate link clicks from post bodies (beacon). Totals
+          are capped by the newest 12,000 events in the selected window.
         </p>
       </div>
 
@@ -91,7 +93,9 @@ export function AdminOutboundStats() {
               <p className="text-xs text-muted-foreground uppercase tracking-wide">
                 Total clicks
               </p>
-              <p className="text-2xl font-semibold tabular-nums">{summary.totalClicks}</p>
+              <p className="text-2xl font-semibold tabular-nums">
+                {summary.totalClicks}
+              </p>
             </div>
             <div className="rounded-lg border border-border p-4 bg-card">
               <p className="text-xs text-muted-foreground uppercase tracking-wide">
@@ -132,9 +136,16 @@ export function AdminOutboundStats() {
                       </tr>
                     ) : (
                       summary.byPost.map((row) => (
-                        <tr key={row.postSlug} className="border-t border-border">
-                          <td className="p-2 font-mono text-xs break-all">{row.postSlug}</td>
-                          <td className="p-2 text-right tabular-nums">{row.total}</td>
+                        <tr
+                          key={row.postSlug}
+                          className="border-t border-border"
+                        >
+                          <td className="p-2 font-mono text-xs break-all">
+                            {row.postSlug}
+                          </td>
+                          <td className="p-2 text-right tabular-nums">
+                            {row.total}
+                          </td>
                           <td className="p-2 text-right tabular-nums text-muted-foreground">
                             {row.affiliate}
                           </td>
@@ -167,8 +178,12 @@ export function AdminOutboundStats() {
                     ) : (
                       summary.byHost.map((row) => (
                         <tr key={row.host} className="border-t border-border">
-                          <td className="p-2 font-mono text-xs break-all">{row.host}</td>
-                          <td className="p-2 text-right tabular-nums">{row.total}</td>
+                          <td className="p-2 font-mono text-xs break-all">
+                            {row.host}
+                          </td>
+                          <td className="p-2 text-right tabular-nums">
+                            {row.total}
+                          </td>
                           <td className="p-2 text-right tabular-nums text-muted-foreground">
                             {row.affiliate}
                           </td>
@@ -191,9 +206,9 @@ export function AdminOutboundStats() {
                   <li key={`${r.createdAt}-${i}`}>
                     <span className="text-foreground/80">
                       {new Date(r.createdAt).toLocaleString()}
-                    </span>{' '}
+                    </span>{" "}
                     · {r.postSlug} · {r.host}
-                    {r.isAffiliate ? ' · affiliate' : ''}
+                    {r.isAffiliate ? " · affiliate" : ""}
                   </li>
                 ))
               )}
@@ -202,5 +217,5 @@ export function AdminOutboundStats() {
         </>
       )}
     </div>
-  )
+  );
 }

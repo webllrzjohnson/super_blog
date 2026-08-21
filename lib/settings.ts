@@ -1,91 +1,91 @@
-import { unstable_cache } from 'next/cache'
-import { cache } from 'react'
-import { defaultAiSettings } from '@/lib/ai-defaults'
+import { unstable_cache } from "next/cache";
+import { cache } from "react";
+import { defaultAiSettings } from "@/lib/ai-defaults";
 import {
   AD_POSITIONS,
   isAdPosition,
   normalizeAdSenseClientId,
   normalizeAdSenseSlotId,
   type AdPosition,
-} from '@/lib/adsense'
+} from "@/lib/adsense";
 import {
   normalizeAiProviderOrder,
   type AiTextProvider,
-} from '@/lib/ai-providers'
-import sql from '@/lib/db'
-import { hasDatabaseConfig } from '@/lib/db-config'
+} from "@/lib/ai-providers";
+import sql from "@/lib/db";
+import { hasDatabaseConfig } from "@/lib/db-config";
 import {
   CACHE_TAG_SETTINGS,
   SETTINGS_CACHE_REVALIDATE_SECONDS,
-} from '@/lib/cache-tags'
-import { SITE_NAME } from '@/lib/site-identity'
+} from "@/lib/cache-tags";
+import { SITE_NAME } from "@/lib/site-identity";
 
 export interface LinksSettings {
-  github?: string
-  linkedin?: string
-  contactEmail?: string
-  twitter?: string
+  github?: string;
+  linkedin?: string;
+  contactEmail?: string;
+  twitter?: string;
 }
 
 export interface BrandingSettings {
-  logoUrl?: string
-  faviconUrl?: string
-  avatarUrl?: string
-  siteName: string
-  shortBio?: string
-  displayName?: string
-  roleLocation?: string
+  logoUrl?: string;
+  faviconUrl?: string;
+  avatarUrl?: string;
+  siteName: string;
+  shortBio?: string;
+  displayName?: string;
+  roleLocation?: string;
 }
 
 export interface AppearanceSettings {
-  fontPair: string
-  colorPreset: string
-  customPrimaryOklch?: string
+  fontPair: string;
+  colorPreset: string;
+  customPrimaryOklch?: string;
 }
 
 export interface AdSlotSetting {
-  slotId: string
-  position: AdPosition
-  enabled: boolean
+  slotId: string;
+  position: AdPosition;
+  enabled: boolean;
 }
 
 export interface AdsSettings {
-  clientId?: string
-  slots: AdSlotSetting[]
+  clientId?: string;
+  slots: AdSlotSetting[];
 }
 
 export interface PagesSettings {
-  about?: string
-  privacy?: string
-  contact?: string
-  disclaimer?: string
+  about?: string;
+  privacy?: string;
+  contact?: string;
+  disclaimer?: string;
 }
 
 export interface AiSettings {
-  providerOrder: AiTextProvider[]
-  claudeModel: string
-  openaiModel: string
-  groqModel: string
-  imageModel: string
-  claudeSystemPrompt: string
-  groqSystemPrompt: string
-  userMessageTemplate: string
-  groqUserMessageTemplate: string
-  imagePromptTemplate: string
+  providerOrder: AiTextProvider[];
+  claudeModel: string;
+  openaiModel: string;
+  groqModel: string;
+  imageModel: string;
+  claudeSystemPrompt: string;
+  groqSystemPrompt: string;
+  userMessageTemplate: string;
+  groqUserMessageTemplate: string;
+  imagePromptTemplate: string;
 }
 
 export interface SettingsMap {
-  links: LinksSettings
-  branding: BrandingSettings
-  appearance: AppearanceSettings
-  ads: AdsSettings
-  pages: PagesSettings
-  ai: AiSettings
-  admin_password_hash: string | null
-  _settingsLoadFailed: boolean
+  links: LinksSettings;
+  branding: BrandingSettings;
+  appearance: AppearanceSettings;
+  ads: AdsSettings;
+  pages: PagesSettings;
+  ai: AiSettings;
+  admin_password_hash: string | null;
+  _settingsLoadFailed: boolean;
 }
 
-export type SettingsKey = keyof SettingsMap
+export type SettingsKey = keyof SettingsMap;
 
 export const defaultSettings: SettingsMap = {
   links: {},
@@ -93,8 +93,8 @@ export const defaultSettings: SettingsMap = {
     siteName: SITE_NAME,
   },
   appearance: {
-    fontPair: 'inter-source-serif',
-    colorPreset: 'warm-terracotta',
+    fontPair: "inter-source-serif",
+    colorPreset: "warm-terracotta",
   },
   ads: {
     slots: [],
@@ -103,145 +103,195 @@ export const defaultSettings: SettingsMap = {
   ai: { ...defaultAiSettings },
   admin_password_hash: null,
   _settingsLoadFailed: false,
-}
-
+};
 
 interface SiteSettingsRow {
-  key: SettingsKey
-  value: unknown
+  key: SettingsKey;
+  value: unknown;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function readOptionalString(record: Record<string, unknown>, key: string): string | undefined {
-  const value = record[key]
-  return typeof value === 'string' && value.trim() ? value : undefined
+function readOptionalString(
+  record: Record<string, unknown>,
+  key: string,
+): string | undefined {
+  const value = record[key];
+  return typeof value === "string" && value.trim() ? value : undefined;
 }
 
 function sanitizeLinksSettings(value: unknown): LinksSettings {
-  if (!isRecord(value)) return { ...defaultSettings.links }
+  if (!isRecord(value)) return { ...defaultSettings.links };
   return {
-    github: readOptionalString(value, 'github'),
-    linkedin: readOptionalString(value, 'linkedin'),
-    contactEmail: readOptionalString(value, 'contactEmail'),
-    twitter: readOptionalString(value, 'twitter'),
-  }
+    github: readOptionalString(value, "github"),
+    linkedin: readOptionalString(value, "linkedin"),
+    contactEmail: readOptionalString(value, "contactEmail"),
+    twitter: readOptionalString(value, "twitter"),
+  };
 }
 
 function sanitizeBrandingSettings(value: unknown): BrandingSettings {
-  if (!isRecord(value)) return { ...defaultSettings.branding }
+  if (!isRecord(value)) return { ...defaultSettings.branding };
   return {
-    siteName: readOptionalString(value, 'siteName') ?? defaultSettings.branding.siteName,
-    logoUrl: readOptionalString(value, 'logoUrl'),
-    faviconUrl: readOptionalString(value, 'faviconUrl'),
-    avatarUrl: readOptionalString(value, 'avatarUrl'),
-    shortBio: readOptionalString(value, 'shortBio'),
-    displayName: readOptionalString(value, 'displayName'),
-    roleLocation: readOptionalString(value, 'roleLocation'),    
-  }
+    siteName:
+      readOptionalString(value, "siteName") ??
+      defaultSettings.branding.siteName,
+    logoUrl: readOptionalString(value, "logoUrl"),
+    faviconUrl: readOptionalString(value, "faviconUrl"),
+    avatarUrl: readOptionalString(value, "avatarUrl"),
+    shortBio: readOptionalString(value, "shortBio"),
+    displayName: readOptionalString(value, "displayName"),
+    roleLocation: readOptionalString(value, "roleLocation"),
+  };
 }
 
 function sanitizeAppearanceSettings(value: unknown): AppearanceSettings {
-  if (!isRecord(value)) return { ...defaultSettings.appearance }
+  if (!isRecord(value)) return { ...defaultSettings.appearance };
   return {
-    fontPair: readOptionalString(value, 'fontPair') ?? defaultSettings.appearance.fontPair,
-    colorPreset: readOptionalString(value, 'colorPreset') ?? defaultSettings.appearance.colorPreset,
-    customPrimaryOklch: readOptionalString(value, 'customPrimaryOklch'),
-  }
+    fontPair:
+      readOptionalString(value, "fontPair") ??
+      defaultSettings.appearance.fontPair,
+    colorPreset:
+      readOptionalString(value, "colorPreset") ??
+      defaultSettings.appearance.colorPreset,
+    customPrimaryOklch: readOptionalString(value, "customPrimaryOklch"),
+  };
 }
 
 function sanitizeAdsSettings(value: unknown): AdsSettings {
-  if (!isRecord(value)) return { clientId: defaultSettings.ads.clientId, slots: [...defaultSettings.ads.slots] }
-  const rawSlots = Array.isArray(value.slots) ? value.slots : []
-  const seenPositions = new Set<AdPosition>()
+  if (!isRecord(value))
+    return {
+      clientId: defaultSettings.ads.clientId,
+      slots: [...defaultSettings.ads.slots],
+    };
+  const rawSlots = Array.isArray(value.slots) ? value.slots : [];
+  const seenPositions = new Set<AdPosition>();
   const slots = rawSlots
     .slice(0, AD_POSITIONS.length)
     .filter(isRecord)
     .map((slot) => {
-      const rawSlotId = slot.slotId
-      const slotId = typeof rawSlotId === 'string' ? normalizeAdSenseSlotId(rawSlotId) ?? '' : ''
-      const position = readOptionalString(slot, 'position')
-      const enabled = slot.enabled
-      if (!position || !isAdPosition(position) || typeof enabled !== 'boolean') return null
-      if (enabled && !slotId) return null
-      return { slotId, position, enabled }
+      const rawSlotId = slot.slotId;
+      const slotId =
+        typeof rawSlotId === "string"
+          ? (normalizeAdSenseSlotId(rawSlotId) ?? "")
+          : "";
+      const position = readOptionalString(slot, "position");
+      const enabled = slot.enabled;
+      if (!position || !isAdPosition(position) || typeof enabled !== "boolean")
+        return null;
+      if (enabled && !slotId) return null;
+      return { slotId, position, enabled };
     })
     .filter((slot): slot is AdSlotSetting => slot !== null)
     .filter((slot) => {
-      if (seenPositions.has(slot.position)) return false
-      seenPositions.add(slot.position)
-      return true
-    })
-  return { clientId: normalizeAdSenseClientId(readOptionalString(value, 'clientId')), slots }
+      if (seenPositions.has(slot.position)) return false;
+      seenPositions.add(slot.position);
+      return true;
+    });
+  return {
+    clientId: normalizeAdSenseClientId(readOptionalString(value, "clientId")),
+    slots,
+  };
 }
 
 function sanitizePagesSettings(value: unknown): PagesSettings {
-  if (!isRecord(value)) return { ...defaultSettings.pages }
+  if (!isRecord(value)) return { ...defaultSettings.pages };
   return {
-    about: readOptionalString(value, 'about'),
-    privacy: readOptionalString(value, 'privacy'),
-    contact: readOptionalString(value, 'contact'),
-    disclaimer: readOptionalString(value, 'disclaimer'),
-  }
+    about: readOptionalString(value, "about"),
+    privacy: readOptionalString(value, "privacy"),
+    contact: readOptionalString(value, "contact"),
+    disclaimer: readOptionalString(value, "disclaimer"),
+  };
 }
 
-function readRequiredString(record: Record<string, unknown>, key: string, fallback: string): string {
-  const value = record[key]
-  return typeof value === 'string' && value.trim() ? value : fallback
+function readRequiredString(
+  record: Record<string, unknown>,
+  key: string,
+  fallback: string,
+): string {
+  const value = record[key];
+  return typeof value === "string" && value.trim() ? value : fallback;
 }
 
 function sanitizeAiSettings(value: unknown): AiSettings {
-  if (!isRecord(value)) return { ...defaultSettings.ai }
+  if (!isRecord(value)) return { ...defaultSettings.ai };
   return {
     providerOrder: normalizeAiProviderOrder(value.providerOrder),
-    claudeModel: readRequiredString(value, 'claudeModel', defaultSettings.ai.claudeModel),
-    openaiModel: readRequiredString(value, 'openaiModel', defaultSettings.ai.openaiModel),
-    groqModel: readRequiredString(value, 'groqModel', defaultSettings.ai.groqModel),
-    imageModel: readRequiredString(value, 'imageModel', defaultSettings.ai.imageModel),
+    claudeModel: readRequiredString(
+      value,
+      "claudeModel",
+      defaultSettings.ai.claudeModel,
+    ),
+    openaiModel: readRequiredString(
+      value,
+      "openaiModel",
+      defaultSettings.ai.openaiModel,
+    ),
+    groqModel: readRequiredString(
+      value,
+      "groqModel",
+      defaultSettings.ai.groqModel,
+    ),
+    imageModel: readRequiredString(
+      value,
+      "imageModel",
+      defaultSettings.ai.imageModel,
+    ),
     claudeSystemPrompt: readRequiredString(
       value,
-      'claudeSystemPrompt',
-      defaultSettings.ai.claudeSystemPrompt
+      "claudeSystemPrompt",
+      defaultSettings.ai.claudeSystemPrompt,
     ),
     groqSystemPrompt: readRequiredString(
       value,
-      'groqSystemPrompt',
-      defaultSettings.ai.groqSystemPrompt
+      "groqSystemPrompt",
+      defaultSettings.ai.groqSystemPrompt,
     ),
     userMessageTemplate: readRequiredString(
       value,
-      'userMessageTemplate',
-      defaultSettings.ai.userMessageTemplate
+      "userMessageTemplate",
+      defaultSettings.ai.userMessageTemplate,
     ),
     groqUserMessageTemplate: readRequiredString(
       value,
-      'groqUserMessageTemplate',
-      defaultSettings.ai.groqUserMessageTemplate
+      "groqUserMessageTemplate",
+      defaultSettings.ai.groqUserMessageTemplate,
     ),
     imagePromptTemplate: readRequiredString(
       value,
-      'imagePromptTemplate',
-      defaultSettings.ai.imagePromptTemplate
+      "imagePromptTemplate",
+      defaultSettings.ai.imagePromptTemplate,
     ),
-  }
+  };
 }
 
 function sanitizeAdminPasswordHash(value: unknown): string | null {
-  return typeof value === 'string' && value.trim() ? value : null
+  return typeof value === "string" && value.trim() ? value : null;
 }
 
-function normalizeSetting<K extends SettingsKey>(key: K, value: unknown): SettingsMap[K] {
+function normalizeSetting<K extends SettingsKey>(
+  key: K,
+  value: unknown,
+): SettingsMap[K] {
   switch (key) {
-    case 'links': return sanitizeLinksSettings(value) as SettingsMap[K]
-    case 'branding': return sanitizeBrandingSettings(value) as SettingsMap[K]
-    case 'appearance': return sanitizeAppearanceSettings(value) as SettingsMap[K]
-    case 'ads': return sanitizeAdsSettings(value) as SettingsMap[K]
-    case 'pages': return sanitizePagesSettings(value) as SettingsMap[K]
-    case 'ai': return sanitizeAiSettings(value) as SettingsMap[K]
-    case 'admin_password_hash': return sanitizeAdminPasswordHash(value) as SettingsMap[K]
-    default: return defaultSettings[key]
+    case "links":
+      return sanitizeLinksSettings(value) as SettingsMap[K];
+    case "branding":
+      return sanitizeBrandingSettings(value) as SettingsMap[K];
+    case "appearance":
+      return sanitizeAppearanceSettings(value) as SettingsMap[K];
+    case "ads":
+      return sanitizeAdsSettings(value) as SettingsMap[K];
+    case "pages":
+      return sanitizePagesSettings(value) as SettingsMap[K];
+    case "ai":
+      return sanitizeAiSettings(value) as SettingsMap[K];
+    case "admin_password_hash":
+      return sanitizeAdminPasswordHash(value) as SettingsMap[K];
+    default:
+      return defaultSettings[key];
   }
 }
 
@@ -250,7 +300,10 @@ function cloneDefaults(): SettingsMap {
     links: { ...defaultSettings.links },
     branding: { ...defaultSettings.branding },
     appearance: { ...defaultSettings.appearance },
-    ads: { clientId: defaultSettings.ads.clientId, slots: [...defaultSettings.ads.slots] },
+    ads: {
+      clientId: defaultSettings.ads.clientId,
+      slots: [...defaultSettings.ads.slots],
+    },
     pages: { ...defaultSettings.pages },
     ai: {
       ...defaultSettings.ai,
@@ -258,50 +311,78 @@ function cloneDefaults(): SettingsMap {
     },
     admin_password_hash: defaultSettings.admin_password_hash,
     _settingsLoadFailed: false,
-  }
+  };
 }
 
 async function loadSettingsFromDb(): Promise<SettingsMap> {
-  if (!hasDatabaseConfig()) return cloneDefaults()
+  if (!hasDatabaseConfig()) return cloneDefaults();
 
   try {
-    const rows = await sql<SiteSettingsRow[]>`SELECT key, value FROM site_settings`
-    const settings = cloneDefaults()
+    const rows = await sql<
+      SiteSettingsRow[]
+    >`SELECT key, value FROM site_settings`;
+    const settings = cloneDefaults();
     for (const row of rows) {
       switch (row.key) {
-        case 'links': settings.links = normalizeSetting('links', row.value); break
-        case 'branding': settings.branding = normalizeSetting('branding', row.value); break
-        case 'appearance': settings.appearance = normalizeSetting('appearance', row.value); break
-        case 'ads': settings.ads = normalizeSetting('ads', row.value); break
-        case 'pages': settings.pages = normalizeSetting('pages', row.value); break
-        case 'ai': settings.ai = normalizeSetting('ai', row.value); break
-        case 'admin_password_hash': settings.admin_password_hash = normalizeSetting('admin_password_hash', row.value); break
+        case "links":
+          settings.links = normalizeSetting("links", row.value);
+          break;
+        case "branding":
+          settings.branding = normalizeSetting("branding", row.value);
+          break;
+        case "appearance":
+          settings.appearance = normalizeSetting("appearance", row.value);
+          break;
+        case "ads":
+          settings.ads = normalizeSetting("ads", row.value);
+          break;
+        case "pages":
+          settings.pages = normalizeSetting("pages", row.value);
+          break;
+        case "ai":
+          settings.ai = normalizeSetting("ai", row.value);
+          break;
+        case "admin_password_hash":
+          settings.admin_password_hash = normalizeSetting(
+            "admin_password_hash",
+            row.value,
+          );
+          break;
       }
     }
-    return settings
+    return settings;
   } catch (error) {
-    console.error('Failed to load settings from DB:', error)
-    return { ...cloneDefaults(), _settingsLoadFailed: true }
+    console.error("Failed to load settings from DB:", error);
+    return { ...cloneDefaults(), _settingsLoadFailed: true };
   }
 }
 
-const loadSettingsCached = unstable_cache(loadSettingsFromDb, ['site-settings'], {
-  tags: [CACHE_TAG_SETTINGS],
-  revalidate: SETTINGS_CACHE_REVALIDATE_SECONDS,
-})
+const loadSettingsCached = unstable_cache(
+  loadSettingsFromDb,
+  ["site-settings"],
+  {
+    tags: [CACHE_TAG_SETTINGS],
+    revalidate: SETTINGS_CACHE_REVALIDATE_SECONDS,
+  },
+);
 
 export const getSettings = cache(async (): Promise<SettingsMap> => {
-  return loadSettingsCached()
-})
+  return loadSettingsCached();
+});
 
-export const getSetting = cache(async <K extends SettingsKey>(key: K): Promise<SettingsMap[K]> => {
-  const settings = await getSettings()
-  return settings[key]
-})
+export const getSetting = cache(
+  async <K extends SettingsKey>(key: K): Promise<SettingsMap[K]> => {
+    const settings = await getSettings();
+    return settings[key];
+  },
+);
 
-export async function upsertSetting(key: SettingsKey, value: unknown): Promise<void> {
+export async function upsertSetting(
+  key: SettingsKey,
+  value: unknown,
+): Promise<void> {
   if (!hasDatabaseConfig()) {
-    throw new Error('Database is not configured')
+    throw new Error("Database is not configured");
   }
 
   await sql`
@@ -309,5 +390,5 @@ export async function upsertSetting(key: SettingsKey, value: unknown): Promise<v
     VALUES (${key}, ${sql.json(value as any)}, NOW())
     ON CONFLICT (key) DO UPDATE
     SET value = EXCLUDED.value, updated_at = EXCLUDED.updated_at
-  `
+  `;
 }

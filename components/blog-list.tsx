@@ -1,90 +1,90 @@
-'use client'
+"use client";
 
-import { useState, useMemo, useEffect, type ReactNode } from 'react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
-import { PostCard } from '@/components/post-card'
-import { Input } from '@/components/ui/input'
-import { getPublishedPosts, searchPosts, getPostsByTag } from '@/lib/posts'
-import type { PostListItem } from '@/lib/types'
+import { useState, useMemo, useEffect, type ReactNode } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { PostCard } from "@/components/post-card";
+import { Input } from "@/components/ui/input";
+import { getPublishedPosts, searchPosts, getPostsByTag } from "@/lib/posts";
+import type { PostListItem } from "@/lib/types";
 
-const POSTS_PER_PAGE = 15
+const POSTS_PER_PAGE = 15;
 
 interface BlogListProps {
-  initialPosts: PostListItem[]
-  betweenPostsAd?: ReactNode
+  initialPosts: PostListItem[];
+  betweenPostsAd?: ReactNode;
 }
 
 export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const urlSearch = searchParams.get('search') || ''
-  const urlTag = searchParams.get('tag') || ''
-  const urlPage = Number(searchParams.get('page') || '1')
-  const initialPage = Number.isNaN(urlPage) || urlPage < 1 ? 1 : urlPage
-  
-  const [searchQuery, setSearchQuery] = useState(urlSearch)
-  const [currentPage, setCurrentPage] = useState(initialPage)
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlSearch = searchParams.get("search") || "";
+  const urlTag = searchParams.get("tag") || "";
+  const urlPage = Number(searchParams.get("page") || "1");
+  const initialPage = Number.isNaN(urlPage) || urlPage < 1 ? 1 : urlPage;
+
+  const [searchQuery, setSearchQuery] = useState(urlSearch);
+  const [currentPage, setCurrentPage] = useState(initialPage);
 
   // Keep UI in sync when the URL changes (e.g. browser back/forward).
   useEffect(() => {
     queueMicrotask(() => {
-      setSearchQuery(urlSearch)
-      setCurrentPage(initialPage)
-    })
-  }, [initialPage, urlSearch])
+      setSearchQuery(urlSearch);
+      setCurrentPage(initialPage);
+    });
+  }, [initialPage, urlSearch]);
 
   const filteredPosts = useMemo(() => {
-    let posts = getPublishedPosts(initialPosts)
+    let posts = getPublishedPosts(initialPosts);
 
     if (urlTag) {
-      posts = getPostsByTag(posts, urlTag)
+      posts = getPostsByTag(posts, urlTag);
     }
 
     if (searchQuery.trim()) {
-      posts = searchPosts(posts, searchQuery)
+      posts = searchPosts(posts, searchQuery);
     }
 
-    return posts
-  }, [initialPosts, searchQuery, urlTag])
+    return posts;
+  }, [initialPosts, searchQuery, urlTag]);
 
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString())
+    const params = new URLSearchParams(searchParams.toString());
 
     if (searchQuery.trim()) {
-      params.set('search', searchQuery.trim())
+      params.set("search", searchQuery.trim());
     } else {
-      params.delete('search')
+      params.delete("search");
     }
 
     if (currentPage > 1) {
-      params.set('page', String(currentPage))
+      params.set("page", String(currentPage));
     } else {
-      params.delete('page')
+      params.delete("page");
     }
 
-    const nextQuery = params.toString()
-    const currentQuery = searchParams.toString()
+    const nextQuery = params.toString();
+    const currentQuery = searchParams.toString();
     if (nextQuery !== currentQuery) {
-      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname)
+      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname);
     }
-  }, [currentPage, pathname, router, searchParams, searchQuery])
+  }, [currentPage, pathname, router, searchParams, searchQuery]);
 
-  const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE)
+  const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
   const paginatedPosts = filteredPosts.slice(
     (currentPage - 1) * POSTS_PER_PAGE,
-    currentPage * POSTS_PER_PAGE
-  )
+    currentPage * POSTS_PER_PAGE,
+  );
 
   useEffect(() => {
-    if (totalPages === 0) return
+    if (totalPages === 0) return;
     if (currentPage > totalPages) {
       queueMicrotask(() => {
-        setCurrentPage(totalPages)
-      })
+        setCurrentPage(totalPages);
+      });
     }
-  }, [currentPage, totalPages])
+  }, [currentPage, totalPages]);
 
   return (
     <div className="space-y-10">
@@ -95,8 +95,8 @@ export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
           placeholder="Search posts..."
           value={searchQuery}
           onChange={(e) => {
-            setSearchQuery(e.target.value)
-            setCurrentPage(1)
+            setSearchQuery(e.target.value);
+            setCurrentPage(1);
           }}
           className="max-w-md rounded-full bg-background/80 text-sm"
         />
@@ -104,8 +104,8 @@ export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <span>
               Filtering
-              {urlTag ? ` #${urlTag}` : ''}
-              {searchQuery.trim() ? ` for "${searchQuery.trim()}"` : ''}
+              {urlTag ? ` #${urlTag}` : ""}
+              {searchQuery.trim() ? ` for "${searchQuery.trim()}"` : ""}
             </span>
             <Link
               href="/blog"
@@ -124,7 +124,9 @@ export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
             {paginatedPosts.map((post, index) => (
               <div key={post.id}>
                 <PostCard post={post} />
-                {betweenPostsAd && index === 0 && paginatedPosts.length > 1 ? betweenPostsAd : null}
+                {betweenPostsAd && index === 0 && paginatedPosts.length > 1
+                  ? betweenPostsAd
+                  : null}
               </div>
             ))}
           </div>
@@ -138,9 +140,13 @@ export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
               >
                 ← Previous
               </button>
-              <span>Page {currentPage} of {totalPages}</span>
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
               <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
                 disabled={currentPage === totalPages}
                 className="hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
@@ -151,9 +157,9 @@ export function BlogList({ initialPosts, betweenPostsAd }: BlogListProps) {
         </>
       ) : (
         <p className="text-muted-foreground py-12">
-          No posts found{urlTag ? ` for tag #${urlTag}` : ''}.
+          No posts found{urlTag ? ` for tag #${urlTag}` : ""}.
         </p>
       )}
     </div>
-  )
+  );
 }
