@@ -1,10 +1,10 @@
 import type { Post } from "@/lib/types";
 
 const CATEGORY_LABELS: Record<Post["category"], string> = {
-  Life: "life scene",
-  Work: "building operations scene",
-  Hobbies: "hobby scene",
-  Experience: "personal experience scene",
+  Life: "a personal life scene",
+  Work: "a building operations scene",
+  Hobbies: "a hobby or outdoor scene",
+  Experience: "a personal experience scene",
 };
 
 function cleanText(value: string): string {
@@ -26,10 +26,10 @@ function firstSentence(value: string): string {
 function truncateSentence(value: string, maxLength: number): string {
   const cleaned = cleanText(value);
   if (cleaned.length <= maxLength) return cleaned;
-  return `${cleaned
-    .slice(0, maxLength - 1)
-    .trimEnd()
-    .replace(/[,.:-]+$/, "")}.`;
+  const cut = cleaned.slice(0, maxLength - 1).trimEnd();
+  const lastSpace = cut.lastIndexOf(" ");
+  const safeCut = lastSpace > 80 ? cut.slice(0, lastSpace) : cut;
+  return `${safeCut.replace(/[,.:-]+$/, "")}.`;
 }
 
 export function buildFeaturedImageAltText(
@@ -38,11 +38,9 @@ export function buildFeaturedImageAltText(
   const subject =
     cleanText(post.title) || firstSentence(post.excerpt) || post.category;
   const scene = CATEGORY_LABELS[post.category];
-  const primaryTag = post.tags.map(cleanText).find(Boolean);
-  const about = primaryTag ? ` about ${primaryTag}` : "";
 
   return truncateSentence(
-    `Illustration for ${subject}, showing a ${scene}${about}.`,
+    `Illustration of ${subject}, showing ${scene}.`,
     160,
   );
 }
@@ -50,7 +48,7 @@ export function buildFeaturedImageAltText(
 export function buildFeaturedImageAltTextFromTopic(topic: string): string {
   const subject = cleanText(topic) || "a Toronto apartment building field note";
   return truncateSentence(
-    `Illustration for ${subject}, showing a Toronto apartment building scene.`,
+    `Illustration of ${subject}, showing a Toronto apartment building scene.`,
     160,
   );
 }

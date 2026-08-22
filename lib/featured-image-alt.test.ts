@@ -28,7 +28,7 @@ function post(overrides: Partial<Post> = {}): Post {
 describe("buildFeaturedImageAltText", () => {
   it("creates a concise descriptive alt text from post context", () => {
     expect(buildFeaturedImageAltText(post())).toBe(
-      "Illustration for Sump Pump Down on a Friday Afternoon, showing a building operations scene about sump pump.",
+      "Illustration of Sump Pump Down on a Friday Afternoon, showing a building operations scene.",
     );
   });
 
@@ -43,7 +43,7 @@ describe("buildFeaturedImageAltText", () => {
         }),
       ),
     ).toBe(
-      "Illustration for A quiet Toronto weekend reset after a long week, showing a life scene.",
+      "Illustration of A quiet Toronto weekend reset after a long week, showing a personal life scene.",
     );
   });
 
@@ -58,5 +58,6 @@ describe("buildFeaturedImageAltText", () => {
 
     expect(alt).not.toContain("[");
     expect(alt.length).toBeLessThanOrEqual(160);
+    expect(alt).not.toContain("Incident That Needed Calm Communication.");
   });
 });
