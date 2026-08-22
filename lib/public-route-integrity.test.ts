@@ -15,6 +15,8 @@ describe("public utility route integrity", () => {
     expect(postPage.match(/if \(!post\) notFound\(\)/g)).toHaveLength(2);
     expect(proxy).toContain("pathname.match(/^\\/blog\\/([^/]+)$/)");
     expect(proxy).toContain("getPostBySlugFromDb");
+    expect(proxy).toContain("isPostPubliclyVisible");
+    expect(proxy).toContain("!post || !isPostPubliclyVisible(post)");
     expect(proxy).toMatch(/new URL\(["']\/_not-found["'], request\.url\)/);
     expect(proxy).toContain("status: 404");
   });

@@ -562,15 +562,23 @@ export function PostEditor({
       <h2 className="text-xl font-semibold text-foreground">
         {isNew ? "Create New Post" : "Edit Post"}
       </h2>
-      <div className="text-sm text-muted-foreground">
-        {isAutoSaving
-          ? "Autosaving..."
-          : lastAutoSavedAt
-            ? `Last autosaved at ${lastAutoSavedAt.toLocaleTimeString("en-US", {
-                hour: "numeric",
-                minute: "2-digit",
-              })}`
-            : "Autosave runs every 20 seconds for draft/scheduled edits."}
+      <div className="space-y-1 text-sm text-muted-foreground">
+        <p>
+          {isAutoSaving
+            ? "Autosaving..."
+            : lastAutoSavedAt
+              ? `Last autosaved at ${lastAutoSavedAt.toLocaleTimeString("en-US", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}`
+              : "Autosave runs every 20 seconds for draft/scheduled edits."}
+        </p>
+        {formData.status !== "published" ? (
+          <p>
+            Use Preview here to review drafts. Public blog URLs only render
+            published posts.
+          </p>
+        ) : null}
       </div>
 
       {showPreview ? (

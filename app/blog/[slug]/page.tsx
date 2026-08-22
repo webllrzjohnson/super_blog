@@ -4,7 +4,6 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
-import { headers } from "next/headers";
 import { getPostBySlugFromDb, getPostSummariesFromDb } from "@/lib/db-posts";
 import {
   getRelatedPosts,
@@ -22,16 +21,10 @@ import { ArticleOutboundClickTracker } from "@/components/article-outbound-click
 import { getMarkdownAnchorProps } from "@/lib/markdown-link-props";
 import { getSafeImageAltText } from "@/lib/image-alt";
 import { Sidebar } from "@/components/sidebar";
-import { isAdminSession } from "@/lib/auth-session";
 import { formatPostDate } from "@/lib/post-date";
 
 interface Props {
   params: Promise<{ slug: string }>;
-}
-
-async function hasAdminAccess(): Promise<boolean> {
-  const headersList = await headers();
-  return isAdminSession(headersList.get("cookie"));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -40,8 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!post) notFound();
 
-  const isAdmin = await hasAdminAccess();
-  if (!isPostPubliclyVisible(post) && !isAdmin) {
+  if (!isPostPubliclyVisible(post)) {
     return {
       title: "Post Not Found",
       robots: { index: false, follow: false },
@@ -92,8 +84,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   if (!post) notFound();
 
-  const isAdmin = await hasAdminAccess();
-  if (!isPostPubliclyVisible(post) && !isAdmin) notFound();
+  if (!isPostPubliclyVisible(post)) notFound();
 
   const allPosts = await getPostSummariesFromDb();
   const settings = await getSettings();

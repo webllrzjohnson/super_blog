@@ -28,8 +28,9 @@ export async function proxy(request: NextRequest) {
     articleMatch[1] !== "tags"
   ) {
     const { getPostBySlugFromDb } = await import("@/lib/db-posts");
+    const { isPostPubliclyVisible } = await import("@/lib/posts");
     const post = await getPostBySlugFromDb(articleMatch[1]);
-    if (!post) {
+    if (!post || !isPostPubliclyVisible(post)) {
       return NextResponse.rewrite(new URL("/_not-found", request.url), {
         status: 404,
       });
