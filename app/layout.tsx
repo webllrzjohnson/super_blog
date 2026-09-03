@@ -127,7 +127,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     "A building superintendent in Toronto writing about property management, AI experiments, running, food, and everyday life.";
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://www.maplehub.cloud";
 
   return {
     title: {

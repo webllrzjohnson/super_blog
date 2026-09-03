@@ -6,7 +6,8 @@ import { getPublishedPosts, getAllTags, getPostsByTag } from "@/lib/posts";
 /** Must be a literal for Next.js segment config (see POSTS_CACHE_REVALIDATE_SECONDS). */
 export const revalidate = 120;
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.maplehub.cloud";
 
 export const metadata: Metadata = {
   title: "Posts by Tag",

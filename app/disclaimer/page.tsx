@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SITE_NAME } from "@/lib/site-identity";
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.maplehub.cloud";
 
 export const metadata: Metadata = {
   title: "Site Disclaimer",
@@ -114,11 +115,11 @@ export default function DisclaimerPage() {
           <p className="leading-relaxed text-muted-foreground">
             {SITE_NAME} does not currently display advertisements, participate
             in Amazon Associates or another affiliate program, publish sponsored
-            posts, or earn commissions from links. Google publisher verification
-            may be present while an application is reviewed, but no ad
-            placements are enabled. If any commercial relationship is introduced
-            later, it will be disclosed clearly and this page will be updated
-            before the relationship is used.
+            posts, or earn commissions from links. Google AdSense publisher
+            verification code may be present while an application is reviewed,
+            but no ad placements are enabled. If any commercial relationship is
+            introduced later, it will be disclosed clearly and this page will be
+            updated before the relationship is used.
           </p>
         </section>
 

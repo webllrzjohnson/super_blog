@@ -1,11 +1,15 @@
 import { getPostSummariesFromDb } from "@/lib/db-posts";
 import { getPublishedPosts } from "@/lib/posts";
 import { SITE_NAME } from "@/lib/site-identity";
+import { isTemporarilyNoindexedPost } from "@/lib/temporary-noindex-posts";
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.maplehub.cloud";
 
 export async function GET() {
-  const posts = getPublishedPosts(await getPostSummariesFromDb());
+  const posts = getPublishedPosts(await getPostSummariesFromDb()).filter(
+    (post) => !isTemporarilyNoindexedPost(post.slug),
+  );
 
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">

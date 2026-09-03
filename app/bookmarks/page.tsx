@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { BookmarksPageClient } from "@/components/bookmarks-page-client";
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.maplehub.cloud";
 
 export const metadata: Metadata = {
   title: "Bookmarks",

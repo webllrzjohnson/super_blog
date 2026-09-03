@@ -81,4 +81,59 @@ describe("public utility route integrity", () => {
     expect(proxy).toContain("status: 308");
     expect(proxy).toMatch(/matcher:\s*\[\s*['"]\/\(\(\?!/);
   });
+
+  it("keeps public fallback URLs on the configured production domain", async () => {
+    const sources = await Promise.all(
+      [
+        "app/layout.tsx",
+        "app/robots.ts",
+        "app/sitemap.ts",
+        "app/feed/route.ts",
+        "app/blog/page.tsx",
+        "app/blog/[slug]/page.tsx",
+        "app/blog/tags/page.tsx",
+        "app/bookmarks/page.tsx",
+        "app/privacy/page.tsx",
+        "app/disclaimer/page.tsx",
+        "components/share-buttons.tsx",
+      ].map(source),
+    );
+
+    for (const fileSource of sources) {
+      expect(fileSource).toContain("https://www.maplehub.cloud");
+      expect(fileSource).not.toContain("https://example.com");
+    }
+  });
+
+  it("uses a stable author identity and canonical Open Graph URL for posts", async () => {
+    const postPage = await source("app/blog/[slug]/page.tsx");
+
+    expect(postPage).toContain('import { AUTHOR_NAME } from "@/lib/site-identity"');
+    expect(postPage).toContain("const canonicalUrl = `${baseUrl}/blog/${slug}`");
+    expect(postPage).toContain("url: canonicalUrl");
+    expect(postPage).toContain("authors: [AUTHOR_NAME]");
+    expect(postPage).toContain("name: AUTHOR_NAME");
+    expect(postPage).toContain("By {AUTHOR_NAME}");
+  });
+
+  it("avoids synthetic timestamps for static sitemap pages", async () => {
+    const sitemap = await source("app/sitemap.ts");
+
+    expect(sitemap).not.toContain("lastModified: new Date()");
+    expect(sitemap).toContain("lastModified: new Date(post.updatedAt || post.publishedAt)");
+  });
+
+  it("keeps temporary-noindex posts out of crawler discovery feeds", async () => {
+    const [sitemap, feed, postPage] = await Promise.all(
+      [
+        "app/sitemap.ts",
+        "app/feed/route.ts",
+        "app/blog/[slug]/page.tsx",
+      ].map(source),
+    );
+
+    expect(sitemap).toContain("isTemporarilyNoindexedPost");
+    expect(feed).toContain("isTemporarilyNoindexedPost");
+    expect(postPage).toContain("robots: isTemporarilyNoindexedPost(slug)");
+  });
 });

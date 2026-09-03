@@ -12,7 +12,8 @@ export function ShareButtons({ title, slug }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
 
   // Use env var consistently to avoid server/client hydration mismatch
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://www.maplehub.cloud";
   const url = `${baseUrl}/blog/${slug}`;
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);

@@ -178,6 +178,7 @@ export function PostEditor({
   const [showPreview, setShowPreview] = useState(false);
   const [tagsInput, setTagsInput] = useState(post.tags.join(", "));
   const [uploading, setUploading] = useState(false);
+  const [generatingImage, setGeneratingImage] = useState(false);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [lastAutoSavedAt, setLastAutoSavedAt] = useState<Date | null>(null);
   const [scheduleInput, setScheduleInput] = useState(
@@ -345,6 +346,44 @@ export function PostEditor({
     } finally {
       setUploading(false);
       e.target.value = "";
+    }
+  };
+
+  const handleGenerateImage = async () => {
+    const topic = formData.excerpt.trim() || formData.title.trim();
+    if (!topic) {
+      toast.error(
+        "Add a title or excerpt first so the AI knows what to illustrate.",
+      );
+      return;
+    }
+
+    setGeneratingImage(true);
+    try {
+      const res = await fetch("/api/generate-post-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ topic }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Image generation failed");
+      }
+
+      const { url, alt } = await res.json();
+      setFormData((prev) => ({
+        ...prev,
+        featuredImage: url,
+        featuredImageAlt: alt?.trim() || buildFeaturedImageAltText(prev),
+      }));
+      toast.success("Image generated and set as featured image");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to generate image",
+      );
+    } finally {
+      setGeneratingImage(false);
     }
   };
 
@@ -759,6 +798,17 @@ export function PostEditor({
               >
                 <ImagePlus className="h-4 w-4 mr-2" />
                 {uploading ? "Uploading..." : "Upload"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={uploading || generatingImage}
+                onClick={handleGenerateImage}
+                aria-label="Generate featured image with AI"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                {generatingImage ? "Generating..." : "Generate"}
               </Button>
             </div>
             {formData.featuredImage && (

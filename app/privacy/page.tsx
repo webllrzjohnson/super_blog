@@ -3,7 +3,8 @@ import Link from "next/link";
 import { getSetting } from "@/lib/settings";
 import { SITE_NAME } from "@/lib/site-identity";
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.maplehub.cloud";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -52,10 +53,10 @@ export default async function PrivacyPage() {
           </p>
         </div>
         <div className="surface-card p-4">
-          <p className="font-semibold text-foreground">No ads or affiliates</p>
+          <p className="font-semibold text-foreground">AdSense verification</p>
           <p className="mt-1 leading-6">
-            The site does not currently display advertising or use affiliate
-            links.
+            The site does not currently display ads or use affiliate links.
+            Google AdSense publisher verification code may load during review.
           </p>
         </div>
       </section>
@@ -121,8 +122,8 @@ export default async function PrivacyPage() {
           </p>
           <p className="mt-4 leading-relaxed text-muted-foreground">
             No ad placements or audience analytics are currently enabled. Google
-            publisher verification code may make a technical request while the
-            site&apos;s application is reviewed. Administrative sign-in uses a
+            AdSense publisher verification code may make a technical request
+            while the site&apos;s application is reviewed. Administrative sign-in uses a
             secure session cookie, but that area is not part of the public
             reader experience.
           </p>
@@ -150,7 +151,7 @@ export default async function PrivacyPage() {
             Information is shared only with service providers needed to host the
             site, store site data, deliver contact or newsletter email, and
             monitor security or technical errors. Google may also process a
-            technical request when publisher verification code loads. These
+            technical request when AdSense publisher verification code loads. These
             providers process information under their own terms and privacy
             commitments. Personal information is not sold.
           </p>
@@ -162,12 +163,14 @@ export default async function PrivacyPage() {
           </h2>
           <p className="leading-relaxed text-muted-foreground">
             {SITE_NAME} does not currently display advertisements, participate
-            in Amazon Associates, or use affiliate links. Google publisher
-            verification may be present while an application is reviewed, but no
-            ad placements are enabled. If advertising, sponsorships, affiliate
-            links, or audience analytics are introduced later, this policy and
-            the relevant on-page disclosures will be updated before those
-            features are used.
+            in Amazon Associates, or use affiliate links. Google AdSense
+            publisher verification code may be present while an application is
+            reviewed, but no ad placements are enabled. If AdSense ads are
+            enabled later, Google and its partners may use cookies or similar
+            technologies to serve or measure ads, subject to the consent and
+            disclosure requirements that apply at that time. This policy and the
+            relevant on-page disclosures will be updated before advertising,
+            sponsorships, affiliate links, or audience analytics are used.
           </p>
         </section>
 

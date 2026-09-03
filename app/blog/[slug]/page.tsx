@@ -22,6 +22,8 @@ import { getMarkdownAnchorProps } from "@/lib/markdown-link-props";
 import { getSafeImageAltText } from "@/lib/image-alt";
 import { Sidebar } from "@/components/sidebar";
 import { formatPostDate } from "@/lib/post-date";
+import { AUTHOR_NAME } from "@/lib/site-identity";
+import { isTemporarilyNoindexedPost } from "@/lib/temporary-noindex-posts";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -40,7 +42,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://www.maplehub.cloud";
+  const canonicalUrl = `${baseUrl}/blog/${slug}`;
   const ogImage = post.featuredImage?.startsWith("/")
     ? `${baseUrl}${post.featuredImage}`
     : post.featuredImage;
@@ -48,16 +52,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: post.title,
     description: post.excerpt,
+    robots: isTemporarilyNoindexedPost(slug)
+      ? { index: false, follow: true }
+      : undefined,
     alternates: {
-      canonical: `${baseUrl}/blog/${slug}`,
+      canonical: canonicalUrl,
     },
     openGraph: {
+      url: canonicalUrl,
       title: post.title,
       description: post.excerpt,
       type: "article",
       publishedTime: post.publishedAt,
       modifiedTime: post.updatedAt,
-      authors: [post.author.name],
+      authors: [AUTHOR_NAME],
       tags: post.tags,
       ...(ogImage && { images: [ogImage] }),
     },
@@ -106,7 +114,8 @@ export default async function BlogPostPage({ params }: Props) {
     dateModified: post.updatedAt || post.publishedAt,
     author: {
       "@type": "Person",
-      name: post.author.name,
+      name: AUTHOR_NAME,
+      url: `${siteUrl}/about`,
     },
     keywords: post.tags.join(", "),
   };
@@ -148,6 +157,10 @@ export default async function BlogPostPage({ params }: Props) {
                 <span>{post.readTime} min read</span>
                 <span aria-hidden>·</span>
                 <span>{post.category}</span>
+                <span aria-hidden>·</span>
+                <Link href="/about" className="hover:text-foreground">
+                  By {AUTHOR_NAME}
+                </Link>
               </div>
               <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
                 <h1 className="min-w-[12rem] flex-1 text-4xl font-semibold leading-[1.02] tracking-[-0.04em] text-foreground md:text-5xl">
