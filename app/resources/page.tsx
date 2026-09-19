@@ -22,6 +22,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: `${BASE_URL}/resources`,
   },
+  openGraph: {
+    url: `${BASE_URL}/resources`,
+    title: "Resources",
+    description:
+      "Practical building-operation templates, checklists, and plain-language guides from The Super's Logbook.",
+  },
 };
 
 function formatBytes(bytes: number): string {

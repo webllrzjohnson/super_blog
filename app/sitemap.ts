@@ -1,7 +1,6 @@
 import { MetadataRoute } from "next";
 import { getPostSummariesFromDb } from "@/lib/db-posts";
 import { getPublishedPosts } from "@/lib/posts";
-import { isTemporarilyNoindexedPost } from "@/lib/temporary-noindex-posts";
 
 /** Must be a literal for Next.js segment config (see POSTS_CACHE_REVALIDATE_SECONDS). */
 export const revalidate = 120;
@@ -51,14 +50,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const blogPosts: MetadataRoute.Sitemap = posts
-    .filter((post) => !isTemporarilyNoindexedPost(post.slug))
-    .map((post) => ({
-      url: `${BASE_URL}/blog/${post.slug}`,
-      lastModified: new Date(post.updatedAt || post.publishedAt),
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
-    }));
+  const blogPosts: MetadataRoute.Sitemap = posts.map((post) => ({
+    url: `${BASE_URL}/blog/${post.slug}`,
+    lastModified: new Date(post.updatedAt || post.publishedAt),
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
 
   return [...staticPages, ...blogPosts];
 }

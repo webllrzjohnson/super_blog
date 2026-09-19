@@ -23,7 +23,6 @@ import { getSafeImageAltText } from "@/lib/image-alt";
 import { Sidebar } from "@/components/sidebar";
 import { formatPostDate } from "@/lib/post-date";
 import { AUTHOR_NAME } from "@/lib/site-identity";
-import { isTemporarilyNoindexedPost } from "@/lib/temporary-noindex-posts";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -52,9 +51,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: post.title,
     description: post.excerpt,
-    robots: isTemporarilyNoindexedPost(slug)
-      ? { index: false, follow: true }
-      : undefined,
     alternates: {
       canonical: canonicalUrl,
     },

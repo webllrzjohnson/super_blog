@@ -11,6 +11,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: `${BASE_URL}/disclaimer`,
   },
+  openGraph: {
+    url: `${BASE_URL}/disclaimer`,
+    title: "Site Disclaimer",
+    description: `Important context about the personal stories, practical information, and external links published by ${SITE_NAME}.`,
+  },
 };
 
 export default function DisclaimerPage() {
@@ -74,7 +79,7 @@ export default function DisclaimerPage() {
             Not professional advice
           </h2>
           <p className="leading-relaxed text-muted-foreground">
-            Nothing on this site is legal, medical, mental-health, employment,
+            Nothing on this site is legal, medical, mental health, employment,
             financial, engineering, fire-safety, or other professional advice.
             Rules and best practices vary by location, building, equipment, and
             individual circumstances. Use current official sources and qualified

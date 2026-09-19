@@ -123,7 +123,7 @@ describe("public utility route integrity", () => {
     expect(sitemap).toContain("lastModified: new Date(post.updatedAt || post.publishedAt)");
   });
 
-  it("keeps temporary-noindex posts out of crawler discovery feeds", async () => {
+  it("keeps published posts indexable and available to crawler discovery feeds", async () => {
     const [sitemap, feed, postPage] = await Promise.all(
       [
         "app/sitemap.ts",
@@ -132,8 +132,26 @@ describe("public utility route integrity", () => {
       ].map(source),
     );
 
-    expect(sitemap).toContain("isTemporarilyNoindexedPost");
-    expect(feed).toContain("isTemporarilyNoindexedPost");
-    expect(postPage).toContain("robots: isTemporarilyNoindexedPost(slug)");
+    expect(sitemap).toContain("const blogPosts: MetadataRoute.Sitemap = posts.map");
+    expect(feed).toContain("getPublishedPosts(await getPostSummariesFromDb())");
+    expect(postPage).not.toContain("isTemporarilyNoindexedPost");
+  });
+
+  it("gives trust pages their own canonical Open Graph metadata", async () => {
+    const pages = [
+      ["app/about/page.tsx", "/about", "About"],
+      ["app/contact/page.tsx", "/contact", "Contact"],
+      ["app/privacy/page.tsx", "/privacy", "Privacy Policy"],
+      ["app/disclaimer/page.tsx", "/disclaimer", "Site Disclaimer"],
+      ["app/resources/page.tsx", "/resources", "Resources"],
+    ] as const;
+
+    for (const [file, pathname, title] of pages) {
+      const page = await source(file);
+      expect(page).toContain("openGraph:");
+      expect(page).toContain("url: `${BASE_URL}" + pathname + "`");
+      expect(page).toContain(`title: \"${title}\"`);
+      expect(page).toMatch(/openGraph:[\s\S]*description:/);
+    }
   });
 });

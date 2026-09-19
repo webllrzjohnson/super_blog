@@ -14,6 +14,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: `${BASE_URL}/contact`,
   },
+  openGraph: {
+    url: `${BASE_URL}/contact`,
+    title: "Contact",
+    description:
+      "Contact The Super's Logbook with feedback, corrections, resource questions, or reader notes.",
+  },
 };
 
 export default async function ContactPage() {

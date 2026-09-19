@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: `${BASE_URL}/privacy`,
   },
+  openGraph: {
+    url: `${BASE_URL}/privacy`,
+    title: "Privacy Policy",
+    description: `How ${SITE_NAME} handles information, browser storage, submissions, and third-party services.`,
+  },
 };
 
 export default async function PrivacyPage() {
